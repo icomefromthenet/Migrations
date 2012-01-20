@@ -1,3 +1,0 @@
-ALTER TABLE "table1" MODIFY "id" number NOT NULL AUTO_INCREMENT;
-ALTER TABLE "table1" ADD CONSTRAINT "table1_pkey" PRIMARY KEY ( "id" );
-ALTER TABLE "table2" ADD CONSTRAINT "table2_pkey" PRIMARY KEY ( "id" );
