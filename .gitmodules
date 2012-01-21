@@ -1,3 +1,9 @@
 [submodule "src/Migration/Vendor/Doctrine/DBal"]
 	path = src/Migration/Vendor/Doctrine/DBal
 	url = https://github.com/doctrine/dbal.git
+[submodule "src/Migration/Vendor/Symfony/Component/ClassLoader"]
+	path = src/Migration/Vendor/Symfony/Component/ClassLoader
+	url = https://github.com/symfony/ClassLoader.git
+[submodule "src/Migration/Vendor/Symfony/Component/Config"]
+	path = src/Migration/Vendor/Symfony/Component/Config
+	url = https://github.com/symfony/Config.git
