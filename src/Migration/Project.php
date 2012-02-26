@@ -126,7 +126,8 @@ class Project extends Pimple
      * @param string $destination The Destination File
      * @return boolean
      */
-    public function copy($source,$destination){
+    public function copy($source,$destination)
+    {
 
         $new_path = $destination . DIRECTORY_SEPARATOR . basename($source);
         str_replace('//','/',$new_path); //make sure that no double colons

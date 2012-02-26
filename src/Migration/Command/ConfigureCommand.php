@@ -33,6 +33,10 @@ class ConfigureCommand extends Command
         #Ask for the database type
         $answers['db_type'] =  $dialog->ask($output,'Which Database does this belong? [mysql|mssql|oracle|posgsql]: ','mysql');
 
+        # apply format of the Doctrine DBAL
+        $answers['db_type'] = 'pdo_' . strtolower($answers['db_type']);        
+        
+        
         #Ask Database Schema Name
         $answers['db_schema'] =  $dialog->ask($output,'What is the Database schema name? : ');
 

@@ -1,16 +1,20 @@
 #!/opt/lampp/bin/php
 <?php
 use Migration\Project;
-use Migration\Command\Application as Application;
-use Migration\Command\Shell as Shell;
-use Migration\Command\DownMigration;
-use Migration\Command\UpMigration;
-use Migration\Command\Status;
-use Migration\Command\RunMigration;
-use Migration\Command\ListMigration;
-use Migration\Command\InitDatabase;
-use Migration\Command\Build;
-use Migration\Command\NewSchema;
+use Migration\Command\Application;
+
+use Migration\Command\DownCommand;
+use Migration\Command\UpCommand;
+use Migration\Command\StatusCommand;
+
+use Migration\Command\RunCommand;
+use Migration\Command\LatestCommand;
+use Migration\Command\ListCommand;
+use Migration\Command\ConfigureCommand;
+use Migration\Command\AddCommand;
+
+use Migration\Command\BuildCommand;
+
 
 if(strpos('@PHP-BIN@', '@PHP-BIN@') === 0) {
     //not a pear install run normally
@@ -29,14 +33,15 @@ else {
 //
 //--------------------------------------------------------------------
 
-$project->getConsole()->add(new DownMigration('down'));
-$project->getConsole()->add(new Build('build'));
-$project->getConsole()->add(new UpMigration('up'));
-$project->getConsole()->add(new Status('status'));
-$project->getConsole()->add(new RunMigration('run'));
-$project->getConsole()->add(new ListMigration('show'));
-$project->getConsole()->add(new InitDatabase('config'));
-$project->getConsole()->add(new NewSchema('add'));
+$project->getConsole()->add(new ConfigureCommand('configure'));
+$project->getConsole()->add(new DownCommand('down'));
+$project->getConsole()->add(new UpCommand('up'));
+$project->getConsole()->add(new LatestCommand('latest'));
+$project->getConsole()->add(new BuildCommand('build'));
+$project->getConsole()->add(new StatusCommand('status'));
+$project->getConsole()->add(new RunCommand('run'));
+$project->getConsole()->add(new ListCommand('show'));
+$project->getConsole()->add(new AddCommand('add'));
 
 
 //--------------------------------------------------------------------
@@ -44,7 +49,6 @@ $project->getConsole()->add(new NewSchema('add'));
 //--------------------------------------------------------------------
 
 $project->getConsole()->run();
-
 
 
 

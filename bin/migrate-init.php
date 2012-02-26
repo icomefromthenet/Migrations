@@ -5,6 +5,7 @@ use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use \Migration\Command\InitProjectCommand;
 
 use Migration\Project;
 
@@ -43,11 +44,13 @@ if($project->getPath()->get() === false ) {
 # path exists does it have a project
 $path  = (string)$project->getPath()->get();
 
+
+
 if(Migration\Project::detect($path) === false) {
 
     #a given path is invalid pass it to project init comman
     #remove the path from the arguments list
-    $project->getConsole()->add(new Migration\Command\InitProject('project'));
+    $project->getConsole()->add(new InitProjectCommand('project'));
     $project->getConsole()->run(new ArrayInput(array('project')));
 
 } else {
@@ -55,4 +58,7 @@ if(Migration\Project::detect($path) === false) {
     throw new \RuntimeException('Migration project exists at location');
 
 }
+
+
+
 /* End of Class */

@@ -9,12 +9,14 @@ class ExceptionHandler
 {
 
     /**
-      *  @var Logger instance of the error log
-      */
-    protected static $log;
+    *  @var Monolog\Logger 
+    */
+    protected $log;
 
-
-    protected static $console;
+    /**
+    * @var Symfony\Component\Console\Output\OutputInterface 
+    */
+    protected $output;
 
     //  -------------------------------------------------------------------------
     # Static Constructor
@@ -23,19 +25,20 @@ class ExceptionHandler
       *  Constructor
       *
       *  @param Monolog\Logger $log
+      *  @param Symfony\Component\Console\Output\ConsoleOutput $output
       *  @access public
       *  @return void
       */
-    public static function init(Logger $log , OutputInterface $console)
+    public function __construct(Logger $log , OutputInterface $output)
     {
-        self::$log = $log;
-        self::$console = $console;
+        $this->log = $log;
+        $this->output = $output;
     }
 
     //  -------------------------------------------------------------------------
     # Global Exception Handler
 
-    public static function exceptionHandler(\Exception $exception)
+    public function exceptionHandler(\Exception $exception)
     {
 
         #Send the error to the log file
@@ -83,18 +86,18 @@ class ExceptionHandler
         );
 
         #write to log
-        self::$log->debug($msg);
+        $this->log->addError($msg);
 
 
         # log to console
-        self::$console->writeln('<error>'.$msg.'</error>');
+        $this->output->writeln('<error>'.$msg.'</error>');
 
     }
 
     //  -------------------------------------------------------------
     # Global Error Handler
 
-    public static function errorHandler($number, $string, $file, $line, $context)
+    public function errorHandler($number, $string, $file, $line, $context)
     {
         // Determine if this error is one of the enabled ones in php config (php.ini, .htaccess, etc)
         $error_is_enabled = (bool)($number & \ini_get('error_reporting') );
@@ -102,7 +105,7 @@ class ExceptionHandler
         // -- FATAL ERROR
         // throw an Error Exception, to be handled by whatever Exception handling logic is available in this context
          if( \in_array($number, array(E_USER_ERROR, E_RECOVERABLE_ERROR)) && $error_is_enabled ) {
-          throw new \ErrorException($string,$number, E_RECOVERABLE_ERROR, $file, $line);
+            throw new \ErrorException($string,$number, E_RECOVERABLE_ERROR, $file, $line);
          }
 
         // -- NON-FATAL ERROR/WARNING/NOTICE
