@@ -1,11 +1,16 @@
 <?php
 namespace Migration\Command;
 
-use Symfony\Component\Console as Console;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
+use Migration\Command\Base\Command;
 
-class DownMigration extends Console\Command\Command {
+class DownMigration extends Command
+{
     
-    protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         $output->writeln('Hello World!');
     }
@@ -29,7 +34,7 @@ Will Migrate down to the 5th migration, this could run 100 migrations if you cur
 will migrate down to the previous migration if current migration 105 running down
 with no aguments will set the current migration to 104.
 
->> up  <comment>-d=Yesterday</comment>
+>> up  <comment>-dte=Yesterday</comment>
 
 Will limit the selected migrations to those appearing on and before the date.
 The string must be parsable by strtotime().
@@ -37,16 +42,16 @@ The string must be parsable by strtotime().
 EOF
 );        
         $this->setDefinition(array(
-            new Console\Input\InputArgument(
+            new InputArgument(
                     'migration_number', 
-                    Console\Input\InputArgument::OPTIONAL,   
+                    InputArgument::OPTIONAL,   
                     'migration index number e.g 6',
                     NULL
                     ),
-            new Console\Input\InputOption(
+            new InputOption(
                     'data-created',
-                    '-d',
-                    Console\Input\InputArgument::OPTIONAL,
+                    '-dte',
+                    InputArgument::OPTIONAL,
                     'strtotime date string'
             )
         ));
@@ -56,3 +61,4 @@ EOF
 
     
 }
+/* End of File */

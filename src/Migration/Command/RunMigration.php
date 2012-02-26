@@ -2,11 +2,17 @@
 
 namespace Migration\Command;
 
-use Symfony\Component\Console as Console;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
+use Migration\Command\Base\Command;
 
-class RunMigration extends Console\Command\Command {
+class RunMigration extends Command
+{
 
-    protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output) {
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
         
         $migration_index =$input->getArgument('migration_index');
         
@@ -21,7 +27,8 @@ class RunMigration extends Console\Command\Command {
         $output->writeln('Hello World!');
     }
 
-    protected function configure() {
+    protected function configure()
+    {
 
         $this->setDescription('Will run a migration');
         $this->setHelp(<<<EOF
@@ -39,9 +46,9 @@ Example
 EOF
 );
         $this->setDefinition(array(
-            new Console\Input\InputArgument(
+            new InputArgument(
                     'migration_index',
-                    Console\Input\InputArgument::REQUIRED,
+                    InputArgument::REQUIRED,
                     'migration to run',
                     NULL
             )
@@ -51,3 +58,4 @@ EOF
     }
 
 }
+/* End of File */

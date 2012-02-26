@@ -5,9 +5,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Helper\DialogHelper;
 use Symfony\Component\Console\Output\OutputInterface;
-use Migration\Command\Base\SchemaDatabaseCommand;
+use Migration\Command\Base\Command;
 
-class Build extends SchemaDatabaseCommand {
+class Build extends Command
+{
 
 
     protected $build_db = false;
@@ -78,3 +79,4 @@ EOF
     }
 
 }
+/* End of File */

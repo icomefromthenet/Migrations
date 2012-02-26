@@ -4,14 +4,14 @@ namespace Migration\Bootstrap;
 
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Migration\BootstrapInterface as BootInterface;
-use Migration\Components\Templating\Io;
-use Migration\Components\Templating\Manager;
+use Migration\Components\Writter\Io;
+use Migration\Components\Writter\Manager;
 
 /*
  * class TemplatingManager
  */
 
-class TemplatingManager implements BootInterface
+class WritterManager implements BootInterface
 {
 
 

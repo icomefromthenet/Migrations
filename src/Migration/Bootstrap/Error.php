@@ -10,10 +10,10 @@ class Error implements BootstrapInterface
 
     /*
      * function boot
-     * @param \Migration\Project $project
+     * @param \Symfony\Pimple $project
      */
 
-    public function boot(\Migration\Project $project)
+    public function boot(\Symfony\Project $project)
     {
 
         error_reporting(E_ALL);
@@ -29,7 +29,7 @@ class Error implements BootstrapInterface
         #set global exception handler
         set_exception_handler(array('Migration\Exceptions\ExceptionHandler','exceptionHandler'));
 
-
+        return new \stdClass;
     }
 
 }

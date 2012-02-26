@@ -1,11 +1,16 @@
 <?php
 namespace Migration\Command;
 
-use Symfony\Component\Console as Console;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
+use Migration\Command\Base\Command;
 
-class ListMigration extends Console\Command\Command {
+class ListMigration extends Command
+{
     
-    protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         $output->writeln('Hello World!');
     }
@@ -31,22 +36,22 @@ Will limit the migrations to the last 10.
 
 Will limit the migrations with a timestamp within last 3 months.
 
->> show 100 -d=5months
+>> show 100 -dte=5months
 
 Last 100 migrations where date within last 5 months.
 
 EOF
 );
         $this->setDefinition(array(
-            new Console\Input\InputArgument(
+            new InputArgument(
                     'max',
-                    Console\Input\InputArgument::REQUIRED,
+                    InputArgument::REQUIRED,
                     'Max migrations to list',
                     NULL
             ),
-            new Console\Input\InputOption(
-                    'date-limit', 'd', 
-                    Console\Input\InputArgument::OPTIONAL, 
+            new InputOption(
+                    'date-limit', 'dte', 
+                    InputArgument::OPTIONAL, 
                     'Limit to x date')
         ));
 
@@ -54,3 +59,4 @@ EOF
     }
     
 }
+/* End of File */

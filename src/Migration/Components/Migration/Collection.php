@@ -12,9 +12,10 @@ namespace Migration\Components\Migration;
 
 use Symfony\Component\Console\Output;
 use Migration\Components\Migration\Io;
+use \SplHeap;
+use \SplFileInfo;
 
-
-class Collection extends \SplHeap
+class Collection extends SplHeap
 {
 
     /**
@@ -86,7 +87,7 @@ class Collection extends \SplHeap
 
     public function insert($timestamp,$migration_path) {
 
-        parent::insert(array(
+        parent::insert( new SplFileInfo()array(
             'timestamp' => $timestamp,
             'path'      => $migration_path
          ));

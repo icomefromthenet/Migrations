@@ -2,12 +2,15 @@
 namespace Migration\Bootstrap;
 
 use Migration\BootstrapInterface as BootInterface;
-use Migration\Database\Exceptions\ConfigMisingException;
-use Migration\Database\Factory as DbFactory;
+use \Doctrine\DBAL\Configuration;
+use \Doctrine\DBAL\Connection;
+use \Doctrine\DBAL\DriverManager;
+
 /*
  * class Database
  */
-class Database implements BootInterface {
+class Database implements BootInterface
+{
 
     /*
      * function boot
@@ -16,7 +19,7 @@ class Database implements BootInterface {
 
     public function boot(\Migration\Project $project)
     {
-        $config_manager = $project->getConfigManager();
+        $config_manager = $pimple->getConfigManager();
 
         if($config_manager === null) {
             throw new \RuntimeException('Config Manager not loaded, must be loaded before booting the database');
@@ -27,22 +30,22 @@ class Database implements BootInterface {
 
         # check if we can load the config given
         if($config_manager->getLoader()->exists($config_name) === false) {
-           throw new ConfigMisingException(sprintf('Missing database config at %s ',$config_name));
+           throw new \RuntimeException(sprintf('Missing database config at %s ',$config_name));
         }
 
         # load the config file
         $entity = $config_manager->getLoader()->load($config_name);
 
-        $dbparams = array(
-            'type'   => $entity->getType(),
-            'dbname' => $entity->getSchema(),
-            'user'   => $entity->getUser(),
-            'pass'   => $entity->getPassword()
-            );
-
-        $database  = DbFactory::create($dbparams);
-
-        $project->setDatabase($database);
+        $connectionParams = array(
+        'dbname' => $entity->getSchema(),
+        'user' => $entity->getUser(),
+        'password' => $entity->getPassword(),
+        'host' => $entity->getHost(),
+        'driver' => $entity->getType(),
+        );
+        
+        return DriverManager::getConnection($connectionParams, new Configuration());                       
+        
     }
 }
 /* End of File */

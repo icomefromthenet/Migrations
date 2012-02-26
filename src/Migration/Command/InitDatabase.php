@@ -1,8 +1,8 @@
 <?php
 namespace Migration\Command;
 
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Helper\DialogHelper;
 
@@ -11,7 +11,8 @@ use Migration\Components\Config\Io as ConfigIo;
 use Migration\Components\Config\Manager;
 use Migration\Io\FileExistException;
 
-class InitDatabase extends Command {
+class InitDatabase extends Command
+{
 
 
     protected $answers;
@@ -53,9 +54,7 @@ class InitDatabase extends Command {
         # Store answers for the execute method
         $this->answers = $answers;
 
-        # Ask for file alias and store for execute
-        $this->alias = $dialog->ask($output,'Name of the config file? [default] : ','default');
-
+      
         return true;
     }
 
@@ -73,7 +72,7 @@ class InitDatabase extends Command {
         try {
 
             #Write config file to the project
-            $manager->getWriter()->write($this->answers,$this->alias);
+            $manager->getWriter()->write($this->answers,'config');
 
         }
         catch(FileExistException $e) {

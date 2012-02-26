@@ -2,13 +2,14 @@
 namespace Migration\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Helper\DialogHelper;
 use Migration\Components\Migration\SchemaExistsException;
 use Migration\Command\Base\Command;
 
-class NewSchema extends Command {
+class NewSchema extends Command
+{
 
 
     protected $schema = 'default';

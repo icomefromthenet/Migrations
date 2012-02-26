@@ -43,12 +43,14 @@ class Diff  {
     /**
       *  Find nodes in file heap
       *  that are absant from the database heap
+      *
+      *  @return Collection
       */
     public function diff()
     {
+        $difference = new Collection();
 
-
-
+        # iterate over the file
 
     }
 

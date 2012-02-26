@@ -4,6 +4,7 @@ use Migration\Project;
 use Migration\Path;
 use Migration\Bootstrap\Log as BootLog;
 use Migration\Bootstrap\Error as BootError;
+use Migration\Bootstrap\Database as BootDatabase;
 use Symfony\Component\ClassLoader\UniversalClassLoader;
 
 /**
@@ -35,15 +36,17 @@ $symfony_auto_loader->registernamespaces(
           'Symfony'   => VENDORPATH,
           'Monolog'   => VENDORPATH,
           'Migration' => COREPATH
-
+          
 ));
 
 $symfony_auto_loader->registerPrefix('Twig_', VENDORPATH .'Symfony' . DIRECTORY_SEPARATOR);
 
 $symfony_auto_loader->register();
 
+
+
 //------------------------------------------------------------------------------
-// Instance the project kernel an parse the path option
+// Load the DI Component  which is an Instance the /Migrations/Project 
 //
 //------------------------------------------------------------------------------
 
@@ -51,26 +54,95 @@ $project = new Project(new Path());
 
 
 //------------------------------------------------------------------------------
+// Assign the autoloader to a DI container
+//
+//------------------------------------------------------------------------------
+
+$project['loader'] = $symfony_auto_loader;
+
+//------------------------------------------------------------------------------
 // Load the Symfony2 Cli Shell
 //
 //------------------------------------------------------------------------------
 
-$console = new Application($project);
+$project['console'] = $project->share( function ($c) use ($project) {
+   return new Application($project);     
+});
+
 
 //---------------------------------------------------------------
 // Bootstrap the logs
 //
 //--------------------------------------------------------------
 
-$log_boot = new BootLog();
-$log_boot->boot($project);
+
+$project['logger'] = $project->share(function($c){
+   $boot = new BootLog();
+   return $boot->boot($c);
+});
+
 
 //---------------------------------------------------------------
 // Set ErrorHandlers
 //
 //--------------------------------------------------------------
 
-$error_boot = new BootError();
-$error_boot->boot($project);
+$project['error'] = $project->share(function($c){
+   $boot = new BootError();
+   return $boot->boot($c);
+});
 
-return $project;
+
+//---------------------------------------------------------------
+// Setup Database (lazy loaded)
+//
+//--------------------------------------------------------------
+
+$project['database'] = $project->share(function($c){
+   $boot = new BootDatabase();
+   return $boot->boot($c);
+});
+
+
+
+//---------------------------------------------------------------
+// Setup Config Manager
+//
+//---------------------------------------------------------------
+
+$project['config_manager'] = $project->share(function($c){
+    $boot = new \Migration\Bootstrap\ConfigManager();
+    return $boot->boot($c); 
+});
+
+
+//---------------------------------------------------------------
+// Setup Migration Manager
+//
+//---------------------------------------------------------------
+
+$project['migration_manager'] = $project->share(function($c){
+    $boot = new \Migration\Bootstrap\MigrationManager();
+    return $boot->boot($c);
+});
+
+
+//---------------------------------------------------------------
+// Setup Templating Manager
+//
+//---------------------------------------------------------------
+
+$project['template_manager'] = $project->share(function($c){
+    $boot = new \Migration\Bootstrap\TemplatingManager();
+    return $boot->boot($c);
+});
+
+//---------------------------------------------------------------
+// Setup Writter Manager
+//
+//---------------------------------------------------------------
+
+$project['writter_manager'] = $project->share(function($c){
+    $boot = new \Migration\Bootstrap\WritterManager();
+    return $boot->boot($c);
+});

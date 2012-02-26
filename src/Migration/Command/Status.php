@@ -3,22 +3,23 @@ namespace Migration\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Migration\Command\Base\DatabaseCommand;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
+use Migration\Command\Base\Command;
 
-class Status extends DatabaseCommand
+class Status extends Command
 {
 
     protected function execute(InputInterface $input,OutputInterface $output)
     {
         $output->writeln('Hello World!');
 
-
-
     }
 
 
 
-    protected function configure() {
+    protected function configure()
+    {
 
         $this->setDescription('Shows the Current Migration');
         $this->setHelp(<<<EOF
@@ -40,3 +41,4 @@ EOF
 
 
 }
+/* End of File */

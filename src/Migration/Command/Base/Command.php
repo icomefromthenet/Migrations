@@ -16,9 +16,10 @@ class Command extends BaseCommand
      */
     protected function configure()
     {
-        $this->addOption('--config','-c',InputOption::VALUE_OPTIONAL,'the database config to use',false);
-        $this->addOption('--database','-d', InputOption::VALUE_OPTIONAL,'the database schema to use',false);
+       
+        $this->addOption('--database','-d', InputOption::VALUE_OPTIONAL,'the database schema folder to use',false);
         $this->addOption('--path','-p',     InputOption::VALUE_OPTIONAL,'the project folder path',false);
+        $this->addOption('--dsn','-c',    InputOption::VALUE_OPTIONAL,'DSN to connect to db',false);
     }
 
 
@@ -33,8 +34,7 @@ class Command extends BaseCommand
      */
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
-
-       $project = $this->getApplication()->getKernel();
+       $project = $this->getApplication()->getProject();
 
        if (true === $input->hasParameterOption(array('--path', '-p'))) {
             #switch path to the argument
@@ -53,12 +53,6 @@ class Command extends BaseCommand
         }
 
 
-        if (true === $input->hasParameterOption(array('--config', '-c'))) {
-            #switch path to the argument
-            $project->setConfigName($input->getOption('config'));
-
-        } 
-
         if (true === $input->hasParameterOption(array('--database', '-d'))) {
             #switch path to the argument
             $project->setSchemaName($input->getOption('database'));;
@@ -66,69 +60,6 @@ class Command extends BaseCommand
 
     }
 
-    //  ------------------------------------------------------------------------
-    # component booters
-
-    /**
-     *  function bootConfigManager
-     *
-     *  Will boot the config manager, not done in bootstrap
-     *  so they can be lazy loaded by commands
-     *
-     *  @access public
-     *  @return /Migration/Components/Config/Manager
-     */
-    protected function bootConfigManager()
-    {
-        $project =  $this->getApplication()->getKernel();
-
-        # load the bootstrapper
-        $boot = new \Migration\Bootstrap\ConfigManager();
-        $boot->boot($project);
-
-        return $project->getConfigManager();
-
-    }
-
-    /**
-     *  function bootMigrationManager
-     *
-     *  Will boot the migration manager, not done in bootstrap
-     *  so they can be lazy loaded by commands
-     *
-     *  @access public
-     *  @return /Migration/Components/Migration/Manager
-     */
-    protected function bootMigrationManager()
-    {
-         $project =  $this->getApplication()->getKernel();
-
-        # load the bootstrapper
-        $boot = new \Migration\Bootstrap\MigrationManager();
-        $boot->boot($project);
-
-        return $project->getMigrationManager();
-    }
-
-    /**
-     *  function bootTemplatingManager
-     *
-     *  Will boot the templating manager, not done in bootstrap
-     *  so they can be lazy loaded by commands
-     *
-     *  @access public
-     *  @return /Migration/Components/Templating/Manager
-    */
-    protected function bootTemplatingManager()
-    {
-       $project =  $this->getApplication()->getKernel();
-
-        # load the bootstrapper
-        $boot = new \Migration\Bootstrap\TemplatingManager();
-        $boot->boot($project);
-
-        return $project->getTemplatingManager();
-    }
 
     //  -------------------------------------------------------------------------
 

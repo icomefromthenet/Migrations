@@ -11,9 +11,10 @@ use Migration\Project;
  * class BaseApplication
  */
 
-class Application extends BaseApplication {
+class Application extends BaseApplication
+{
 
-    protected $kernel;
+    protected $project;
 
     /**
       *  function setProject
@@ -21,9 +22,9 @@ class Application extends BaseApplication {
       *  @param \Migration\Project $project
       *  @access public
       */
-    public function setKernel(Project $project)
+    public function setProject(Project $project)
     {
-        $this->kernel = $project;
+        $this->project = $project;
     }
 
     /**
@@ -32,9 +33,9 @@ class Application extends BaseApplication {
       *  @access public
       *  @return Migration\Project
       */
-    public function getKernel()
+    public function getProject()
     {
-        return $this->kernel;
+        return $this->project;
     }
 
 
@@ -57,8 +58,7 @@ class Application extends BaseApplication {
         ));
 
         #set the references
-        $project->setConsole($this);
-        $this->setKernel($project);
+        $this->setProject($project);
     }
 
     //  --------------------------------------------------------------------------

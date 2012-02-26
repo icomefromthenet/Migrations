@@ -11,16 +11,15 @@ use Migration\Command\ListMigration;
 use Migration\Command\InitDatabase;
 use Migration\Command\Build;
 use Migration\Command\NewSchema;
-use Migration\Command\SetDefaults;
 
 if(strpos('@PHP-BIN@', '@PHP-BIN@') === 0) {
     //not a pear install run normally
 
-  $project = require __DIR__ .'/../src/Migration/Bootstrap.php';
+  require __DIR__ .'/../src/Migration/Bootstrap.php';
 
 }
 else {
-   $project =  require '@PEAR-DIR@/Migration/Bootstrap.php';
+   require '@PEAR-DIR@/Migration/Bootstrap.php';
 }
 
 
@@ -30,7 +29,6 @@ else {
 //
 //--------------------------------------------------------------------
 
-
 $project->getConsole()->add(new DownMigration('down'));
 $project->getConsole()->add(new Build('build'));
 $project->getConsole()->add(new UpMigration('up'));
@@ -39,7 +37,7 @@ $project->getConsole()->add(new RunMigration('run'));
 $project->getConsole()->add(new ListMigration('show'));
 $project->getConsole()->add(new InitDatabase('config'));
 $project->getConsole()->add(new NewSchema('add'));
-$project->getConsole()->add(new SetDefaults('set'));
+
 
 //--------------------------------------------------------------------
 // Run the App

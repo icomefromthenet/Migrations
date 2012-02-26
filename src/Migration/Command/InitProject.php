@@ -29,7 +29,8 @@ class InitProject extends Command
     }
 
 
-    protected function configure() {
+    protected function configure()
+    {
 
         $this->setDescription('Will write a project folder to location');
         $this->setHelp(<<<EOF

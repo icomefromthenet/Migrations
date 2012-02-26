@@ -20,10 +20,7 @@ class ConfigManager implements BootInterface
         $io = new Io($project->getPath()->get());
 
         # instance the manager, no database needed here
-        $config_manager = new Manager($io,$project->getLogger(),new ConsoleOutput(),null);
-
-        #assign the manager to the project
-        $project->setConfigManager($config_manager);
+        return new Manager($io,$project->getLogger(),new ConsoleOutput(),null);
 
     }
 }

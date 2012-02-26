@@ -21,10 +21,7 @@ class MigrationManager implements BootstrapInterface
         $io = new Io($project->getPath()->get());
 
         # instance the manager, no database needed here
-        $migration_manager = new Manager($io,$project->getLogger(),new ConsoleOutput(),null);
-
-        #assign the manager to the project
-        $project->setMigrationManager($migration_manager);
+        return new Manager($io,$project->getLogger(),new ConsoleOutput(),null);
 
     }
 }

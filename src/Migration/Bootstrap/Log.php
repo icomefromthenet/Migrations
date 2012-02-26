@@ -22,7 +22,7 @@ class Log implements BootInterface
         $logger->pushHandler($sysLog);
 
         #assign the log to the project
-        $project->setLogger($logger);
+        return $logger;
     }
 }
 /* End of File */

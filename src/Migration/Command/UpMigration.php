@@ -2,15 +2,22 @@
 
 namespace Migration\Command;
 
-use Symfony\Component\Console as Console;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
+use Migration\Command\Base\Command;
 
-class upMigration extends Console\Command\Command {
+class upMigration extends Command
+{
 
-    protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output) {
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
         $output->writeln('Hello World!');
     }
 
-    protected function configure() {
+    protected function configure()
+    {
 
         $this->setDescription('Move one migration up');
         $this->setHelp(<<<EOF
@@ -28,7 +35,7 @@ will migrate up to the latest migration
 
 e.g latest is index 5  and current index  2 running will apply 3 migrations 3,4,5.
 
->> up  <comment>-d=Yesterday</comment>
+>> up  <comment>-dte=Yesterday</comment>
 
 Will limit the selected migrations to those appearing on and before the date.
 The string must be parsable by strtotime().
@@ -37,16 +44,16 @@ The string must be parsable by strtotime().
 EOF
         );
         $this->setDefinition(array(
-            new Console\Input\InputArgument(
+            new InputArgument(
                     'migration_number',
-                    Console\Input\InputArgument::OPTIONAL,
+                    InputArgument::OPTIONAL,
                     'migration index number e.g 6',
                     NULL
             ),
-            new Console\Input\InputOption(
+            new InputOption(
                     'data-created',
-                    '-d',
-                    Console\Input\InputArgument::OPTIONAL,
+                    '-dte',
+                    InputArgument::OPTIONAL,
                     'strtotime date string'
             )
         ));
@@ -55,3 +62,4 @@ EOF
     }
 
 }
+/* End of File */

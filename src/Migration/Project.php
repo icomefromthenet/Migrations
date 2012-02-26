@@ -1,17 +1,12 @@
 <?php
 namespace Migration;
 
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Finder\Finder;
+use \Symfony\Component\Console\Output\OutputInterface;
+use \Symfony\Component\Finder\Finder;
+use \Symfony\Pimple\Pimple;
 
-class Project
+class Project extends Pimple
 {
-
-    /**
-      *  @var string the Project folders path
-      */
-    protected $path;
-
 
     /**
       *  function getPath
@@ -21,7 +16,7 @@ class Project
       */
     public function getPath()
     {
-         return $this->path;
+         return $this['project_path'];
     }
 
 
@@ -38,7 +33,9 @@ class Project
      */
     public function __construct(\Migration\Path $path)
     {
-        $this->path = $path;
+        $this['project_path'] = $path;
+        $this['default'] = 'default';
+        $this['schema_name'] = 'default';
     }
 
 
@@ -159,72 +156,21 @@ class Project
     # Database
 
     /**
-      *  @var \Migration\Database\Instance;
-      *  @access protected
-      */
-    protected $database;
-
-
-    /**
       *  function getDatabase
       *
       *  @access public
-      *  @return \Migration\Database\Instance the configured database handler
+      *  @return  the configured database handler
       */
     public function getDatabase()
     {
-
-        return $this->database;
+        return $this['database'];
     }
-
-    /**
-      *  function setDatabase
-      *
-      *  @access public
-      *  @param \Migration\Database\Instance $instance a configured database handler
-      */
-    public function setDatabase(\Migration\Database\Instance $instance)
-    {
-        $this->database = $instance;
-    }
-
-
-    /**
-      *  @var \Migration\DatabaseSchema\Schema class to allow modify a database schema
-      *  @access protected
-      */
-    protected $schema;
-
-    /**
-      *  function getSchema
-      *
-      *  @access public
-      *  @return \Migration\DatabaseSchema\Schema an instance of the database schema manager
-      */
-    public function getSchema()
-    {
-        return $this->schema;
-    }
-
-    /**
-      *  function setSchema
-      *
-      *  @access public
-      *  @param \Migration\DatabaseSchema\Schema $schema an instance of the database schema manager
-      */
-    public function setSchema(\Migration\DatabaseSchema\Schema $schema)
-    {
-        $this->schema = $schema;
-    }
+   
+   
 
     //  -------------------------------------------------------------------------
-	# Manager loaders
+    # Manager loaders
 
-    protected $config_manager;
-
-    protected $template_manager;
-
-    protected $migration_manager;
 
     /**
       *  function getConfigManager
@@ -234,20 +180,10 @@ class Project
       */
     public function getConfigManager()
     {
-        return $this->config_manager;
+        return $this['config_manager'];
     }
 
-    /**
-      *  function setConfigManager
-      *
-      *  @access public
-      *  @param \Migration\Components\Config\Manager $manager an instance of the config component manager
-      */
-    public function setConfigManager(\Migration\Components\Config\Manager $manager)
-    {
-        $this->config_manager = $manager;
-    }
-
+   
     /**
       *  function getTemplateManager
       *
@@ -256,18 +192,7 @@ class Project
       */
     public function getTemplatingManager()
     {
-        return $this->template_manager;
-    }
-
-    /**
-      * function setTemplateManager
-      *
-      * @access public
-      * @param \Migration\Components\Templating\Manager $manager an instance of the templaing component manager
-      */
-    public function setTemplatingManager(\Migration\Components\Templating\Manager $manager)
-    {
-        $this->template_manager = $manager;
+        return $this['template_manager'];
     }
 
     /**
@@ -278,41 +203,23 @@ class Project
       */
     public function getMigrationManager()
     {
-        return $this->migration_manager;
+        return $this['migration_manager'];
     }
 
-    /**
-      *  function setMigrationManager
+     /**
+      *  function getMigrationManager
       *
       *  @access public
-      *  @return void;
-      *  @para \Migration\Components\Migration\Manager $manager an instance of the migration component manager
+      *  @return \Migration\Components\Migration\Manager an instance of the migration component manager
       */
-    public function setMigrationManager(\Migration\Components\Migration\Manager $manager)
+    public function getWritterManager()
     {
-        $this->migration_manager = $manager;
-    }
+        return $this['writter_manager'];
+    }    
+    
 
     //  -------------------------------------------------------------------------
     # Debug Log
-
-    /**
-      *  @var  Monolog\Logger instance of the debug logger
-      *  @access protected
-      */
-    protected $log;
-
-    /**
-      *  function setLoger
-      *
-      *  @param \Monolog\Logger $log an instance of the debug logger
-      *  @return void;
-      *  @access public
-      */
-    public function setLogger(\Monolog\Logger $log)
-    {
-        $this->log = $log;
-    }
 
     /**
       *  function getLogger
@@ -322,17 +229,11 @@ class Project
       */
     public function getLogger()
     {
-        return $this->log;
+        return $this['logger'];
     }
 
     //  -------------------------------------------------------------------------
     # Config Name
-
-    /**
-      * @var string the name of the config file to use
-      * @access protected
-      */
-    protected $config_name = 'default';
 
     /**
       * function setConfigName
@@ -340,9 +241,9 @@ class Project
       * @access public
       * @param string $name the name of config file to use
       */
-    public function setConfigName($name)
+    public function setConfigName($name = 'default')
     {
-        $this->config_name = $name;
+        $this['config_name'] = $name;
     }
 
     /**
@@ -353,18 +254,12 @@ class Project
       */
     public function getConfigName()
     {
-        return $this->config_name;
+        return $this['config_name'];
     }
 
 
     //  -------------------------------------------------------------------------
     # Schema Name
-
-    /**
-      *  @var string the name of the schema to use
-      *  @access protected
-      */
-    protected $schema_name = 'default';
 
     /**
       * function setSchemaName
@@ -374,7 +269,7 @@ class Project
       */
     public function setSchemaName($name)
     {
-        $this->schema_name = $name;
+        $this['schema_name'] = $name;
     }
 
     /**
@@ -385,18 +280,11 @@ class Project
       */
     public function getSchemaName()
     {
-        return $this->schema_name;
+        return $this['schema_name'];
     }
 
     //  -------------------------------------------------------------------------
     # Symfony Console
-
-    /**
-      *  @var \Migration\Command\Base\Application
-      *  @access protected
-      */
-    protected $console;
-
 
     /**
       *  function getConsole
@@ -406,19 +294,7 @@ class Project
       */
     public function getConsole()
     {
-        return $this->console;
-    }
-
-    /**
-      *  function setConsoleOutputer
-      *
-      *  @access public
-      *  @param \Migration\Command\Base\Application $console
-      *  @return void;
-      */
-    public function setConsole(\Migration\Command\Base\Application $console)
-    {
-        $this->console = $console;
+        return $this['console'];
     }
 
     //  -------------------------------------------------------------------------

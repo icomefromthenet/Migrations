@@ -10,10 +10,10 @@ use Migration\Project;
 
 if(strpos('@PHP-BIN@', '@PHP-BIN@') === 0) {
     //not a pear install run normally
-   $project  = require __DIR__ .'/../src/Migration/Bootstrap.php';
+   require __DIR__ .'/../src/Migration/Bootstrap.php';
 }
 else {
-    $project = require '@PEAR-DIR@/Migration/Bootstrap.php';
+    require '@PEAR-DIR@/Migration/Bootstrap.php';
 }
 
 
