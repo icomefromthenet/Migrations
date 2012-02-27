@@ -1,21 +1,12 @@
 <?php
 use Migration\Project;
 use Migration\Io\Io;
-use Symfony\Component\Console\Output\NullOutput;
+
 
 require_once (__DIR__ .'/base/AbstractProject.php');
 
 class ProjectContainerTest extends AbstractProject
 {
-
-
-    public function setUp()
-    {
-        # remove migration project directory
-        $path = __DIR__ . '/' . $this->migration_dir;
-
-        self::recursiveRemoveDirectory($path);
-    }
 
 
     public function testWithString()
@@ -42,9 +33,9 @@ class ProjectContainerTest extends AbstractProject
         $pimple['test_service'] = function () {
             return new AbstractProject();
         };
-        
+
         $serviceOne = $pimple['test_service'];
-        $this->assertInstanceOf('AbstractProject', $serviceOne);        
+        $this->assertInstanceOf('AbstractProject', $serviceOne);
 
         $serviceTwo = $pimple['test_service'];
         $this->assertInstanceOf('AbstractProject', $serviceTwo);
@@ -74,12 +65,12 @@ class ProjectContainerTest extends AbstractProject
             return new AbstractProject();
         };
 
-        $this->assertTrue(isset($pimple['param']));
-        $this->assertTrue(isset($pimple['service']));
+        $this->assertTrue(isset($pimple['test_param']));
+        $this->assertTrue(isset($pimple['test_service']));
         $this->assertFalse(isset($pimple['non_existent']));
     }
 
-    
+
     /**
     * @expectedException InvalidArgumentException
     * @expectedExceptionMessage Identifier "foo" is not defined.
@@ -89,7 +80,7 @@ class ProjectContainerTest extends AbstractProject
         $pimple = new Project($this->getMockedPath());
         echo $pimple['foo'];
     }
-    
+
     public function testOffsetGetHonorsNullValues()
     {
         $pimple = new Project($this->getMockedPath());
@@ -165,13 +156,13 @@ class ProjectContainerTest extends AbstractProject
         $pimple = new Project($this->getMockedPath());
         $pimple->raw('foo');
     }
-    
-    
-    
+
+
+
     public function testNewProject()
     {
         #project normally injected into application. but for testing its a global variable
-        global $project;
+        $project = new Project($this->getMockedPath());
 
         $this->assertInstanceOf('\Migration\Project',$project);
 
@@ -189,43 +180,11 @@ class ProjectContainerTest extends AbstractProject
         return $skelton;
     }
 
-    
-    
-    /**
-      *  @depends testNewProject
-      *  @depends testSkeltonExists
-      */
-    public function testCreateProject(Project $project,Io $skelton_folder)
-    {
 
-        $path = __DIR__.'/'.$this->migration_dir;
-
-        # Setup new project folder since our build method does not
-        mkdir($path);
-
-        $project_folder = new Io($path);
-
-
-        $project->build($project_folder,$skelton_folder,new NullOutput());
-
-
-        $this->assertTrue(is_dir($path));
-        $this->assertTrue(is_dir($path .'/template'));
-        $this->assertTrue(is_dir($path .'/config'));
-        $this->assertTrue(is_dir($path .'/migration'));
-    }
-
-
+   
 
     //  -------------------------------------------------------------------------
 
-    
-    protected getMockedPath()
-    {
-        return $this->getMock('\Migration\Path',array());        
-        
-    }
-    
 }
 
 /* End of File */

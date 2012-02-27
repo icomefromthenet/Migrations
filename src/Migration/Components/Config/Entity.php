@@ -76,7 +76,7 @@ class Entity implements ConfigurationInterface
         $configuration = $this;
         $config = $processor->processConfiguration($configuration, array('database'=>$config));
 
-        $this->dbhost = $config['db_type'];
+        $this->dbhost = $config['db_host'];
         $this->dbport = $config['db_port'];
         $this->dbschema = $config['db_schema'];
         $this->dbtype = $config['db_type'];

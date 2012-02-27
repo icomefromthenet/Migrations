@@ -4,7 +4,7 @@ namespace Migration\Io;
 use Migration\Exceptions\Exception;
 
 
-class FileExistException extends Exception
+class FileNotExistException extends Exception
 {
 
 }

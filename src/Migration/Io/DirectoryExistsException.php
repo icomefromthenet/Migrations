@@ -1,7 +1,7 @@
 <?php
 namespace Migration\Io;
 
-use \Migration\Exceptions\Exception as Exception;
+use Migration\Exceptions\Exception;
 
 
 class DirectoryExistsException extends Exception

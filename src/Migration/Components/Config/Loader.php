@@ -43,7 +43,7 @@ class Loader
      */
     public function load($name = '') {
         if (empty($name)) {
-            $name = self::DEFAULTNAME;
+            $name = self::DEFAULTNAME . self::EXTENSION;
         }
 
         $config_ary = $this->getIo()->load($name,null);

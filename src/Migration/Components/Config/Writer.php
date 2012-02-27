@@ -32,7 +32,7 @@ class Writer
     {
 
         #setup new config entity
-        $entity = new Entity(array('database' =>$config));
+        $entity = new Entity($config);
 
         #write to file
         $file = <<<EOF

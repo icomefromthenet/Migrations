@@ -2,7 +2,7 @@
 
 require_once (__DIR__ .'/base/AbstractProject.php');
 
-class MigrationTest extends AbstractProject
+class PathTest extends AbstractProject
 {
 
 

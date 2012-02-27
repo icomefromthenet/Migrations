@@ -88,7 +88,7 @@ class Manager implements ManagerInterface
       */
     public function getWriter()
     {
-        throw new \Exception('Not implemented');
+        throw new \RuntimeException('Not implemented');
     }
 
     //  -------------------------------------------------------------------------

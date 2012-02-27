@@ -1,5 +1,9 @@
 <?php
+
 use Migration\Project;
+use Migration\Io\Io;
+use Migration\Path;
+use Symfony\Component\Console\Output\NullOutput;
 
 class AbstractProject extends PHPUnit_Framework_TestCase
 {
@@ -10,22 +14,83 @@ class AbstractProject extends PHPUnit_Framework_TestCase
 
     protected $migration_dir = 'myproject';
 
-    
-    
+
+    public function __construct()
+    {
+        # remove migration project directory
+        $path = __DIR__ . '/../' . $this->migration_dir;
+
+        self::recursiveRemoveDirectory($path);
+    }
+
+
+
+    public function setUp()
+    {
+        $project = new Project($this->getMockedPath());
+
+        $io = $this->getSkeltonIO();
+
+        #test build
+        $this->createProject($project,$io);
+    }
+
+
+    public function tearDown()
+    {
+
+        #remove migration project directory
+        $path = __DIR__ . '/../' . $this->migration_dir;
+
+        self::recursiveRemoveDirectory($path);
+
+    }
+
 
     public function getProject()
     {
-        #project normally injected into application. but for testing its a global variable
-       global $project;
+        # project normally injected into application.
+        # but for testing its a global variable
+        global $project;
 
-        //$this->assertInstanceOf('\Migration\Project',$project);
-
-        # set the project folder
-        //$project->getPath()->parse(__DIR__ .'myproject');
+        $project->getPath()->parse((string)__DIR__.'/../myproject');
 
         return $project;
     }
 
+
+    //  -------------------------------------------------------------------------
+    # Skelton IO
+
+    public function getSkeltonIO()
+    {
+        $skelton = new Io(realpath(__DIR__.'/../../skelton'));
+
+
+        return $skelton;
+    }
+
+
+    //  -------------------------------------------------------------------------
+    # create project
+
+    public function createProject(Project $project,Io $skelton_folder)
+    {
+
+
+        $path = __DIR__.'/../'.$this->migration_dir;
+
+        # Setup new project folder since our build method does not
+        mkdir($path);
+
+        $project_folder = new Io($path);
+
+
+        $project->build($project_folder,$skelton_folder,new NullOutput());
+
+
+
+    }
 
 
     //  -------------------------------------------------------------------------
@@ -99,6 +164,29 @@ class AbstractProject extends PHPUnit_Framework_TestCase
     }
 
     // ------------------------------------------------------------
+
+    protected function getMockedPath()
+    {
+        return new Path(__DIR__.'/../myproject');
+
+    }
+
+    //  -------------------------------------------------------------------------
+
+    protected function getMockConfigEntityParm()
+    {
+        return array(
+            'db_type' => 'pdo_mysql' ,
+            'db_schema' => 'example' ,
+            'db_user' => 'bob' ,
+            'db_password' => 'pass',
+            'db_host' => 'localhost' ,
+            'db_port' => 3306 ,
+            'db_migration_table' => 'migrations_migrate',
+            );
+    }
+
+
 
 }
 

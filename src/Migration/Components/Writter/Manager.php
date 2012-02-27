@@ -1,11 +1,10 @@
 <?php
 namespace Migration\Components\Writter;
 
-use Monolog\Logger as Logger;
+use Monolog\Logger;
 use Symfony\Component\Console\Output\OutputInterface as Output;
 use Migration\Components\ManagerInterface;
 use Migration\Io\IoInterface;
-use Migration\Database\Handler as Database;
 
 /*
  * class Manager
