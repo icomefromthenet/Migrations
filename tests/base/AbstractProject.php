@@ -4,18 +4,24 @@ use Migration\Project;
 class AbstractProject extends PHPUnit_Framework_TestCase
 {
 
+
+    protected $backupGlobalsBlacklist = array('project');
+
+
     protected $migration_dir = 'myproject';
 
+    
+    
 
     public function getProject()
     {
         #project normally injected into application. but for testing its a global variable
-        global $project;
+       global $project;
 
-        $this->assertInstanceOf('\Migration\Project',$project);
+        //$this->assertInstanceOf('\Migration\Project',$project);
 
         # set the project folder
-        $project->getPath()->parse(__DIR__ .'myproject');
+        //$project->getPath()->parse(__DIR__ .'myproject');
 
         return $project;
     }

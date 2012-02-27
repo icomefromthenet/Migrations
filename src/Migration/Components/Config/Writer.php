@@ -28,7 +28,8 @@ class Writer
       * @param boolean $overrite setting true will overwrite a file
       * @return boolean true on sucessful write false otherwise
       */
-    public function write($config,$alias,$overrite = FALSE){
+    public function write($config,$alias,$overrite = FALSE)
+    {
 
         #setup new config entity
         $entity = new Entity(array('database' =>$config));
@@ -80,7 +81,8 @@ EOF;
     *
     *  @param Migration\Io\IoInterface $Io
     */
-    public function __construct(IoInterface $Io){
+    public function __construct(IoInterface $Io)
+    {
         $this->setIo($Io);
     }
 
@@ -99,7 +101,8 @@ EOF;
     *
     * @return IoInterface
     */
-    public function getIo(){
+    public function getIo()
+    {
         return $this->io;
     }
 
@@ -108,7 +111,8 @@ EOF;
     *
     *  @param IoInterface $io
     */
-    public function setIo(IoInterface $io) {
+    public function setIo(IoInterface $io)
+    {
         $this->io = $io;
 
         return $this;

@@ -4,7 +4,8 @@ namespace Migration\Components\Config;
 /*
  * class Loader
  */
-class Loader  {
+class Loader
+{
 
     /**
      * Name of the db config file if no other name is given

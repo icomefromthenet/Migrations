@@ -7,7 +7,8 @@ use Migration\Io\IoInterface;
 /*
  * class Io
  */
-class Io extends Base implements IoInterface {
+class Io extends Base implements IoInterface
+{
 
 
     protected $dir = 'config';
@@ -18,7 +19,8 @@ class Io extends Base implements IoInterface {
      * @param string $base_folder the path to a project
      */
 
-    public function __construct($base_folder) {
+    public function __construct($base_folder)
+    {
         parent::__construct($base_folder);
     }
 

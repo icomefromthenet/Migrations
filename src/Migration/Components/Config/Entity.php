@@ -40,15 +40,11 @@ class Entity implements ConfigurationInterface
                 ->scalarNode('db_type')->isRequired()
                     ->validate()
                         ->ifTrue(function($nodeValue) {
-                            $dbInstances = \Migration\Database\Factory::getImplementations();
                             $nodeValue = strtolower($nodeValue);
-
-                            if(in_array($nodeValue,$dbInstances) === FALSE) {
+                            if(in_array($nodeValue,array('pdo_mysql','pdo_sqlite','pdo_pgsql','pdo_sqlsrv','pdo_oci','oci8')) === FALSE) {
                                 return TRUE;
-                             }
-
+                            }
                             return FALSE;
-
                         })
                         ->then(function($value) {
                             throw new \RuntimeException('Database is not a valid type');
