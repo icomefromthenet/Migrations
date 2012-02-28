@@ -1,5 +1,5 @@
 <?php
-namespace Migration\Components\Writter;
+namespace Migration\Components\Writer;
 
 use Migration\Io\Io as Base;
 use Migration\Io\IoInterface;
@@ -7,7 +7,8 @@ use Migration\Io\IoInterface;
 /*
  * class Io
  */
-class Io extends Base implements IoInterface {
+class Io extends Base implements IoInterface
+{
 
 
     protected $dir = '';

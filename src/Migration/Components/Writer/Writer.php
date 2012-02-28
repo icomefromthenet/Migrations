@@ -1,24 +1,33 @@
 <?php
 
-namespace Migration\Components\Writter;
+namespace Migration\Components\Writer;
 
 use Migration\Io\IoInterface;
 
 /**
   *  Class Writer
   */
-class Writer
+class Writer implements WriterInterface
 {
+
+    protected $cache;
+
+
+    protected $stream;
+
 
 
 
      //----------------------------------------------------------------
 
     /**
+      * Write a line to a file stream
       *
-      *
+      * @param string $line
+      * @return void
+      * @access public
       */
-    public function write()
+    public function write($line)
     {
 
 
