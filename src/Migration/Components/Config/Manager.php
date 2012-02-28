@@ -5,7 +5,7 @@ use Monolog\Logger as Logger;
 use Symfony\Component\Console\Output\OutputInterface as Output;
 use Migration\Components\ManagerInterface;
 use Migration\Io\IoInterface;
-use Migration\Database\Handler as Database;
+use Doctrine\DBAL\Connection;
 
 /*
  * class Manager
@@ -43,9 +43,9 @@ class Manager implements ManagerInterface
        *  @param \Migration\Components\Config\Io $io this components Io class
        *  @param \Monolog\Logger $log the applications debug log
        *  @param \Symfony\Component\Console\Output\OutputInterface $output the console out clas
-       *  @param \Migration\Database\Handler $database defaults to null
+       *  @param \Doctrine\DBAL\Connection $database defaults to null
        */
-    public function __construct(IoInterface $io,Logger $log, Output $output, Database $database = null)
+    public function __construct(IoInterface $io,Logger $log, Output $output, Connection $database = null)
     {
         $this->io = $io;
         $this->log = $log;

@@ -5,7 +5,7 @@ use Monolog\Logger as Logger;
 use Symfony\Component\Console\Output\OutputInterface as Output;
 use Migration\Components\ManagerInterface;
 use Migration\Io\IoInterface;
-use Migration\Database\Handler as Database;
+use Doctrine\DBAL\Connection;
 
 use Migration\Io\DirectoryExistsException;
 
@@ -32,7 +32,7 @@ class Manager  {
      * @param $arg
      */
 
-    public function __construct(IoInterface $io,Logger $log, Output $output, Database $database = null) {
+    public function __construct(IoInterface $io,Logger $log, Output $output, Connection $database = null) {
         $this->io = $io;
         $this->log = $log;
         $this->output = $output;
