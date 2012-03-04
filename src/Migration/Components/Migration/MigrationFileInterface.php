@@ -23,6 +23,15 @@ interface MigrationFileInterface
 
     public function __toString();
 
+    /**
+      *  Require the class and return an instance
+      *
+      *  @access public
+      *  @return EntityInterface
+      */
+    public function getClass();
+
+
 }
 
 /* End of File */

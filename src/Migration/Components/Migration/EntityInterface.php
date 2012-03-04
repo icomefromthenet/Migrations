@@ -21,7 +21,7 @@ interface EntityInterface
       * @param PDO $pdo;
       */
     public function down($pdo);
-
+    
 
 }
 /* End of File */

@@ -12,10 +12,12 @@ namespace Migration\Components\Migration;
 
 use Symfony\Component\Console\Output;
 use Migration\Components\Migration\Io;
-use \SplHeap;
+use Migration\Components\Migration\EntityInterface;
+use Migration\Components\Migration\MigrationFileInterface;
+use Migration\Components\Migration\Exception;
 use \SplFileInfo;
 
-class Collection extends SplHeap
+class Collection implements Countable, IteratorAggregate
 {
 
     /**
@@ -45,6 +47,13 @@ class Collection extends SplHeap
     */
     protected $io;
 
+    /**
+      *  Inner Queue
+      *
+      *  array()
+      */
+    protected $inner_queue = array();
+
 
     public function __construct(OutputInterface $output, Handler $handler, Schema $schema, Io $io, $latest)
     {
@@ -53,8 +62,39 @@ class Collection extends SplHeap
       $this->io = $io;
       $this->schema = $schema;
       $this->latest_migration = $latest;
-
     }
+
+    //  -------------------------------------------------------------------------
+    # Countable Interface
+
+  /**
+    *  Returns the number of items in the collection
+    *
+    *  @access public
+    *  @return integer the count
+    */
+    public function count()
+    {
+        return count($this->inner_queue);
+    }
+
+
+    //  -------------------------------------------------------------------------
+    # IteratorAggregate Interface
+
+    /**
+      *  Return an a cloned the inner queue
+      * if the innerqueue is not cloned iterating over it will
+      * remove the queued items
+      *
+      * @return \SplPriorityQueue
+      * @access public
+      */
+    public function getIterator()
+    {
+        return new ArrayIterator($this->inner_queue);
+    }
+
 
 
     //--------------------------------------------------------------
@@ -84,52 +124,57 @@ class Collection extends SplHeap
     //----------------------------------------------------------------
     // Collection behaviours
 
+    public function insert(MigrationFileInterface  $migration, $stamp)
+    {
+      if($this->exists($stamp) === true) {
+        throw new Exception(sprintf('%s already exists in the collection',$stamp));
+      }
 
-    public function insert($timestamp,$migration_path) {
-
-        parent::insert( new SplFileInfo()array(
-            'timestamp' => $timestamp,
-            'path'      => $migration_path
-         ));
-
+      $this->innerQueue[$stamp] = $migration;
     }
 
     //----------------------------------------------------------------
 
-    public function up($index = NULL,$force = FALSE) {
+    public function up($index = NULL,$force = FALSE)
+    {
        //check if migration exists
 
     }
 
     //----------------------------------------------------------------
 
-    public function down($index = NULL,$force = FALSE) {
+    public function down($index = NULL,$force = FALSE)
+    {
        //check if migration exists
     }
 
 
     //----------------------------------------------------------------
 
-    public function run($index,$force = FALSE) {
+    public function run($stamp,$force = FALSE)
+    {
        //check if migration exists
-       if($this->exists($index) === FALSE) {
-           throw new \Exception('Index at '.$index.' does not exists');
+       if($this->exists($stamp) === FALSE) {
+           throw new Exception('stamp at '.$stamp.' does not exists');
        }
 
-       //load the migration
-       require_once($this->migrations[$index]['path']);
+       # fetch the entity wrapper
 
-       $class_str = basename($this->migrations[$index]['path'],'.php');
-       $class = new $class_str;
+       $migration = $this->inner_queue[$stamp];
 
-       $this->output->writeln("Running Migration $class_str ");
+       # Get the entity class class
 
-       return $class->up($this->PDO);
+       $entity = $migration->getClass();
+
+       $this->output->writeln("Running Migration ". getClass($entity));
+
+       return $entity->up($this->PDO);
     }
 
     //---------------------------------------------------------------
 
-    public function latest($force = FALSE) {
+    public function latest($force = FALSE)
+    {
         //check if latest exists
 
 
@@ -140,16 +185,18 @@ class Collection extends SplHeap
     /**
      * Test if the index exists in the collection
      *
-     * @param integer $index
+     * @param integer $stamp
      * @return boolean
      */
-    public function exists($index) {
-        return isset($this->migrations[$index]);
+    public function exists($stamp)
+    {
+      return isset($this->inner_queue[$stamp]);
     }
 
     //---------------------------------------------------------------
 
-    public function date_query(DateTime $dte) {
+    public function date_query(\DateTime $dte)
+    {
         $stamp = $dte->format('U');
 
         //iterate over and call run if date is in range
