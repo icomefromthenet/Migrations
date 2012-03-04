@@ -16,8 +16,8 @@ class Command extends BaseCommand
      */
     protected function configure()
     {
-       
-        $this->addOption('--database','-d', InputOption::VALUE_OPTIONAL,'the database schema folder to use',false);
+
+        $this->addOption('--schema','', InputOption::VALUE_OPTIONAL,'the database schema folder to use',false);
         $this->addOption('--path','-p',     InputOption::VALUE_OPTIONAL,'the project folder path',false);
         $this->addOption('--dsn', '',   InputOption::VALUE_OPTIONAL,'DSN to connect to db',false);
         $this->addOption('--username','',    InputOption::VALUE_OPTIONAL,'The Username',false);
@@ -55,32 +55,32 @@ class Command extends BaseCommand
         }
 
 
-        if (true === $input->hasParameterOption(array('--database', '-d'))) {
+        if (true === $input->hasParameterOption(array('--schema'))) {
             #switch path to the argument
-            $project->setSchemaName($input->getOption('database'));;
+            $project['schema_name'] = $input->getOption('schema');;
         }
-        
+
         # Test for DSN
-        
+
          if (true === $input->hasParameterOption(array('--dsn'))) {
             $project = $this->getApplication()->getProject();
-            
+
             $project['dsn_command'] =  $input->getOption('dsn');
-            
+
             if (false === $input->hasParameterOption(array('--username'))) {
                 throw new \InvalidArgumentException('A DSN must have a username set');
             }
-            
-            $project['username_command'] =  $input->getOption('username');       
-            
+
+            $project['username_command'] =  $input->getOption('username');
+
             if (false === $input->hasParameterOption(array('--password'))) {
                 throw new \InvalidArgumentException('A DSN must have a password set');
             }
-            
-            $project['password_command'] =  $input->getOption('password');       
-            
+
+            $project['password_command'] =  $input->getOption('password');
+
         }
-        
+
 
     }
 

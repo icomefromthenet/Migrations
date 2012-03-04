@@ -26,9 +26,14 @@ class Path
     //  -------------------------------------------------------------------------
 
 
-    public function __construct()
+    public function __construct($path = '')
     {
-        $this->path = getcwd();
+         if($path === '') {
+            $this->path = getcwd();
+         }
+        else {
+            $this->path = $path;
+        }
 
     }
 

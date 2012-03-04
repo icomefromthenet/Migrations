@@ -6,7 +6,7 @@ class FileName
 
     const SUFFIX = '_Migration';
 
-    const FORMATT = 'd_m_Y_H_i_s';
+    const FORMATT = 'Y_m_d_H_i_s';
 
     /**
      * Gets a time stamp from a file name created using
@@ -36,9 +36,9 @@ class FileName
         $dte = new \DateTime();
 
         $stamp = array(
-            $dte->format('d'),
-            $dte->format('m'),
             $dte->format('Y'),
+            $dte->format('m'),
+            $dte->format('d'),
             $dte->format('H'),
             $dte->format('i'),
             $dte->format('s'),

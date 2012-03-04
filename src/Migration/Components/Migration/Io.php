@@ -10,7 +10,7 @@ use Symfony\Component\Finder\Finder;
 class Io extends Base
 {
 
-    protected $dir = 'migration';
+    protected $dir;
 
     /*
      * __construct()
@@ -20,6 +20,7 @@ class Io extends Base
     public function __construct($base_folder)
     {
         parent::__construct($base_folder);
+        $this->setProjectFolder('migration'. DIRECTORY_SEPARATOR. 'default');
     }
 
     //  -------------------------------------------------------------------------
@@ -48,21 +49,25 @@ class Io extends Base
             throw new \RuntimeException('Migration Directory can not be found');
         }
 
-        return Finder::create()->files()
+
+        return Finder::create()
+                        ->files()
                         ->name('*.php')
                         ->in($path)
                         ->filter(function(\SplFileInfo $file) {
-                            $valid = FALSE;
-                            $stamp = str_ireplace(FileNameParser::SUFFIX, '',     $file->getBasename());
-                            $dte = \DateTime::createFromFormat(FileNameParser::FORMATT, $stamp);
+                            $valid = false;
+                            $parser = new \Migration\Components\Migration\FileName();
 
-                            if($dte instanceof DateTime) {
+                            $dte= $parser->parse($file->getBasename());
+
+                            if($dte !== null) {
                                 $valid = TRUE;
                             }
 
                             return $valid;
                         })
                         ->getIterator();
+
     }
 
 }

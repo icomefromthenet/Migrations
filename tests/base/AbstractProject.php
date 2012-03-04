@@ -186,6 +186,34 @@ class AbstractProject extends PHPUnit_Framework_TestCase
             );
     }
 
+    protected function createMockMigrations()
+    {
+        $path = $this->getMockedPath();
+
+        $migration_path = $path->get() .
+                        DIRECTORY_SEPARATOR .
+                        'migration' .
+                        DIRECTORY_SEPARATOR .
+                        'default';
+
+        if(is_dir($migration_path) === false) {
+            throw new RuntimeException('Schema folder is missing can not create test migrations');
+        }
+
+        # create the directories
+
+        $migrations = array(
+            '2012_01_02_22_33_33_Migration.php',
+            '2012_01_03_22_33_33_Migration.php',
+            '2012_01_04_22_33_33_Migration.php',
+            '2012_01_05_22_33_33_Migration.php',
+        );
+
+        foreach($migrations as $mig) {
+              touch($migration_path . DIRECTORY_SEPARATOR .$mig);
+        }
+
+    }
 
 
 }

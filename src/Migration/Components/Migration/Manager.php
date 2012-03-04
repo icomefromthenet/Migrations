@@ -13,7 +13,8 @@ use Migration\Io\DirectoryExistsException;
  * class Manager
  */
 
-class Manager  {
+class Manager
+{
 
     protected $loader;
 
@@ -27,16 +28,25 @@ class Manager  {
 
     protected $log;
 
+    protected $schema;
+
+
     /*
      * __construct()
      * @param $arg
      */
 
-    public function __construct(IoInterface $io,Logger $log, Output $output, Connection $database = null) {
+    public function __construct(IoInterface $io,Logger $log, Output $output, Connection $database = null,$schema = '') {
         $this->io = $io;
         $this->log = $log;
         $this->output = $output;
         $this->database = $database;
+        $this->schema = $schema;
+
+        if($schema !== '') {
+            
+        }
+
     }
 
 

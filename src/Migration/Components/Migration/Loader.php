@@ -3,6 +3,9 @@ namespace Migration\Components\Migration;
 
 use Symfony\Component\Console\Output as Output;
 
+use Migration\Components\Migration\Collection;
+use Migration\Components\Migration\FileName as Filename;
+
 class Loader
 {
 
@@ -28,29 +31,20 @@ class Loader
     /**
      * Return a filled migration collection
      *
-     * @return  MigrationCollection
+     * @return  Collection
      */
-    public function load()
+    public function load(Collection $collection, Filename $filename)
     {
-
-        $migration_collection = new Collection();
-
-        $migrations_path = $this->getIo()->path();
-
         //load the migration files;
-        $file_iterator = $this->MigrationFileLoader->load($migrations_path);
+        $file_iterator = $this->getIo()->iterator($this->getIo()->path());
 
         //add the list to the migration collection (Temporal Collection)
         foreach($file_iterator as $file) {
-          $timestamp = $this->MigrationFileNameParser->parse(
-                    $file->getRealPath()
-          );
 
-          $migration_collection->add($timestamp,$file->getRealPath());
-
+          $collection->add($filename->parse($file->getRealPath()),$file->getRealPath());
         }
 
-        return $migration_collection;
+        return $collection;
     }
 
     //  ------------------------------------------------------------------

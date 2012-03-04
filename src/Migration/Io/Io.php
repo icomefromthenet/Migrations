@@ -11,10 +11,7 @@ use Symfony\Component\Finder\Finder as Finder;
 class Io implements IoInterface
 {
 
-    /**
-      *  @var string $DIR the name of the folder under the project
-      */
-    protected $dir = '';
+
 
 
     /*
@@ -236,7 +233,38 @@ class Io implements IoInterface
 
     }
 
+    //  -------------------------------------------------------------------------
+	# Project Folder (folder to use inside the project)
+
+     /**
+      *  @var string $DIR the name of the folder under the project
+      */
+    protected $dir = '';
 
 
+    /**
+      *  Sets the project folder
+      *
+      *  @access public
+      *  @return void
+      *  @param string $folder the project folder inside the project
+      */
+    public function setProjectFolder($folder)
+    {
+        $this->dir = $folder;
+    }
+
+    /**
+      *  Gets the project folder
+      *
+      *  @access public
+      *  @return string
+      */
+    public function getProjectFolder()
+    {
+        return $this->dir;
+    }
+
+    //  -------------------------------------------------------------------------
 }
 /* End of File */
