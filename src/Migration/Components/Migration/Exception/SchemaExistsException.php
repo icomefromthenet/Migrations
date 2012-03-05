@@ -1,6 +1,5 @@
 <?php
-namespace Migration\Components\Migration;
-
+namespace Migration\Components\Migration\Exception;
 use \Migration\Exceptions\Exception as Exception;
 
 

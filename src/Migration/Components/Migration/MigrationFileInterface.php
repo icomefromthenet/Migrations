@@ -19,9 +19,13 @@ interface MigrationFileInterface
 
     public function getPathname();
 
-    public function openFile ($open_mode = 'r', $use_include_path = false , resource $context = NULL);
+    public function openFile ($open_mode = 'r', $use_include_path = false , $context = NULL);
 
     public function __toString();
+
+    public function getApplied();
+
+    public function setApplied();
 
     /**
       *  Require the class and return an instance

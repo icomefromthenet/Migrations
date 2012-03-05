@@ -3,6 +3,7 @@ namespace Migration\Components\Migration;
 
 use Monolog\Logger as Logger;
 use Symfony\Component\Console\Output\OutputInterface as Output;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Migration\Components\ManagerInterface;
 use Migration\Io\IoInterface;
 use Doctrine\DBAL\Connection;
@@ -30,21 +31,23 @@ class Manager
 
     protected $schema;
 
+    protected $event;
 
     /*
      * __construct()
      * @param $arg
      */
 
-    public function __construct(IoInterface $io,Logger $log, Output $output, Connection $database = null,$schema = '') {
+    public function __construct(IoInterface $io,Logger $log, Output $output, EventDispatcherInterface $event, Connection $database = null,$schema = '') {
         $this->io = $io;
         $this->log = $log;
         $this->output = $output;
         $this->database = $database;
         $this->schema = $schema;
+        $this->event = $event;
 
         if($schema !== '') {
-            
+
         }
 
     }

@@ -3,18 +3,24 @@
 // Migration Collection
 //
 //-------------------------------------------------------------------
-/*
-*  This is a temporal collection indexed by a migrations timestamp
-*
-*/
 
 namespace Migration\Components\Migration;
 
 use Symfony\Component\Console\Output;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
 use Migration\Components\Migration\Io;
 use Migration\Components\Migration\EntityInterface;
 use Migration\Components\Migration\MigrationFileInterface;
+
+use Migration\Components\Migration\Event\UpEvent;
+use Migration\Components\Migration\Event\DownEvent;
+use Migration\Components\Migration\Event\Base as BaseEvent;
+
 use Migration\Components\Migration\Exception;
+use Migration\Components\Migration\Exception\MigrationMissingException;
+use Migration\Components\Migration\Exception\MigrationAppliedException;
+
 use \SplFileInfo;
 
 class Collection implements Countable, IteratorAggregate
@@ -47,6 +53,12 @@ class Collection implements Countable, IteratorAggregate
     */
     protected $io;
 
+  /**  The Event Dispatcher
+    *
+    *  @var Symfony\Component\EventDispatcher\EventDispatcherInterface;
+    */
+    protected $event;
+
     /**
       *  Inner Queue
       *
@@ -55,13 +67,14 @@ class Collection implements Countable, IteratorAggregate
     protected $inner_queue = array();
 
 
-    public function __construct(OutputInterface $output, Handler $handler, Schema $schema, Io $io, $latest)
+    public function __construct(OutputInterface $output, Handler $handler, Schema $schema, Io $io, EventDispatcherInterface $event, $latest)
     {
       $this->output = $output;
       $this->database = $handler;
       $this->io = $io;
       $this->schema = $schema;
       $this->latest_migration = $latest;
+      $this->event = $event;
     }
 
     //  -------------------------------------------------------------------------
@@ -135,41 +148,74 @@ class Collection implements Countable, IteratorAggregate
 
     //----------------------------------------------------------------
 
-    public function up($index = NULL,$force = FALSE)
+    public function up($stamp = NULL,$force = FALSE)
     {
        //check if migration exists
+      $map = $this->getMap();
+
+      if($this->exists($stamp) !== false) {
+        throw new MigrationMissingException(sprintf('Migration with %s can not be found'));
+      }
+
+      # test if migration has been applied and force = false
+      if($this->inner_queue[$stamp]->getApplied() && $force === false) {
+        throw new MigrationAppliedException(sprintf('Migration %s aleady been applied to database',$stamp));
+      }
+
+      # migration not applied or force = true
+
+      $migration = $this->inner_queue[$stamp]->getClass();
+
+
+      $this->output->writeln("Running Up Migration ". getClass($migration));
+
+      $migration->up($this->database);
+
+
+      # dispatch up event
+      $event = new UpEvent();
+      $event->setMigrationFile($migration);
+
+      $this->dispatchEvent($event);
+
+      # change the latest stamp
+      $this->latest = $stamp;
 
     }
 
     //----------------------------------------------------------------
 
-    public function down($index = NULL,$force = FALSE)
+    public function down($stamp = NULL,$force = FALSE)
     {
+      $map = $this->getMap();
+
        //check if migration exists
+      if($this->exists($stamp) !== false) {
+        throw new MigrationMissingException(sprintf('Migration with %s can not be found'));
+      }
+
+      # test if migration has NOT been applied and force = false
+      if($this->inner_queue[$stamp]->getApplied() === false && $force === false) {
+        throw new MigrationAppliedException(sprintf('Migration %s NOT been applied to database cant runt down',$stamp));
+      }
+
+      # run down operation
+      $migration = $this->inner_queue[$stamp]->getClass();
+      $this->output->writeln("Running Down Migration ". getClass($migration));
+
+      $migration->down($this->database);
+
+      # dispatch down event
+      $event = new DownEvent();
+      $event->setMigrationFile($migration);
+
+      $this->dispatchEvent($event);
+
+      # change the latest stamp
+      $this->latest = $stamp;
     }
 
 
-    //----------------------------------------------------------------
-
-    public function run($stamp,$force = FALSE)
-    {
-       //check if migration exists
-       if($this->exists($stamp) === FALSE) {
-           throw new Exception('stamp at '.$stamp.' does not exists');
-       }
-
-       # fetch the entity wrapper
-
-       $migration = $this->inner_queue[$stamp];
-
-       # Get the entity class class
-
-       $entity = $migration->getClass();
-
-       $this->output->writeln("Running Migration ". getClass($entity));
-
-       return $entity->up($this->PDO);
-    }
 
     //---------------------------------------------------------------
 
@@ -213,6 +259,49 @@ class Collection implements Countable, IteratorAggregate
     }
 
     //-------------------------------------------------------------
+    # Get Map
 
+    /**
+    *  Return a map of all indexes
+    *
+    *  @return array($key1,$key2,$key3 ...) in order
+    */
+    public function getMap()
+    {
+      return array_keys($this->inner_queue);
+    }
+
+    //  -------------------------------------------------------------------------
+    # Dispatches and Event
+
+    /**
+      *  Dispatches the event based on type
+      *
+      *  @access public
+      *  @return BaseEvent
+      *  @param BaseEvent $event
+      */
+    public function dispatchEvent(BaseEvent $event)
+    {
+      $result = null;
+
+      if($event instanceof UpEvent) {
+
+        $result = $this->event->dispatch('migration.up',$event);
+
+      } elseif ($event instanceof DownEvent) {
+
+        $result= $this->event->dispatch('migration.down',$event);
+
+      }
+      else {
+        throw new Exception('Unknown Event Type');
+      }
+
+      return $result;
+
+    }
+
+    //  -------------------------------------------------------------------------
 }
 /* End of class */

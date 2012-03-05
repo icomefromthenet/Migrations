@@ -12,6 +12,10 @@ class Io extends Base
 
     protected $dir;
 
+    protected $test_data_fname = 'test_data.php';
+
+    protected $schema_fname = 'schema.php';
+
     /*
      * __construct()
      * @param string $base_folder the path to a project
@@ -53,6 +57,8 @@ class Io extends Base
         return Finder::create()
                         ->files()
                         ->name('*.php')
+                        ->notName($this->test_data_fname)
+                        ->notName($this->schema_fname)
                         ->in($path)
                         ->filter(function(\SplFileInfo $file) {
                             $valid = false;
@@ -70,5 +76,23 @@ class Io extends Base
 
     }
 
+    //  -------------------------------------------------------------------------
+    # Load Schema File
+
+    public function schema($path)
+    {
+        return $this->load($this->schema_fname,'',true);
+
+    }
+
+    //  -------------------------------------------------------------------------
+    # Load Test Data File
+
+    public function testData($path)
+    {
+        return $this->load($this->test_data_fname,'',true);
+    }
+
+    //  -------------------------------------------------------------------------
 }
 /* End of File */

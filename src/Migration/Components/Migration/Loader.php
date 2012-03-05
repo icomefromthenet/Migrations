@@ -5,6 +5,7 @@ use Symfony\Component\Console\Output as Output;
 
 use Migration\Components\Migration\Collection;
 use Migration\Components\Migration\FileName as Filename;
+use Migration\Components\Migration\MigrationFile;
 
 class Loader
 {
@@ -41,10 +42,38 @@ class Loader
         //add the list to the migration collection (Temporal Collection)
         foreach($file_iterator as $file) {
 
-          $collection->add($filename->parse($file->getRealPath()),$file->getRealPath());
+          $collection->insert($filename->parse($file->getRealPath()),$file->getRealPath());
         }
 
         return $collection;
+    }
+
+
+    //  -------------------------------------------------------------------------
+    # Get load Schema and load Testdata
+
+    /**
+      *  Loads a init schema migration for a project
+      *
+      *  @access public
+      *  @return MigrationFileInterface
+      */
+    public function schema()
+    {
+        $splFileInfo = $this->io->schema();
+        return new MigrationFile($splFileInfo);
+    }
+
+    /**
+      *  Loads the test data migration for a project
+      *
+      *  @access public
+      *  @return MigrationFileInterface
+      */
+    public function testData()
+    {
+        $splFileInfo = $this->io->testData();
+        return new MigrationFile($splFileInfo);
     }
 
     //  ------------------------------------------------------------------

@@ -168,9 +168,10 @@ $project['database'] = $project->share(function($project){
 $project['config_manager'] = $project->share(function($project){
     # create the io dependency
     $io = new \Migration\Components\Config\Io($project->getPath()->get());
+    $event = $project['event_dispatcher'];
 
     # instance the manager, no database needed here
-    return new \Migration\Components\Config\Manager($io,$project->getLogger(),new \Symfony\Component\Console\Output\ConsoleOutput(),null);
+    return new \Migration\Components\Config\Manager($io,$project->getLogger(),new \Symfony\Component\Console\Output\ConsoleOutput(),$event,null);
 });
 
 
@@ -185,9 +186,10 @@ $project['migration_manager'] = $project->share(function($project){
     $io = new \Migration\Components\Migration\Io($project->getPath()->get());
 
     $io->setProjectFolder('migration'. DIRECTORY_SEPARATOR . $project['schema_name']);
+    $event = $project['event_dispatcher'];
 
     # instance the manager, no database needed here
-    return new \Migration\Components\Migration\Manager($io,$project->getLogger(),new \Symfony\Component\Console\Output\ConsoleOutput(),null);
+    return new \Migration\Components\Migration\Manager($io,$project->getLogger(),new \Symfony\Component\Console\Output\ConsoleOutput(),$event,null);
 });
 
 
@@ -200,9 +202,10 @@ $project['template_manager'] = $project->share(function($project){
     # create the io dependency
 
     $io = new \Migration\Components\Templating\Io($project->getPath()->get());
+    $event = $project['event_dispatcher'];
 
     # instance the manager, no database needed here
-    return new \Migration\Components\Templating\Manager($io,$project->getLogger(),new \Symfony\Component\Console\Output\ConsoleOutput(),null);
+    return new \Migration\Components\Templating\Manager($io,$project->getLogger(),new \Symfony\Component\Console\Output\ConsoleOutput(),$event,null);
 
 });
 
@@ -219,9 +222,10 @@ $project['writer_manager'] = $project->share(function($project)
 {
     # create the io dependency
     $io = new \Migration\Components\Writer\Io($project->getPath()->get());
+    $event = $project['event_dispatcher'];
 
     # instance the manager, no database needed here
-    $manager = new \Migration\Components\Writer\Manager($io,$project->getLogger(),new \Symfony\Component\Console\Output\ConsoleOutput(),null);
+    $manager = new \Migration\Components\Writer\Manager($io,$project->getLogger(),new \Symfony\Component\Console\Output\ConsoleOutput(),$event,null);
 
     $manager->setTemplateLoader($project['template_manager']->getLoader());
 
@@ -245,3 +249,12 @@ $project['writer_cachelimit'] = function($project)
 {
   return new \Migration\Components\Writer\limit($project['writer_cache_max']);
 };
+
+//---------------------------------------------------------------
+// Event Dispatcher
+//
+//---------------------------------------------------------------
+
+$project['event_dispatcher'] = $project->share(function($project){
+   return new \Symfony\Component\EventDispatcher\EventDispatcher();
+});

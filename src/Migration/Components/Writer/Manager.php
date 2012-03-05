@@ -3,6 +3,7 @@ namespace Migration\Components\Writer;
 
 use Monolog\Logger;
 use Symfony\Component\Console\Output\OutputInterface as Output;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Migration\Components\ManagerInterface;
 use Migration\Io\IoInterface;
 use Doctrine\DBAL\Connection;
@@ -27,6 +28,8 @@ class Manager implements ManagerInterface
 
     protected $database;
 
+    protected $event;
+
     //  -------------------------------------------------------------------------
     # Class Constructor
 
@@ -41,17 +44,14 @@ class Manager implements ManagerInterface
        *  class constructor
        *
        *  @access public
-       *  @param \Migration\Components\Config\Io $io this components Io class
-       *  @param \Monolog\Logger $log the applications debug log
-       *  @param \Symfony\Component\Console\Output\OutputInterface $output the console out clas
-       *  @param \Doctrine\DBAL\Connection $database defaults to null
        */
-    public function __construct(IoInterface $io,Logger $log, Output $output, Connection $database = null)
+    public function __construct(IoInterface $io,Logger $log, Output $output, EventDispatcherInterface $event, Connection $database = null)
     {
         $this->io = $io;
         $this->log = $log;
         $this->output = $output;
         $this->database = $database;
+        $this->event = $event;
     }
 
 

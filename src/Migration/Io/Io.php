@@ -93,8 +93,9 @@ class Io implements IoInterface
      *  @param string $name filename
      *  @param mixed folders array of folders to append
      *  @param mixed
+     *  @param $object true to return SplFileInfo
      */
-    public function load($name,$folders)
+    public function load($name,$folders,$object = false)
     {
         $path = $this->path($folders);
 
@@ -102,7 +103,11 @@ class Io implements IoInterface
             throw new FileNotExistException('Can not find fine named: '.$path . $name);
         }
 
-        return require($path . $name);
+        if($object === true) {
+            return new \SplFileInfo($path.$name);
+        } else {
+            return require($path . $name);
+        }
     }
 
 
