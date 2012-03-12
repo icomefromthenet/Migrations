@@ -215,7 +215,33 @@ class AbstractProject extends PHPUnit_Framework_TestCase
 
     }
 
+    //  -------------------------------------------------------------------------
+    # Get Mock OuputInterface
+    
 
+    protected function getMockOuput()
+    {
+        return $this->getMock('\Symfony\Component\Console\Output\OutputInterface',array());
+    }
+
+    //  -------------------------------------------------------------------------
+    # Get Mock MonoLog
+    
+    
+    protected function getMockLog()
+    {
+        $sysLog = new \Monolog\Handler\TestHandler();
+    
+        // Create the main logger of the app
+        $logger = new \Monolog\Logger('error');
+        $logger->pushHandler($sysLog);
+    
+        #assign the log to the project
+        return $logger;
+    
+    }
+    
+    //  -------------------------------------------------------------------------
 }
 
 /* End of File */
