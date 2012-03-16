@@ -78,27 +78,71 @@ class MigrationDatabaseBuilderTest extends AbstractProjectWithDb
     public function testGetProcedures()
     {
         $builder = $this->db_builder;
-        $procedures = $builder->getProcedures();
+        $procedures = $builder->listProcedures();
         $this->assertTrue(count($procedures) > 0);
     }
     
     public function testGetFunctions()
     {
         $builder = $this->db_builder;
-        $functions = $builder->getFunctions();
+        $functions = $builder->listFunctions();
         $this->assertTrue(count($functions) > 0);
+    }
+    
+    
+    public function testListTables()
+    {
+        $builder = $this->db_builder;
+        $tables =$builder->listTables();    
+    
+        $this->assertTrue(count($tables) === 15);
+        
+    }
+    
+    
+    public function testListViews()
+    {
+        $builder = $this->db_builder;
+        $views =$builder->listViews();    
+        $this->assertTrue(count($views) === 6);
+        
+        
+    }
+
+
+    public function testListTriggers()
+    {
+        $builder = $this->db_builder;
+        $triggers =$builder->listTriggers();    
+        
+        $this->assertTrue(count($triggers) === 6);
+        
     }
     
     
     public function testShow()
     {
         $builder = $this->db_builder;
-        $schema_manager = $builder->getDatabase()->getSchemaManager(); 
-        $builder->show($schema_manager);    
+        $builder->show();    
     
         $this->assertTrue(true);
-    }
+    } 
     
+    
+    public function testClean()
+    {
+        $builder = $this->db_builder;
+        
+        $builder->disableFK();
+        
+        $builder->clean();
+        
+        $builder->enableFK();
+    
+        $this->assertTrue(true);
+        
+        
+    }
     
     //  -------------------------------------------------------------------------
     # Get Builder

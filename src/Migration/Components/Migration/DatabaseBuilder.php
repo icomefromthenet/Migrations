@@ -64,44 +64,6 @@ class DatabaseBuilder
 
     
     //  -------------------------------------------------------------------------
-    # Get the Procedures
-    
-    /**
-      *  Fetch the procedures for current db
-      *
-      *  @return array()
-      */
-    public function getProcedures()
-    {
-        $database_name = $this->database->getDatabase();
-        $query_string = sprintf("SHOW PROCEDURE STATUS WHERE Db = '%s';",$database_name);
-      
-        $stmt = $this->database->prepare($query_string);
-        $stmt->execute();
-        
-        return $stmt->fetchAll();
-    }
-    
-    //  -------------------------------------------------------------------------
-    # Get the Functions
-    
-    /**
-      *  Fetch the functions for current db
-      *
-      *  @return array()
-      */
-    public function getFunctions()
-    {
-        $database_name = $this->database->getDatabase();
-        $query_string = sprintf("SHOW FUNCTION STATUS WHERE Db = '%s';",$database_name);
-      
-        $stmt = $this->database->prepare($query_string);
-        $stmt->execute();
-        
-        return $stmt->fetchAll();
-    }
-    
-    //  -------------------------------------------------------------------------
     # Enable / Disable FK
 
     public function disableFK()
@@ -118,7 +80,118 @@ class DatabaseBuilder
 	$this->database->exec('SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS');
 	$this->database->exec('SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS');
     }
-
+    
+    
+    //  -------------------------------------------------------------------------
+    # List Methods
+    
+    /**
+      *  Fetch the procedures for current db
+      *
+      *  @return array()
+      */
+    public function listProcedures()
+    {
+        $database_name = $this->database->getDatabase();
+        $query_string = sprintf("SHOW PROCEDURE STATUS WHERE Db = '%s';",$database_name);
+      
+        $stmt = $this->database->prepare($query_string);
+        $stmt->execute();
+        
+        $raw_procedures = $stmt->fetchAll();
+        $procedures = array();
+        
+        foreach($raw_procedures as $procedure) {
+            $procedures[] = $procedure['Name'];
+        }
+        
+        return $procedures;
+        
+    }
+    
+    /**
+      *  Fetch the functions for current db
+      *
+      *  @return array()
+      */
+    public function listFunctions()
+    {
+        $database_name = $this->database->getDatabase();
+        $query_string = sprintf("SHOW FUNCTION STATUS WHERE Db = '%s';",$database_name);
+      
+        $stmt = $this->database->prepare($query_string);
+        $stmt->execute();
+        
+        $raw_functions = $stmt->fetchAll();
+        $functions = array();
+        
+        foreach($raw_functions as $function) {
+            $functions[] = $function['Name'];
+        }
+        
+        return $functions;
+    }
+    
+    
+    public function listTables()
+    {
+        $query = "SHOW FULL TABLES FROM `%s` WHERE Table_type = 'BASE TABLE';";
+        $database_name = $this->database->getDatabase();
+       
+        $stmt = $this->database->prepare(sprintf($query,$database_name));
+        $stmt->execute();
+        
+        $raw_tables = $stmt->fetchAll(\PDO::FETCH_NUM);
+        $tables = array();
+        
+        foreach($raw_tables as $table) {
+            $tables[] = $table[0];
+        }
+        
+        return $tables;
+        
+    }
+    
+    public function listViews()
+    {
+        $query = "SHOW FULL TABLES FROM `%s` WHERE Table_type = 'VIEW';";
+        $database_name = $this->database->getDatabase();
+       
+        $stmt = $this->database->prepare(sprintf($query,$database_name));
+        $stmt->execute();
+        
+        $raw_views = $stmt->fetchAll(\PDO::FETCH_NUM);
+        $views = array();
+        
+        foreach($raw_views as $view) {
+            $views[] = $view[0];
+        }
+        
+        return $views;
+        
+        
+    }
+    
+    public function listTriggers()
+    {
+        $query = "SHOW TRIGGERS FROM `%s`;";
+        $database_name = $this->database->getDatabase();
+       
+        $stmt = $this->database->prepare(sprintf($query,$database_name));
+        $stmt->execute();
+        
+        $raw_triggers = $stmt->fetchAll(\PDO::FETCH_NUM);
+        $triggers = array();
+        
+        foreach($raw_triggers as $trigger) {
+            $triggers[] = $trigger[0];
+        }
+        
+        return $triggers;
+        
+    }
+    
+    
     //  -------------------------------------------------------------------------
     # Show
 
@@ -129,41 +202,65 @@ class DatabaseBuilder
       *  @access public
       *  @return array(tables);
       */
-    public function show(AbstractSchemaManager $manager)
+    public function show()
     {
+        
+        $this->output->writeLn("<info> Dropping the Following Tables: </info>");
+        
+        
         # list tables
-        $tables = $manager->listTables();
+        $tables = $this->listTables();
         
         foreach ($tables as $table) {
-            $this->output->writeLn($table->getName());
+            $this->output->writeLn("(--drop) <comment>$table</comment>");
         }
+       
+       
+        $this->output->writeLn("<info> Dropping the Following Views: </info>");
+       
         
         # list views
-        $views = $manager->listViews();
+        $views = $this->listViews();
         
         foreach ($views as $view) {
-            $this->output->writeLn($view->getName());
+            $this->output->writeLn("(--drop) <comment>$view</comment>");
+        }
+        
+        # list triggers
+      
+        $this->output->writeLn("<info> Dropping the Following Triggers: </info>");
+        
+        $triggers = $this->listTriggers();
+        
+        foreach ($triggers as $trigger) {
+            $this->output->writeLn("(--drop) <comment>$trigger</comment>");
         }
         
         # list procedures
-        $procedures = $this->getProcedures();
+        $procedures = $this->listProcedures();
+        
+        $this->output->writeLn("<info> Dropping the Following Procedures: </info>");
+
         
         foreach($procedures as $procedure) {
-            $this->output->writeLn($procedure['Name']);
+            $this->output->writeLn("(--drop) <comment>".$procedure."</comment>");
         }
         
         # list functions
-        $functions = $this->getFunctions();
+        $functions = $this->listFunctions();
+        
+        $this->output->writeLn("<info> Dropping the Following Functions: </info>");
+
         
         foreach($functions as $func) {
-            $this->output->writeLn($func['Name']);
+            $this->output->writeLn("(--drop) <comment>".$func."</comment>");
         }
         
         return true;
     }
 
     //  -------------------------------------------------------------------------
-    # Drop Table
+    # Drop Functions
 
     /**
       *  Will Drop the table from the database
@@ -172,87 +269,91 @@ class DatabaseBuilder
       *  @param AbstractSchemaManager $manager
       *  @access public
       */
-    public function dropTable($name, AbstractSchemaManager $manager)
+    public function dropTable($name)
     {
-        return $manager->dropTable($name);
-    }
-    
-    //  -------------------------------------------------------------------------
-    # Drop Sequence
+        $database_name = $this->database->getDatabase();
+        $query_string = sprintf("DROP TABLE IF EXISTS `%s`.`%s`;",$database_name,$name);
+      
+        $stmt = $this->database->prepare($query_string);
+        
+        return $stmt->execute();
 
+    }
+
+    
     /**
       *  Will Drop the sequence from the database
       *
       *  @param string $name
-      *  @param AbstractSchemaManager $manager
       *  @access public
       */
-    public function dropSequence($name, AbstractSchemaManager $manager)
+    public function dropSequence($name)
     {
-        return $manager->dropSequence($name);
+        return true;
     }
-    
-    //  -------------------------------------------------------------------------
-    # Drop Index
 
+    
     /**
       *  Will Drop an Index from the database
       *
       *  @param string $name
       *  @param string $table
-      *  @param AbstractSchemaManager $manager
       *  @access public
       */
-    public function dropIndex($name, $table, AbstractSchemaManager $manager)
+    public function dropIndex($name, $table)
     {
-        return $manager->dropIndex($name,$table);
+        $query_string = sprintf("DROP INDEX `%s` ON `%s`;",$name,$table);
+      
+        $stmt = $this->database->prepare($query_string);
+        
+        return $stmt->execute();
     }
     
-    //  -------------------------------------------------------------------------
-    # Drop FK
-
+   
     /**
       *  Will Drop a FK from the database
       *
       *  @param string $name
       *  @param string $table the table key belongs
-      *  @param AbstractSchemaManager $manager
       *  @access public
       */
-    public function dropForeignKey($name, $table,  AbstractSchemaManager $manager)
+    public function dropForeignKey($name, $table)
     {
-        return $manager->dropForeignKey($name, $table);
+        $query_string = sprintf("ALTER TABLE `%s` DROP FOREIGN KEY `%s`",$table,$name);
+      
+        $stmt = $this->database->prepare($query_string);
+        
+        return $stmt->execute();
     }
     
-    //  -------------------------------------------------------------------------
-    # Drop Constraint
-
+   
     /**
       *  Will Drop a constraint from the database
       *
       *  @param string $name
       *  @param string $table
-      *  @param AbstractSchemaManager $manager
       *  @access public
       */
-    public function dropConstraint($name, $table, AbstractSchemaManager $manager)
+    public function dropConstraint($name, $table)
     {
-        return $manager->dropConstraint($name,$table);
+        return null;
     }
     
-    //  -------------------------------------------------------------------------
-    # Drop View
-
-    /**
+     /**
       *  Will Drop a view from the database
       *
       *  @param string $name
-      *  @param AbstractSchemaManager $mamager
       *  @access public
       */
-    public function dropView($name, AbstractSchemaManager $manager)
+    public function dropView($name)
     {
-        return $manager->dropView($name);
+        $database_name = $this->database->getDatabase();
+        $query_string = sprintf("DROP VIEW IF EXISTS `%s`;",$name);
+      
+        $stmt = $this->database->prepare($query_string);
+        
+        return $stmt->execute();
+        
     }
  
  
@@ -262,7 +363,8 @@ class DatabaseBuilder
         $query_string = sprintf("DROP PROCEDURE IF EXISTS `%s`.`%s`;",$database_name,$name);
       
         $stmt = $this->database->prepare($query_string);
-        $stmt->execute();
+        
+        return $stmt->execute();
         
     }
     
@@ -272,10 +374,23 @@ class DatabaseBuilder
         $query_string = sprintf("DROP FUNCTION IF EXISTS `%s`.`%s`;",$database_name,$name);
       
         $stmt = $this->database->prepare($query_string);
-        $stmt->execute();
+        
+        return $stmt->execute();
         
     }
  
+    
+    public function dropTrigger($name)
+    {
+        $database_name = $this->database->getDatabase();
+        $query_string = sprintf("DROP TRIGGER IF EXISTS `%s`.`%s`;",$database_name,$name);
+      
+        $stmt = $this->database->prepare($query_string);
+        
+        return $stmt->execute();
+        
+    }
+    
     
     //  -------------------------------------------------------------------------
     # Apply
@@ -293,32 +408,74 @@ class DatabaseBuilder
     }
 
     //  -------------------------------------------------------------------------
+    # Clean Schema
+    
+    /**
+      *  Clears the schema of Procedures, Functions , Triggers , Views and Tables
+      *
+      *  @access public
+      *  @return void
+      */
+    public function clean()
+    {
+        # drop functions and procedures
+        $procedures = $this->listProcedures();
+        
+        foreach($procedures as $procedure) {
+            $result = $this->dropProcedure($procedure);
+        }
+        
+        $functions = $this->listFunctions();
+        
+        foreach($functions as $function) {
+            $this->dropFunction($function);
+        }
+        
+        # drop triggers
+        $triggers = $this->listTriggers();
+        
+        foreach($triggers as $trigger) {
+            $this->dropTrigger($trigger);
+        }
+        
+        # drop the views
+        $views = $this->listViews();
+        
+        foreach($views as $view) {
+            $this->dropView($view);
+        }
+        
+        # drop the tables
+        $tables = $this->listTables();
+    
+        # Drop Each Table
+        foreach($tables as $table) {
+            $this->dropTable($table);
+        }
+        
+    }
+    
+    
+    //  -------------------------------------------------------------------------
     # Build
 
     public function build(MigrationFileInterface $schema, MigrationFileInterface $test_data, Collection $collection)
     {
         
-        $sm = $this->database->getSchemaManager();
-        
-        
         # Start transaction
-
+        $this->database->beginTransaction();
+        
+        
         try {
 
             # Disable FK
             $this->disableFK();
 
-            # Get the tables tables
-            $instances = $this->show();
+            # Print a list of tables to drop
+            $this->show();
 
-            # Drop Each Table
-            foreach($tables as $table) {
-
-            }
-            
-            $this->drop($instances);
-           
-
+            $this->clean();
+        
             # Enable FK
             $this->enableFK();
 
@@ -336,16 +493,17 @@ class DatabaseBuilder
             $new_test_data = $test_data->getClass();
             $new_test_data->up($this->database);
 
+            $this->database->commit();
+            
+        
         }
         catch(\Exception $e) {
 
             # revert the transaction
-
+            $this->database->rollback();
+            
             throw $e;
         }
-
-        # Apply the transaction
-
 
     }
 

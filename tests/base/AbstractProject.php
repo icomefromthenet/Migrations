@@ -221,6 +221,9 @@ class AbstractProject extends PHPUnit_Framework_TestCase
 
     protected function getMockOuput()
     {
+        
+        //return new \Symfony\Component\Console\Output\ConsoleOutput();
+        
         return $this->getMock('\Symfony\Component\Console\Output\OutputInterface',array());
     }
 
