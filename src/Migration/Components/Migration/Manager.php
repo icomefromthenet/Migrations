@@ -7,6 +7,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface as Event;
 use Doctrine\DBAL\Connection;
 use Migration\Components\Migration\Driver\SchemaInterface;
 use Migration\Components\Migration\Driver\TableInterface;
+use Migration\Components\Migration\Exception as MigrationException;
 use Migration\Components\ManagerInterface;
 use Migration\Io\IoInterface;
 use Migration\Components\Config\Entity as ConfigEntity;

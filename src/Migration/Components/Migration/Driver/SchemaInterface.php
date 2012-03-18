@@ -88,6 +88,14 @@ interface SchemaInterface
       */
     public function listTriggers();
     
+    /**
+      *  Fetch a list of sequences
+      *
+      *  @access public
+      *  @return array
+      */
+    public function listSequences();
+    
     
     //  -------------------------------------------------------------------------
     # Show
@@ -110,7 +118,6 @@ interface SchemaInterface
       *  Will Drop the table from the database
       *
       *  @param string $name
-      *  @param AbstractSchemaManager $manager
       *  @access public
       */
     public function dropTable($name);

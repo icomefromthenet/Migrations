@@ -1,6 +1,6 @@
 <?php
 
-namespace Migration\Components\Migration\Driver\Mysql;
+namespace Migration\Components\Migration\Driver\Generic;
 
 use Monolog\Logger as Logger;
 use Doctrine\DBAL\Connection;

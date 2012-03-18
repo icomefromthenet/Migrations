@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Migration\Components\Migration\MigrationFileInterface;
 use Migration\Components\Migration\Collection;
 use Migration\Components\Migration\Driver\SchemaInterface;
+use Migration\Components\Migration\Exception as MigrationException;
 
 class SchemaManager implements SchemaInterface
 {
@@ -85,6 +86,13 @@ class SchemaManager implements SchemaInterface
     
     //  -------------------------------------------------------------------------
     # List Methods
+
+
+    public function listSequences()
+    {
+	throw new MigrationException('not implemented');	
+    }
+
     
     /**
       *  Fetch the procedures for current db
