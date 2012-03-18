@@ -186,10 +186,13 @@ $project['migration_manager'] = $project->share(function($project){
     $io = new \Migration\Components\Migration\Io($project->getPath()->get());
 
     $io->setProjectFolder('migration'. DIRECTORY_SEPARATOR . $project['schema_name']);
+    $console = new \Symfony\Component\Console\Output\ConsoleOutput();  
+    $config = $project->getConfigManager()->getLoader()->load();
+    $logger = $project->getLogger();
     $event = $project['event_dispatcher'];
-
+  
     # instance the manager, no database needed here
-    return new \Migration\Components\Migration\Manager($io,$project->getLogger(),new \Symfony\Component\Console\Output\ConsoleOutput(),$event,null);
+    return new \Migration\Components\Migration\Manager($io,$logger,$console,$project['database'],$config,$event);
 });
 
 

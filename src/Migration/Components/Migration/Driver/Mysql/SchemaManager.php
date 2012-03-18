@@ -1,5 +1,5 @@
 <?php
-namespace Migration\Components\Migration;
+namespace Migration\Components\Migration\Driver\Mysql;
 
 use Monolog\Logger as Logger;
 use Symfony\Component\Console\Output\OutputInterface as Output;
@@ -9,8 +9,9 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 
 use Migration\Components\Migration\MigrationFileInterface;
 use Migration\Components\Migration\Collection;
+use Migration\Components\Migration\Driver\SchemaInterface;
 
-class DatabaseBuilder
+class SchemaManager implements SchemaInterface
 {
 
     /**

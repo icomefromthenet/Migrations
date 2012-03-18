@@ -2,13 +2,13 @@
 
 require_once __DIR__ .'/base/AbstractProjectWithDb.php';
 
-use Migration\Components\Migration\MigrationTable;
+use Migration\Components\Migration\Driver\Mysql\TableManager;
 
-class MigrationTableTest extends AbstractProjectWithDb
+class MysqlTableManagerTest extends AbstractProjectWithDb
 {
 
     /**
-      *  @var \Migration\Components\Migration\MigrationTable 
+      *  @var \Migration\Components\Migration\Driver\Mysql\TableManager 
       */
     protected $table;
 
@@ -79,7 +79,7 @@ class MigrationTableTest extends AbstractProjectWithDb
         $connection = $this->getDoctrineConnection();        
         $log    = $this->getMockLog();
               
-        return new MigrationTable($connection,$log,'migration_migrate');
+        return new TableManager($connection,$log,'migration_migrate');
         
     }
 

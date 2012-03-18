@@ -15,18 +15,7 @@ use Doctrine\DBAL\Connection;
 interface ManagerInterface
 {
 
-    /**
-      *  Class constructor
-      *
-      * @param IoInterface $io the file writter
-      * @param Logger $log the log class
-      * @param Output $output console output class
-      * @param EventDispatcherInterface $event the event dispatcher
-      * @param Connection $database the optional database connection
-      *
-      */
-    public function __construct(IoInterface $io,Logger $log, Output $output, EventDispatcherInterface $event, Connection $database = null);
-
+   
 
     /**
       *  function getLoader

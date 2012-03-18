@@ -2,13 +2,13 @@
 
 require_once __DIR__ .'/base/AbstractProjectWithDb.php';
 
-use Migration\Components\Migration\DatabaseBuilder;
+use Migration\Components\Migration\Driver\Mysql\SchemaManager;
 
-class MigrationDatabaseBuilderTest extends AbstractProjectWithDb
+class MysqlSchemaManagerTest extends AbstractProjectWithDb
 {
 
     /**
-      *  @var \Migration\Components\Migration\DatabaseBuilder 
+      *  @var \Migration\Components\Migration\Driver\Mysql\SchemaManager 
       */
     protected $db_builder;
 
@@ -154,7 +154,7 @@ class MigrationDatabaseBuilderTest extends AbstractProjectWithDb
         $output =  $this->getMockOuput();
         $log    = $this->getMockLog();
               
-        return new DatabaseBuilder($log,$output,$connection);
+        return new SchemaManager($log,$output,$connection);
         
     }
 

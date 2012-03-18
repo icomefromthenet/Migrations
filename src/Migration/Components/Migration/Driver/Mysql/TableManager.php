@@ -1,14 +1,17 @@
 <?php
 
-namespace Migration\Components\Migration;
+namespace Migration\Components\Migration\Driver\Mysql;
 
 use Monolog\Logger as Logger;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
+
 use Migration\Components\Migration\MigrationFileInterface;
 use Migration\Components\Migration\Collection;
 use Migration\Components\Migration\Exception\TableMissingException;
 use Migration\Components\Migration\Exception;
+use Migration\Components\Migration\Driver\TableInterface;
+
 
 /**
   *  Class Contains the Database logic for the Migrations Database Table
@@ -17,7 +20,7 @@ use Migration\Components\Migration\Exception;
   *  Consider this table to be a Stack (LIFO) http://en.wikipedia.org/wiki/Stack_(data_structure)
   *  
   */
-class MigrationTable
+class TableManager implements TableInterface
 {
     
     /**
@@ -59,7 +62,7 @@ class MigrationTable
     
     
     //  ----------------------------------------------------------------------------
-    # Queue Functions
+    # Stack Functions
     
     /**
       *  Fetches a value from the top of stack , removing it 
@@ -120,10 +123,6 @@ class MigrationTable
         
     }
   
-    
-    //  ----------------------------------------------------------------------------
-    # Create Queue
-    
     /**
       * Create the Queue Migration Table
       *
@@ -158,10 +157,6 @@ class MigrationTable
         
     }
     
-    
-    //  ----------------------------------------------------------------------------
-    # Clear the Queue
-    
     /**
       *  Clears the queue by Truncating the migrations table
       *
@@ -192,10 +187,8 @@ class MigrationTable
         
         
     }
-    
-    //  ----------------------------------------------------------------------------
-    # Queue Exist
-    
+
+
     /**
       *  Find if the Queue Exists
       *
@@ -216,8 +209,6 @@ class MigrationTable
         return true;
     }
     
-    //  ----------------------------------------------------------------------------
-    # Covert Date Time and back again
     
     /**
       *  Convert DateTime to timestamp

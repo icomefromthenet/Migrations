@@ -1,6 +1,8 @@
 <?php
 namespace Migration\Components\Config;
 
+use Migration\Components\Config\Entity;
+
 /*
  * class Loader
  */
@@ -21,6 +23,10 @@ class Loader
       */
     const EXTENSION   = '.php';
 
+    /**
+      *  @var \Migration\Components\Config\Entity 
+      */
+    protected $config;
 
     /*
      * __construct()
@@ -42,20 +48,27 @@ class Loader
      * @return Entity a config entity
      */
     public function load($name = '') {
-        if (empty($name)) {
-            $name = self::DEFAULTNAME . self::EXTENSION;
+       
+        # lazy load the config
+        if($this->config === null) {
+        
+            if (empty($name)) {
+                $name = self::DEFAULTNAME . self::EXTENSION;
+            }
+    
+            $config_ary = $this->getIo()->load($name,null);
+    
+            //send it to be validated and normalized using out configTree;
+            if ($config_ary === NULL) {
+                return NULL;
+            } else {
+    
+                $this->config = new Entity($config_ary);
+            }
         }
-
-        $config_ary = $this->getIo()->load($name,null);
-
-        //send it to be validated and normalized using out configTree;
-        if ($config_ary === NULL) {
-            return NULL;
-        } else {
-
-            $entity = new Entity($config_ary);
-            return $entity;
-        }
+        
+        return $this->config;
+        
     }
 
 
@@ -103,6 +116,16 @@ class Loader
 
     //---------------------------------------------------------------------
 
+    /**
+      *  Clears the loaded config
+      *
+      *  @access public
+      *  @return void
+      */
+    public function clear()
+    {
+        $this->config = null;
+    }
 
 }
 /* End of File */
