@@ -10,10 +10,6 @@ use Migration\Components\Migration\MigrationFile;
 class Loader
 {
 
-    protected $database;
-
-    protected $output;
-
     /*
      * __construct()
      *
@@ -36,13 +32,13 @@ class Loader
      */
     public function load(Collection $collection, Filename $filename)
     {
-        //load the migration files;
+        # load the migration files;
         $file_iterator = $this->getIo()->iterator($this->getIo()->path());
 
-        //add the list to the migration collection (Temporal Collection)
+        # add the list to the migration collection (Temporal Collection)
         foreach($file_iterator as $file) {
-
-          $collection->insert($filename->parse($file->getRealPath()),$file->getRealPath());
+          $stamp = $filename->parse($file->getRealPath()); 
+          $collection->insert(new MigrationFile($file,$stamp),$stamp);
         }
 
         return $collection;
@@ -60,8 +56,9 @@ class Loader
       */
     public function schema()
     {
+        $now = new \DateTime();
         $splFileInfo = $this->io->schema();
-        return new MigrationFile($splFileInfo);
+        return new MigrationFile($splFileInfo,$now->getTimestamp(),false);
     }
 
     /**
@@ -72,8 +69,9 @@ class Loader
       */
     public function testData()
     {
+        $now = new \DateTime();
         $splFileInfo = $this->io->testData();
-        return new MigrationFile($splFileInfo);
+        return new MigrationFile($splFileInfo,$now->getTimestamp(),false);
     }
 
     //  ------------------------------------------------------------------

@@ -25,7 +25,7 @@ interface MigrationFileInterface
 
     public function getApplied();
 
-    public function setApplied();
+    public function setApplied($applied);
 
     /**
       *  Require the class and return an instance

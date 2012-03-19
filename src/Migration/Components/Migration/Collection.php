@@ -6,24 +6,22 @@
 
 namespace Migration\Components\Migration;
 
-use Symfony\Component\Console\Output;
+use Monolog\Logger as Logger;
+use Symfony\Component\Console\Output\OutputInterface as Output;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-
 use Migration\Components\Migration\Io;
 use Migration\Components\Migration\EntityInterface;
 use Migration\Components\Migration\MigrationFileInterface;
-
 use Migration\Components\Migration\Event\UpEvent;
 use Migration\Components\Migration\Event\DownEvent;
 use Migration\Components\Migration\Event\Base as BaseEvent;
-
-use Migration\Components\Migration\Exception;
+use Migration\Components\Migration\Exception as MigrationException;
 use Migration\Components\Migration\Exception\MigrationMissingException;
 use Migration\Components\Migration\Exception\MigrationAppliedException;
 
 use \SplFileInfo;
 
-class Collection implements Countable, IteratorAggregate
+class Collection implements \Countable, \IteratorAggregate
 {
 
     /**
@@ -34,18 +32,10 @@ class Collection implements Countable, IteratorAggregate
     protected $output;
 
     /**
-    * Database Object
-    * @var Migration\Database\Handler
-    */
-    protected $database;
-
-   /**
-   *
-   * @var Migration\DatabaseSchema\Schema
-   */
-    protected $schema;
-
-
+      *  @var \Monolog\Logger 
+      */
+    protected $log;
+   
    /**
     * Projet Folder
     *
@@ -67,14 +57,13 @@ class Collection implements Countable, IteratorAggregate
     protected $inner_queue = array();
 
 
-    public function __construct(OutputInterface $output, Handler $handler, Schema $schema, Io $io, EventDispatcherInterface $event, $latest)
+    public function __construct(Output $output, Logger $log, Io $io, EventDispatcherInterface $event, $latest)
     {
       $this->output = $output;
-      $this->database = $handler;
       $this->io = $io;
-      $this->schema = $schema;
       $this->latest_migration = $latest;
       $this->event = $event;
+      $this->log = $log;
     }
 
     //  -------------------------------------------------------------------------
@@ -143,7 +132,7 @@ class Collection implements Countable, IteratorAggregate
         throw new Exception(sprintf('%s already exists in the collection',$stamp));
       }
 
-      $this->innerQueue[$stamp] = $migration;
+      $this->inner_queue[$stamp] = $migration;
     }
 
     //----------------------------------------------------------------
@@ -295,7 +284,7 @@ class Collection implements Countable, IteratorAggregate
 
       }
       else {
-        throw new Exception('Unknown Event Type');
+        throw new MigrationException('Unknown Event Type');
       }
 
       return $result;

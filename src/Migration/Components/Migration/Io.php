@@ -79,7 +79,7 @@ class Io extends Base
     //  -------------------------------------------------------------------------
     # Load Schema File
 
-    public function schema($path)
+    public function schema()
     {
         return $this->load($this->schema_fname,'',true);
 
@@ -88,7 +88,7 @@ class Io extends Base
     //  -------------------------------------------------------------------------
     # Load Test Data File
 
-    public function testData($path)
+    public function testData()
     {
         return $this->load($this->test_data_fname,'',true);
     }

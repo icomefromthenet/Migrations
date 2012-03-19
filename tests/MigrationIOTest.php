@@ -5,18 +5,11 @@ use Migration\Components\Migration\Loader;
 
 require_once __DIR__ .'/base/AbstractProject.php';
 
-class MigrationTest extends AbstractProject
+class MigrationIOTest extends AbstractProject
 {
 
-    public function testMigrationLoaderType()
-    {
-        $io = new Io($this->getMockedPath()->get());
-        $loader = new Loader($io);
-        $this->assertInstanceOf('\Migration\Components\Migration\Loader',$loader);
-
-        return $loader;
-    }
-
+   
+   
     public function testMigrationIO()
     {
         $this->createMockMigrations();
@@ -39,6 +32,23 @@ class MigrationTest extends AbstractProject
         $this->assertInstanceOf('\Iterator',$it);
         $this->assertSame(0,count($ary));
 
+    }
+    
+    public function testMigrationSchemaFile()
+    {
+       $this->createMockMigrations();
+
+       $io = new Io($this->getMockedPath()->get());
+       $this->assertInstanceOf('\SplFileInfo',$io->schema());        
+        
+    }
+    
+    public function testMigrationIOTestDataFile()
+    {
+        $this->createMockMigrations();
+
+       $io = new Io($this->getMockedPath()->get());
+       $this->assertInstanceOf('\SplFileInfo',$io->testData());        
     }
 
     

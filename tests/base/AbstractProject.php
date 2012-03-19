@@ -4,6 +4,8 @@ use Migration\Project;
 use Migration\Io\Io;
 use Migration\Path;
 use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Migration\Components\Migration\Collection;
 
 class AbstractProject extends PHPUnit_Framework_TestCase
 {
@@ -207,6 +209,8 @@ class AbstractProject extends PHPUnit_Framework_TestCase
             '2012_01_03_22_33_33_Migration.php',
             '2012_01_04_22_33_33_Migration.php',
             '2012_01_05_22_33_33_Migration.php',
+            'schema.php',
+            'test_data.php'
         );
 
         foreach($migrations as $mig) {
@@ -245,6 +249,18 @@ class AbstractProject extends PHPUnit_Framework_TestCase
     }
     
     //  -------------------------------------------------------------------------
-}
 
+    public function getMockCollection()
+    {
+        $log    = $this->getMockLog();
+        $io     = new \Migration\Components\Migration\Io($this->getMockedPath()->get());
+        $latest = null;
+        $event  = new EventDispatcher();
+        $output = $this->getMockOuput();
+
+        return new Collection($output,$log,$io,$event,$latest);
+    }
+
+
+}
 /* End of File */

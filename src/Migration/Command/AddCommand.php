@@ -22,21 +22,18 @@ class AddCommand extends Command
      */
     protected function interact(InputInterface $input, OutputInterface $output)
     {
-         $dialog = new DialogHelper();
-
-        //Warn that this will clear the database as to continue
-
-
-      
 
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-
-      
-
-
+           $project  = $this->getApplication()->getProject();
+           $migration_manager = $project['migration_manager'];
+           $template_manager  = $project['template_manager'];
+           
+           $migration_manager->getWriter()->write($migration_text,$schema);
+           
+           
     }
 
 
