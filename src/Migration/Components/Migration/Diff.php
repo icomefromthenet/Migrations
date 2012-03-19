@@ -1,60 +1,170 @@
 <?php
-
 namespace Migration\Components\Migration;
 
-use \SplHeap;
+use Migration\Components\Migration\Exception\RebuildOrDownException;
+use Migration\Components\Migration\Exception\RebuildRequiredException;
 
 /*
- * class Diff
+ * Class Diff this class will run test to find if the Database can by synced
+ * with the repository.
+ *
+ * Given the folllowing scenerio.
+ *
+ * A = Migrations in the repo
+ * B = Migrations listed in the database
+ *
+ * The Database is considered to be un-syncable if the following is true
+ *
+ * If there are any (B \ A) > 0 [relative complement] , When migrations referenced in the database are subtracted
+ * from the migrations in the repo if there are migrations in the database  list remaining
+ * then the sync job will not complete successfuly.
+ *
+ * To fix a rebuild operation must be run.
+ *
+ *
+ * While The Database can be synced in the following scenario, extra steps
+ * are required when.
+ *
+ * If (A \ B) > 0 [relative complement], then there are more migrations in the repositry then
+ * are referenced in the database AND IF these migrations occur
+ * before the LAST migration in B (Database), then the repository must be
+ * migrated down to the common parent before migrating up to latest.
+ *
+ *
+ * If the above occurs, we will throw an exception as would be done
+ * with first scenario, it is up to the developer to decided their
+ * action rebuild or down
+ *
  */
-
-class Diff  {
+class Diff
+{
 
     //  -------------------------------------------------------------------------
     # Properties
 
     /**
-      *  @var SplHeap
+      *  @var integer[]
       */
-    protected $file_heap;
+    protected $file_list;
 
     /**
-      *  @var SplHeap
+      *  @var integer[]
       */
-    protected $database_heap;
+    protected $database_list;
 
     /*
      * __construct()
      *
-     * @param SplHeap $file
-     * @param SplHeap $database
+     * @param integer[] $file
+     * @param integer[] $database
      * @access public
      */
 
-    public function __construct(SplHeap $file, SplHeap $database)
+    public function __construct(array $file, array $database)
     {
-        $this->file_heap = $file;
-        $this->database_heap = $database;
+        $this->file_list = $file;
+        $this->database_list = $database;
     }
 
     //  -------------------------------------------------------------------------
     # Diff
 
     /**
-      *  Find nodes in file heap
-      *  that are absant from the database heap
+      *  Determine if the database is in unsyncable state
       *
-      *  @return Collection
+      *
+      *  A = Migrations in the repo
+      *  B = Migrations listed in the database    
+      *  @return boolean true if syncable
+      *  @access public
+      *  @throws RebuildRequiredException 
       */
-    public function diff()
+    public function diffBA()
     {
-        $difference = new Collection();
-
-        # iterate over the file
-
+        # check for (B-A) > 0 [relative complement B \ A]
+        $diff = array_diff($this->database_list,$this->file_list);
+        
+        if(count($diff) > 0) {
+            # throw exception out of sync and can only rebuild.
+            throw new RebuildRequiredException('');
+        }
+        
+        return true;
     }
-
+    
+    /**
+      *  Determine if the database is in unsyncable state
+      *
+      *
+      *  A = Migrations in the repo
+      *  B = Migrations listed in the database    
+      *  @return boolean true if syncable
+      *  @access public
+      *  @throws RebuildOrDownException
+      */
+    public function diffAB()
+    {
+        
+         # check for (A-B) > 0 [relative complement A \ B] and before last common migration
+        
+        $diff = array_diff($this->file_list,$this->database_list);
+        
+        if(count($diff) > 0) {
+            # ok to have value greater than zero mean that we
+            # have migrations that need to be applied but must make sure
+            # that these migrations don't occur out of order.
+            
+            # If the first difference is less then the head of the
+            # database list then we can't migrate up and out of sync
+            
+            if(reset($diff) < end($this->database_list) === true) {
+                # out of sync but we can migrate down.
+                throw new RebuildOrDownException($this->findParent());
+            }
+            
+        }
+        
+        
+        return true;
+    }
+    
+    //  -------------------------------------------------------------------------
+    # Find Parent
+    
+    /**
+      *  Find the parent migration before two lists
+      *  diverged
+      *
+      *  Assume there is a parent as this function would be run
+      *  if (B \ A) > 0 not true
+      *
+      *  @return integer a timestamp
+      *  @access public
+      */
+    public function findParent()
+    {
+       $left  = $this->file_list;
+       $right = $this->database_list;
+       $merge = $left +$right; 
+       
+       $diff =  array_diff($merge, array_intersect($left, $right));
+       
+       if(count($diff) > 0) { 
+        
+            $index = array_search(reset($diff),$merge,true) - 1;
+            
+            if($index <= 0) {
+                return false;
+            }
+        
+            return $merge[$index];
+        }
+ 
+       # no parent found must be empty or different lists      
+       return false;
+        
+    }
+    
 
 }
-
 /* End of File */
