@@ -1,9 +1,9 @@
 <?php
 namespace Migration\Components\Migration\Exception;
-use \Migration\Exceptions\Exception as Exception;
 
+use Migration\Components\Migration\Exception as MigrationException;
 
-class SchemaExistsException extends Exception
+class SchemaExistsException extends MigrationException
 {
 
 }

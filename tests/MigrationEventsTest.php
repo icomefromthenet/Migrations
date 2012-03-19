@@ -31,7 +31,7 @@ class MockMigrationFileForEvent implements MigrationFileInterface
 
     public function getApplied(){}
 
-    public function setApplied(){}
+    public function setApplied($applied){}
 
 
     /**

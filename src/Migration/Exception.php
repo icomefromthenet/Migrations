@@ -1,5 +1,5 @@
 <?php
-namespace Migration\Exceptions;
+namespace Migration;
 
 /**
  * BaseException is a container from which all other exceptions in the

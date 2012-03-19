@@ -1,5 +1,6 @@
 <?php
 namespace Migration\Components\Templating;
+
 use Migration\Io\Io as Base;
 
 /*

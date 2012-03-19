@@ -1,5 +1,5 @@
 <?php
-require __DIR__ .'/AbstractProject.php';
+require_once __DIR__ .'/AbstractProject.php';
 
 class AbstractProjectWithDb extends AbstractProject
 {

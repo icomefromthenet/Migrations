@@ -1,10 +1,9 @@
 <?php
 namespace Migration\Io;
 
-use Migration\Exceptions\Exception;
+use Migration\Io\Exception as IoException;
 
-
-class FileExistException extends Exception
+class FileExistException extends IoException
 {
 
 }

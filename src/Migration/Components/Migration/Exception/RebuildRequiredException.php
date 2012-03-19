@@ -1,6 +1,7 @@
 <?php
 namespace Migration\Components\Migration\Exception;
-use \Migration\Exceptions\Exception as MigrationException;
+
+use Migration\Components\Migration\Exception as MigrationException;
 
 class RebuildRequiredException extends MigrationException
 {

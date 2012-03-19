@@ -1,5 +1,4 @@
 <?php
-
 namespace Migration\Components\Config;
 
 use Migration\Io\IoInterface;

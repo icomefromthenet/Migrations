@@ -1,10 +1,9 @@
 <?php
-
 require_once __DIR__ .'/base/AbstractProjectWithDb.php';
 
 use Migration\Components\Migration\Driver\Generic\SchemaManager;
 
-class MysqlSchemaManagerTest extends AbstractProjectWithDb
+class GenericSchemaManagerTest extends AbstractProjectWithDb
 {
 
     /**

@@ -1,9 +1,10 @@
 <?php
 namespace Migration\Io;
-use Migration\Exception as Exception;
 
+use Migration\Io\Exception as IoException;
 
-class PermissionException extends Exception {
+class PermissionException extends IoException
+{
 
 }
 /* End of File */

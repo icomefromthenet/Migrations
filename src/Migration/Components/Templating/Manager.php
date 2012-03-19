@@ -7,6 +7,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface as Event;
 use Migration\Components\ManagerInterface;
 use Migration\Io\IoInterface;
 use Doctrine\DBAL\Connection;
+use Migration\Components\Templating\Exception as TemplatingException;
 
 /*
  * class Manager
@@ -86,7 +87,7 @@ class Manager implements ManagerInterface
       */
     public function getWriter()
     {
-        throw new \RuntimeException('Not implemented');
+        throw new TemplatingException('Not implemented');
     }
 
     //  -------------------------------------------------------------------------

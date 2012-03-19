@@ -1,8 +1,9 @@
 <?php
 namespace Migration\Components\Migration\Exception;
-use \Migration\Exceptions\Exception as Exception;
 
-class MigrationMissingException extends Exception
+use Migration\Components\Migration\Exception as MigrationException;
+
+class MigrationMissingException extends MigrationException
 {
 
 }
