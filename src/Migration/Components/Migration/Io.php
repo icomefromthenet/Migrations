@@ -10,7 +10,7 @@ use Symfony\Component\Finder\Finder;
 class Io extends Base
 {
 
-    protected $dir;
+    protected $dir = 'default';
 
     protected $test_data_fname = 'test_data.php';
 

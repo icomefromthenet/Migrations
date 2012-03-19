@@ -14,7 +14,7 @@ class Writer
     # Writer
 
 
-    public function write($migration_text,$schema)
+    public function write($migration_text)
     {
 
         # generate file name
@@ -23,12 +23,18 @@ class Writer
         $file_name = $file_name_generator->generate();
 
         # check that name is free
-        if($this->getIo()->exists($name,array($schema)) === true){
+        if($this->getIo()->exists($file_name,'') === true) {
             throw new \RuntimeException('Migration already exists');
         }
 
         # write the file content
-        return $this->getIo()->write($file_name,array($schema),$migration_text,false);
+        if($this->getIo()->write($file_name,'',$migration_text,false)) {
+            
+            return $this->getIo()->load($file_name,'',true);
+            
+        }
+        
+        return false;
 
     }
 
