@@ -74,13 +74,13 @@ class TableManager implements TableInterface
     public function pop()
     {
         $table = $this->table;
-
+        
         # Fetch timestamp
-        $stmt = $this->database->executeQuery(sprintf('SELECT MAX(`timestamp`) FROM `%s`',$table));
+        $stmt = $this->database->executeQuery(sprintf('SELECT MAX(timestamp) FROM %s',$table));
         $stamp = $stmt->fetchColumn(0);
         
         # Delete the stamp
-        $affected = $this->database->executeUpdate(sprintf('DELETE FROM `%s` WHERE `timestamp` = ?',$table),array($stamp));
+        $affected = $this->database->executeUpdate(sprintf('DELETE FROM %s WHERE timestamp = ?',$table),array($stamp));
         
         if($affected > 0) {
             return true;
@@ -99,7 +99,8 @@ class TableManager implements TableInterface
     {
         $stamp = $this->convertDateTimeToUnix($timestamp);
         $table = $this->table;
-        $query = sprintf("INSERT INTO `%s` (`timestamp`) VALUES (%s);",$table,$stamp);
+        
+        $query = sprintf("INSERT INTO %s (timestamp) VALUES (%s);",$table,$stamp);
         
         $affected = $this->database->executeUpdate($query);
         
@@ -133,15 +134,24 @@ class TableManager implements TableInterface
     public function build()
     {
         $table_name = $this->table;
-        
+        $schema = new \Doctrine\DBAL\Schema\Schema();
+        $manager = $this->database->getSchemaManager();
         try {
-            $query = sprintf("CREATE TABLE `%s` (
-                       `timestamp` integer(11) NOT NULL,
-                        PRIMARY KEY (`timestamp`)
-                       )ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;",$table_name);
+        
+            if($this->exists()) {
+                $manager->dropTable($table_name);
+            }
+        
+            $table = $schema->createTable($table_name);
+            $table->addColumn("timestamp", "integer", array("unsigned" => true));
+            $table->setPrimaryKey(array("timestamp"));
+            $sql = $schema->toSql($this->database->getDatabasePlatform());
+                   
+            $this->database->exec($sql[0]);
             
-            $stm = $this->database->prepare($query);
-            $stm->execute();
+            if($this->exists() === false) {
+                throw new MigrationException("Unable to setup migration table");   
+            }
             
             $this->log->addInfo('Setup new Migration Table with name '.$table_name);
                         
@@ -166,27 +176,7 @@ class TableManager implements TableInterface
       */
     public function clear()
     {
-       $table_name = $this->table;
-       
-        try {
-            $query = sprintf("TRUNCATE TABLE `%s`;",$table_name);
-            $stm = $this->database->prepare($query);
-            $stm->execute();
-            
-            $this->log->addInfo('Setup new Migration Table with name '.$table_name);
-            
-            
-            # no exception so return ok
-            
-            return true;
-            
-        } catch (DBALException $e) {
-            
-            # throw custom exception 
-            
-        }
-        
-        
+       return $this->build();
     }
 
 
@@ -198,16 +188,10 @@ class TableManager implements TableInterface
       */
     public function exists()
     {
-        $query = sprintf("SHOW FULL TABLES LIKE '%s';",$this->table);
-        $stmt = $this->database->prepare($query);
-        $stmt->execute();
-        $results = $stmt->fetchAll();
-                
-        if(count($results) === 0) {
-            return false;
-        }
-        
-        return true;
+       $manager = $this->database->getSchemaManager();
+       $table_name = $this->table;
+       
+       return $manager->tablesExist(array($table_name));
     }
     
     

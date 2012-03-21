@@ -17,7 +17,7 @@ class GenericSchemaManagerTest extends AbstractProjectWithDb
         
         # build out test database
         
-        //$this->buildDb();
+        $this->buildDb();
         
         # fetch the object where going to test
         

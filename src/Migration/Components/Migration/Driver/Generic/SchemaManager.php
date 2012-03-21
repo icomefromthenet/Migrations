@@ -170,40 +170,10 @@ class SchemaManager implements SchemaInterface
       */
     public function show()
     {
+       $database = $this->database->getDatabase(); 
+       $this->output->writeLn("<info> Dropping the $database schema. </info>");
         
-        $this->output->writeLn("<info> Dropping the Following Tables: </info>");
-        
-        
-        # list tables
-        $tables = $this->listTables();
-        
-        foreach ($tables as $table) {
-            $this->output->writeLn("(--drop) <comment>$table</comment>");
-        }
-       
-       
-        $this->output->writeLn("<info> Dropping the Following Views: </info>");
-       
-        
-        # list views
-        $views = $this->listViews();
-        
-        foreach ($views as $view) {
-            $this->output->writeLn("(--drop) <comment>$view</comment>");
-        }
-	
-	# list sequences
-
-        $this->output->writeLn("<info> Dropping the Following Sequences: </info>");
-
-        
-	$sequences = $this->listSequences();
-        
-        foreach ($sequences as $sequence) {
-            $this->output->writeLn("(--drop) <comment>$sequence</comment>");
-        }
-        
-        return true;
+       return true;
     }
 
     //  -------------------------------------------------------------------------
@@ -327,46 +297,20 @@ class SchemaManager implements SchemaInterface
       */
     public function clean()
     {
-        
-	# Drop the views
-        
-	$views = $this->listViews();
-        
-        foreach($views as $view) {
-            $this->dropView($view);
-        }
-        
-        # Drop the tables
-        
-        $tables = $this->listTables();
-    
-        foreach($tables as $table) {
-    
-	    # drop Foreign Keys
-	    
-	    try {
-	    
-		$fks  = $this->getDatabase()->getSchemaManager()->listTableForeignKeys($table);
-		foreach($fks as $value) {
-		    $this->dropForeignKey($value->getName(),$table);
-		}
-		$fks = array();
-		
-	    }catch(DBALException $exception) {
-		#sollow not support exception    
-	    }
+        $manager = $this->database->getSchemaManager();
+        $database = $this->database->getDatabase();
 	
-	    
-	    $this->dropTable($table);
-        }
-	
-	# Drop Sequences
-	
-	$sequences = $this->listSequences();
-	
-	foreach($sequences as $sequence) {
-	    $this->dropSequence($name);
+	if($database === null) {
+	    throw new MigrationException("Database has no name, unable to drop it");
 	}
+	
+	# Drop the schema
+	
+	$manager->dropDatabase($database);
+	
+	# Create the schema
+	
+	$manager->createDatabase($database);
         
 	return true;
     }
