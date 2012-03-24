@@ -45,7 +45,6 @@ if($project->getPath()->get() === false ) {
 $path  = (string)$project->getPath()->get();
 
 
-
 if(Migration\Project::detect($path) === false) {
 
     #a given path is invalid pass it to project init comman

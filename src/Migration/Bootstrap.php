@@ -72,7 +72,7 @@ $project['loader'] = $symfony_auto_loader;
 //------------------------------------------------------------------------------
 
 $project['console'] = $project->share( function ($c) use ($project) {
-   return new Application($project);
+   return new Migration\Command\Base\Application($project);
 });
 
 

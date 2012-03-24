@@ -11,6 +11,7 @@ use Migration\Components\Migration\Exception as MigrationException;
 use Migration\Components\ManagerInterface;
 use Migration\Io\IoInterface;
 use Migration\Components\Config\Entity as ConfigEntity;
+use Migration\Components\Migration\Event\Handler as MigrationHandler;
 
 use Migration\Io\DirectoryExistsException;
 
@@ -61,6 +62,11 @@ class Manager
       */
     protected $event;
     
+    /**
+      *  @var \Migration\Components\Migration\Event\Handler 
+      */
+    protected $handler;
+    
     /*
      * __construct()
      * @param $arg
@@ -93,6 +99,10 @@ class Manager
     {
         if($this->loader === NULL) {
             $this->loader = new Loader($this->io);
+            
+            # load the event handler
+            $this->handler = new MigrationHandler($this->event,$this->getTableManager(),$this->database);
+            
         }
 
         return $this->loader;
@@ -228,12 +238,7 @@ class Manager
     //  -------------------------------------------------------------------------
     
     
-    public function init()
-    {
-        $
-        
-        
-    }
+   
     
     
 }

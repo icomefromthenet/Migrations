@@ -50,7 +50,7 @@ class Command extends BaseCommand
         }
 
         # path exists does it have a project
-        if(Project::detect((string)$path) === false) {
+        if(Project::detect((string)$path) === false && $this->getName() !== 'project') {
             throw new \RuntimeException('Project Folder does not contain the correct folder heirarchy');
         }
 

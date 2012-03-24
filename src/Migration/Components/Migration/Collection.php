@@ -113,15 +113,6 @@ class Collection implements \Countable, \IteratorAggregate
      */
     protected $latest_migration = 0;
 
-    //----------------------------------------------------------------
-    // Iterator Interface
-
-    public function compare($array1, $array2)
-    {
-        if ($values1 === $values2) return 0;
-        return $values1 < $values2 ? -1 : 1;
-    }
-
 
     //----------------------------------------------------------------
     // Collection behaviours
@@ -176,32 +167,32 @@ class Collection implements \Countable, \IteratorAggregate
 
     public function down($stamp = NULL,$force = FALSE)
     {
-      $map = $this->getMap();
-
-       //check if migration exists
-      if($this->exists($stamp) !== false) {
-        throw new MigrationMissingException(sprintf('Migration with %s can not be found'));
-      }
-
-      # test if migration has NOT been applied and force = false
-      if($this->inner_queue[$stamp]->getApplied() === false && $force === false) {
-        throw new MigrationAppliedException(sprintf('Migration %s NOT been applied to database cant runt down',$stamp));
-      }
-
-      # run down operation
-      $migration = $this->inner_queue[$stamp]->getClass();
-      $this->output->writeln("Running Down Migration ". getClass($migration));
-
-      $migration->down($this->database);
-
-      # dispatch down event
-      $event = new DownEvent();
-      $event->setMigrationFile($migration);
-
-      $this->dispatchEvent($event);
-
-      # change the latest stamp
-      $this->latest = $stamp;
+        $map = $this->getMap();
+  
+         //check if migration exists
+        if($this->exists($stamp) !== false) {
+          throw new MigrationMissingException(sprintf('Migration with %s can not be found'));
+        }
+  
+        # test if migration has NOT been applied and force = false
+        if($this->inner_queue[$stamp]->getApplied() === false && $force === false) {
+          throw new MigrationAppliedException(sprintf('Migration %s NOT been applied to database cant runt down',$stamp));
+        }
+  
+        # run down operation
+        $migration = $this->inner_queue[$stamp]->getClass();
+        $this->output->writeln("Running Down Migration ". getClass($migration));
+  
+        $migration->down($this->database);
+  
+        # dispatch down event
+        $event = new DownEvent();
+        $event->setMigrationFile($migration);
+  
+        $this->dispatchEvent($event);
+  
+        # change the latest stamp
+        $this->latest = $stamp;
     }
 
 

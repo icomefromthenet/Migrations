@@ -31,7 +31,10 @@ class AddCommand extends Command
            $migration_manager = $project['migration_manager'];
            $template_manager  = $project['template_manager'];
            
-           $migration_manager->getWriter()->write($migration_text,$schema);
+           
+           $migration_text = $template_manager->load('migration_template');
+           
+           //$migration_manager->getWriter()->write($migration_text,$schema);
            
            
     }
