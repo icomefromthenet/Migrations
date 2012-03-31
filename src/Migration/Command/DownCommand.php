@@ -12,7 +12,22 @@ class DownCommand extends Command
     
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln('Hello World!');
+        
+        # Fetch the Migration Component
+        $project  = $this->getApplication()->getProject();
+        $migration_manager = $project['migration_manager'];
+        
+        # Get the loader dependecies
+        $loader = $migration_manager->getLoader();
+        $file_name_parser = $migration_manager->getFileNameParser();
+        $migration_collection = $migration_manager->getMigrationCollection();
+        
+        # load the migrations and do sanity check
+        
+        $loader->load($migration_collection,$file_name_parser);
+        
+        
+        
     }
     
        protected function configure() {

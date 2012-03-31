@@ -43,8 +43,19 @@ class AbstractProjectWithDb extends AbstractProject
         
     }
     
+    
+    //  -------------------------------------------------------------------------
+    # Get Builder
+    
+    
+    protected function getTable()
+    {
+        $connection = $this->getDoctrineConnection();        
+        $log    = $this->getMockLog();
+              
+        return new \Migration\Components\Migration\Driver\Mysql\TableManager($connection,$log,'migration_migrate');
+        
+    }
+    
 }
-
-
-
 /* End of File */

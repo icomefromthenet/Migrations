@@ -70,18 +70,22 @@ class MysqlTableManagerTest extends AbstractProjectWithDb
     }
    
     
-    //  -------------------------------------------------------------------------
-    # Get Builder
-    
-    
-    protected function getTable()
+    public function testFill()
     {
-        $connection = $this->getDoctrineConnection();        
-        $log    = $this->getMockLog();
-              
-        return new TableManager($connection,$log,'migration_migrate');
+        $table = $this->table;
+        
+        $dte = new \DateTime();
+        $dte->modify('+ 1 minute');
+        $this->assertTrue($table->push($dte));
+        
+        $migrations = $table->fill();
+        $bool = count($migrations) > 0;
+        
+        $this->assertTrue($bool);
         
     }
+    
+    
 
 }
 /* End of File */

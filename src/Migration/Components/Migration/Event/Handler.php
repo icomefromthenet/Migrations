@@ -7,6 +7,7 @@ use Migration\Components\Migration\Exception as MigrationException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface as Event;
 use Doctrine\DBAL\Connection;
 use Doctine\DBAL\DBALException;
+use Migration\Components\Migration\Event\Base as MigrationEvent;
 
 class Handler
 {
@@ -34,8 +35,8 @@ class Handler
         $this->conn = $conn;
         
         # bind event handlers
-        $event->addListener('UpEvent',  array($this,'handleUp'));
-        $event->addListener('DownEvent',array($this,'handleDown'));
+        $event->addListener('upEvent',  array($this,'handleUp'));
+        $event->addListener('downEvent',array($this,'handleDown'));
         
     }
     
@@ -43,13 +44,13 @@ class Handler
     /**
       *  Handle the migration up event
       *
-      *  @param Event $event
+      *  @param MigrationEvent $event
       */
-    public function handleUp(Event $event)
+    public function handleUp(MigrationEvent $event)
     {
         $migration = $event->getMigration();
         
-        $this->conn->beginTransaction()
+        $this->conn->beginTransaction();
         
         try {
             
@@ -76,13 +77,13 @@ class Handler
     /**
       *  Handle the migration down
       *
-      *  @param Event $event
+      *  @param MigrationEvent $event
       */    
-    public function handleDown(Event $event)
+    public function handleDown(MigrationEvent $event)
     {
         $migration = $event->getMigration();
         
-        $this->conn->beginTransaction()
+        $this->conn->beginTransaction();
         
         try {
             

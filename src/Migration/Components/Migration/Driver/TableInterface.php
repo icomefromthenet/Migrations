@@ -1,8 +1,6 @@
 <?php
 namespace Migration\Components\Migration\Driver;
 
-use Migration\Components\Migration\Collection;
-
 interface TableInterface
 {
     
@@ -24,8 +22,13 @@ interface TableInterface
     public function push(\DateTime $timestamp);
     
     
-    
-    public function fill(Collection $col);
+    /**
+      *  Return an array of timestamps applied
+      *  sorted from smallest to largest
+      *
+      *  @return integer[]
+      */
+    public function fill();
     
     
     /**

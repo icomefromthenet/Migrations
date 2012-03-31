@@ -111,16 +111,36 @@ class TableManager implements TableInterface
     }
     
     
-    public function fill(Collection $col)
+    public function fill()
     {
         if($this->exists() === false) {
             throw new TableMissingException('Migration table not found can not continue');
         }
         
+        $results = array();
         
         # fetch all values in the queue
         
+        $table_name = $this->table;
         
+        try {
+            $query = sprintf("SELECT `timestamp` FROM %s;",$table_name);
+            $stmt = $this->database->query($query);
+            
+            while ($row = $stmt->fetch()) {
+                $results[] = (integer) $row['timestamp'];
+            }
+            
+            $this->log->addInfo('Loaded migrations from '.$table_name);
+                        
+            
+        } catch (DBALException $e) {
+            
+            # throw custom exception 
+            throw new Exception($e->getMessage());
+        }
+        
+        return $results;
         
     }
   
