@@ -144,7 +144,7 @@ class WriterComponentTest extends AbstractProject
         $file->increment();
 
 
-        $this->assertTrue($file->at_limit(), 'Write limt should have been reached');
+        $this->assertTrue($file->atLimit(), 'Write limt should have been reached');
     }
 
     public function testLimitNotReached()
@@ -153,7 +153,7 @@ class WriterComponentTest extends AbstractProject
 
         $file->increment();
 
-        $this->assertFalse($file->at_limit(),'Limit should not have been reached');
+        $this->assertFalse($file->atLimit(),'Limit should not have been reached');
     }
 
     public function testLimitReset()
@@ -168,7 +168,7 @@ class WriterComponentTest extends AbstractProject
 
         $file->reset();
 
-        $this->assertFalse($file->at_limit(),'Limit should not have been reached');
+        $this->assertFalse($file->atLimit(),'Limit should not have been reached');
     }
 
 
@@ -185,7 +185,8 @@ class WriterComponentTest extends AbstractProject
       public function testSequenceReturnsValidFilename()
       {
             $seq = new Sequence('schema','table','suffix','sql');
-
+            $seq->add();
+            
             $this->assertSame($seq->get(),'schema_table_suffix_1.sql');
 
       }
@@ -194,7 +195,8 @@ class WriterComponentTest extends AbstractProject
       public function testSequenceCustomFormat()
       {
             $seq = new Sequence('schema','table','','sql','{prefix}_{body}_{seq}.{ext}');
-
+            $seq->add();
+            
             $this->assertSame($seq->get(),'schema_table_1.sql');
 
       }
@@ -202,7 +204,8 @@ class WriterComponentTest extends AbstractProject
       public function testSequenceAdd()
       {
             $seq = new Sequence('schema','table','','sql','{prefix}_{body}_{seq}.{ext}');
-
+            $seq->add();
+            
             $this->assertSame($seq->get(),'schema_table_1.sql');
 
             $seq->add();
@@ -219,17 +222,16 @@ class WriterComponentTest extends AbstractProject
             $seq = new Sequence('schema','table','','sql','{prefix}_{body}_{seq}.{ext}');
             $seq->add();
             $seq->add();
+            $seq->add();
             $this->assertSame(count($seq),3);
 
             $seq->clear();
 
-            $this->assertSame(count($seq),1);
-            $this->assertSame($seq->get(),'schema_table_1.sql');
+            $this->assertSame(count($seq),0);
+            $this->assertSame($seq->get(),'schema_table_0.sql');
 
       }
 
-      //  -------------------------------------------------------------------------
-      # 
 
 }
 /* End of File */

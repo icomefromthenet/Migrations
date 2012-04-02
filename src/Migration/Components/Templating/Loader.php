@@ -2,7 +2,8 @@
 namespace Migration\Components\Templating;
 
 use Migration\Io\IoInterface;
-
+use Migration\Components\Templating\Exception as TemplatingException;
+use \Twig_Environment;
 /*
  * class Loader
  */
@@ -15,21 +16,26 @@ class Loader
     protected $twig_environment;
 
 
-
-    public function load($name)
+    public function load($name, array $vars = array())
     {
         # on first call setup our twig environment
 
         if($this->twig_environment == null){
             $loader = new TwigLoader($this->getIo());
-            $this->twig_environment = new \Twig_Environment($loader, array(
-                'debug' => false
+            $this->twig_environment = new Twig_Environment($loader, array(
+                'debug' => false,
+                'autoescape' => false
                 ));
         }
 
+        if(is_array($vars) === false) {
+            throw new TemplatingException('Vars param must be an array');
+        }
+        
         # load the template
-        return $this->twig_environment->loadTemplate($name);
-
+        $template =  $this->twig_environment->loadTemplate($name);
+        
+        return new Template($template,$vars);
     }
 
 

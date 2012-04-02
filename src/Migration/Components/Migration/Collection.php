@@ -191,8 +191,10 @@ class Collection implements \Countable, \IteratorAggregate
   
         $this->dispatchEvent($event);
   
+        # find previous stamp
+  
         # change the latest stamp
-        $this->latest = $stamp;
+        //$this->latest = $stamp;
     }
 
 

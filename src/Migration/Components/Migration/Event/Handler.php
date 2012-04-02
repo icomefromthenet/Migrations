@@ -63,6 +63,11 @@ class Handler
             $this->migration->push($migration->getTimestamp());
             
             
+            # Mark the migration as applied
+            
+            $migration->setApplied(true);
+            
+            
             $this->conn->commit();
         } catch (DBALException $e) {
             
@@ -94,6 +99,10 @@ class Handler
             # remove from the state table
             
             $this->migration->pop();
+            
+            # mark the migration as not applied
+            
+            $migration->setApplied(false);
             
             
             $this->conn->commit();

@@ -104,7 +104,7 @@ class Limit
      *
      * @return boolean
      */
-    public function at_limit() {
+    public function atLimit() {
 
         if($this->write_limit !== NULL) {
             return ($this->current_at >= $this->write_limit )? TRUE : FALSE;

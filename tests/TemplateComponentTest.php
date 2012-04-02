@@ -6,6 +6,7 @@ use Migration\Components\Templating\Writer;
 use Migration\Components\Templating\Loader;
 use Migration\Components\Templating\TwigLoader;
 use Migration\Components\Templating\Io as TemplateIO;
+use Migration\Components\Templating\Template;
 
 require_once __DIR__ .'/base/AbstractProject.php';
 
@@ -88,8 +89,31 @@ class TemplateComponentTest extends AbstractProject
     {
         $template = $loader->load('test_data.twig');
 
-        $this->assertInstanceOf('Twig_Template',$template);
+        $this->assertInstanceOf('\Migration\Components\Templating\Template',$template);
 
+    }
+    
+    /**
+      *  @depends testManagerGetLoader
+      */
+    public function testLoaderWithVars(Loader $loader)
+    {
+        $vars = array('one' => 1, 'two' => 2);
+ 
+        $template = $loader->load('test_data.twig',$vars);
+
+        $this->assertInstanceOf('\Migration\Components\Templating\Template',$template);
+    
+        $this->assertSame($vars,$template->getData());   
+ 
+        # test the setdata ob template
+        $vars = array('one' => 1, 'two' => 2,'three' => 3);
+        
+        $template->setData($vars);
+        
+        $this->assertSame($vars,$template->getData());   
+ 
+ 
     }
 
     /**
@@ -99,12 +123,11 @@ class TemplateComponentTest extends AbstractProject
     public function testTemplateLoaderExceptionMissingFile(Loader $loader)
     {
         $template = $loader->load('crap_data.twig');
-        $this->assertInstanceOf('Twig_Template',$template);
     }
 
 
     /**
-      *  @expectedException \RuntimeException
+      *  @expectedException \Migration\Components\Templating\Exception
       */
     public function testManagerGetWriter()
     {

@@ -9,6 +9,12 @@ use Migration\Io\IoInterface;
 use Doctrine\DBAL\Connection;
 use Migration\Components\Templating\Loader as TemplateLoader;
 
+use Migration\Components\Writer\Cache;
+use Migration\Components\Writer\Limit;
+use Migration\Components\Writer\Stream;
+use Migration\Components\Writer\Sequence;
+use Migration\Componnets\Writer\Writer;
+
 /*
  * class Manager
  */
@@ -78,7 +84,7 @@ class Manager implements ManagerInterface
     public function getWriter()
     {
         if($this->writer === NULL) {
-            $this->writer = new Writer($this->io,$this->log,$this->output,null);
+            $this->writer = new Writer($this->io,$this->getStream(),$this->getCache(),$this->getCacheMax());
         }
 
         return $this->writer;
@@ -116,8 +122,89 @@ class Manager implements ManagerInterface
     }
 
     //  -------------------------------------------------------------------------
+    # Internal Dependecies
+    
+    public function getCache()
+    {
+        return new Cache();
+    }
 
+    public function getLimit()
+    {
+      return new Limit($this->setLinesInFile());
+    }
 
+    public function getStream()
+    {
+        return new Stream($this->getTemplate())
+    }
+    
+    public function getSequence()
+    {
+        return new Sequence();    
+    }
+    
+
+    //  -------------------------------------------------------------------------
+    # Properties    
+
+    protected $lines_in_file = 500;
+    
+    public function setLinesInFile($lines)
+    {
+        $this->lines_in_file = (integer) $lines;
+    }
+    
+    public function getLinesInfile()
+    {
+        return $this->lines_in_file;
+    }
+    
+    protected $cache_max = 1000;
+    
+    public function setCacheMax($max)
+    {
+        $this->cache_max = (integer) $max;
+    }
+    
+    public function getCacheMax()
+    {
+        return $this->cache_max;
+    }
+
+    
+    protected $header_template = 'faker_header.twig';
+
+    
+    public function getHeaderTemplate()
+    {
+        return $this->template_header()->load($this->header_template);
+    }
+    
+    public function setHeaderTemplate($template)
+    {
+        $this->header_template = $template;
+    }
+    
+    
+    protected $footer_template = 'faker_footer.twig';
+    
+    
+    public function setFooterTemplate($template)
+    {
+        $this->footer_template = $template
+    }
+    
+    public function getFooterTemplate()
+    {
+        return $this->template_header()->load($this->footer_template);    
+    }
+    
+    //  -------------------------------------------------------------------------
+    # Template Defaults
+    
+    
+    
 
 }
 /* End of File */

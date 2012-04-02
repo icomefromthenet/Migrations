@@ -37,10 +37,12 @@ interface IoInterface {
      * Loads a file from the path
      *
      *  @param string $name filename
-     *  @param mixed folders array of folders to append
-     *  @param mixed
+     *  @param mixed $folders array of folders to append
+     *  @param boolean $object true to return SplFileInfo;
+     *  @return SplFileInfo | string
+     *  @access public
      */
-    public function load($name,$folders);
+    public function load($name,$folders,$object = false);
 
     //  -------------------------------------------------------------------------
 
