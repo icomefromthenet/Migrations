@@ -19,6 +19,20 @@ class Project extends Pimple
          return $this['project_path'];
     }
 
+    
+    /**
+      *  Function getDataPath
+      *
+      *  @return \Migration\Path
+      *  @access public
+      */
+    public function getDataPath()
+    {
+          return $this['data_path'];
+     
+    }
+    
+    
 
     //  -------------------------------------------------------------------------
     # Constructor

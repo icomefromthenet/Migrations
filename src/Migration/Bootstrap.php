@@ -158,7 +158,18 @@ $project['database'] = $project->share(function($project){
     return \Doctrine\DBAL\DriverManager::getConnection($connectionParams, new \Doctrine\DBAL\Configuration());
 });
 
+$project['faker_database'] =  $project->share(function($project){
 
+   
+        $connectionParams = array(
+        'path' => $project->getDataPath()->get() . DIRECTORY_SEPARATOR . 'faker.sqlite',
+        'user' => 'faker',
+        'password' => '',
+        'driver' => 'pdo_sqlite',
+        );
+
+    return \Doctrine\DBAL\DriverManager::getConnection($connectionParams, new \Doctrine\DBAL\Configuration());
+});
 
 //---------------------------------------------------------------
 // Setup Config Manager (lazy loaded)

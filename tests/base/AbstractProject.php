@@ -56,7 +56,11 @@ class AbstractProject extends PHPUnit_Framework_TestCase
         global $project;
 
         $project->getPath()->parse((string)__DIR__.'/../myproject');
-
+        
+        if(isset($project['data_path']) === false) {
+            $project['data_path'] = new \Migration\Path(__DIR__.'/../../data');
+        }
+        
         return $project;
     }
 

@@ -1,8 +1,11 @@
 <?php
-namespace Migrations\Components\Faker\Type;
+namespace Migration\Components\Faker\Type;
 
+use Migration\Components\Faker\TypeInterface;
+use Migration\Components\Faker\Exception as FakerException;
+use Migration\Components\Faker\Utilities;
 
-class AlphaNumeric
+class AlphaNumeric implements TypeInterface
 {
 
     /**
@@ -13,57 +16,73 @@ class AlphaNumeric
     protected $formats;
     
     /**
+      *  @var string Id for the type 
+      */
+    protected $id;
+    
+    /**
+      *  @var \Migration\Components\Faker\Utilities 
+      */
+    protected $utilities;
+    
+    /**
      * Class constructor
      * 
      * @param string $id
-     * @param dataTypeOptionAbstract $options 
+     * @param $string formats
      */
-    public function __construct($id,  \Data\Config\Abstract_Option $options = null) {
-        if($options->get_formats() === NULL) {
-            throw new \Exception('Mising required formats option');
+    public function __construct($id, Utilities $util ,  $formats) {
+       
+        if(empty($formats) || empty($id)) {
+            throw new FakerException('Mising required formats option or id');
         }
         
-        $this->set_id((string)$id);
+        $this->id = $id;
+        $this->utilities = $util;
+        $this->formats =  $this->parseFormats($formats);
         
-        parent::__construct($options);
-        
-        $this->formats = explode("|",(string) $options->get_formats()); 
- 
-        
+    }
+    
+    //  -------------------------------------------------------------------------
+
+    /**
+      *  Parse the formats into an array
+      *
+      *  @access public
+      *  @param $formats string seperated by | character
+      */    
+    public function parseFormats($formats)
+    {
+        return explode("|",(string) trim($formats));
     }
 
     
+    //  -------------------------------------------------------------------------
     
     /**
      * Generate a value
      * 
      * @return string 
      */
-    function generate() {
+    public function generate($rows) {
         $formats = $this->formats;
-        $chosen_format = $formats[0];
-        $val = NULL;
         
+        $chosen_format = $formats[0];
+                
         if (\count($formats) > 1) {
             $chosen_format = $formats[\rand(0, \count($formats) - 1)];
         }
         
-        if(parent::generate() === TRUE) {
-           $val = $this->generate_random_alphanumeric($chosen_format);
-        }
-         
-        $event_data = new \Data\Config\Option_Event_Generate();
-        $event_data->set_id($this->get_id());
-        $event_data->set_row($this->row);
-        $event_data->set_value($val);
-        
-        Event::trigger('value_generated', $event_data);
-        
-        $this->row = $this->row +1;
-        
-        return $val;
+        return $this->utilities->generateRandomAlphanumeric($chosen_format);
     }
     
+    
+    //  -------------------------------------------------------------------------
+
+    public function getId()
+    {
+        return $this->id;
+    }
 
 }
 /* End of file */

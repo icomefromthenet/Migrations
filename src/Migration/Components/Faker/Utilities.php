@@ -1,40 +1,9 @@
 <?php
-
 namespace Migration\Components\Faker;
 
-class BaseType
+class Utilities
 {
-   
 
-    /**
-     * ID of the type (table_column)
-     * 
-     * @var string 
-     */
-    protected $id;
-
-    /**
-     * Number of rows processed;
-     * 
-     * @var integer 
-     */
-    protected $row = 1;
-
-    /**
-     * Number of values that will be generated at last call to generate()
-     * 
-     * @var integer 
-     */
-    protected $to_generate;
-
-    //----------------------------------------------------
-
-    /**
-     * The Choice Instance
-     *  
-     * @var \Data\Config\Interface_Choice
-     */
-    protected $handler;
 
     //--------------------------------------------------------
 
@@ -46,7 +15,8 @@ class BaseType
      * @param integer $min     - the minimum # of words to return OR the total number
      * @param integer $max     - the max # of words to return (or null for "fixed" type)
      */
-    protected function generate_random_text($words, $starts_with_lipsum, $type, $min, $max = "") {
+    public function generateRandomText($words, $starts_with_lipsum, $type, $min, $max = "")
+    {
         // determine the number of words to return
         $index = 0;
         if ($type == "fixed") {
@@ -73,10 +43,13 @@ class BaseType
         return \join(" ", $word_array);
     }
 
+    //  -------------------------------------------------------------------------
+
     /**
      * Converts all x's and X's in a string with a random digit. X's: 1-9, x's: 0-9.
      */
-    protected function generate_random_num($str) {
+    public function generateRandomNum($str)
+    {
         // loop through each character and convert all unescaped X's to 1-9 and
         // unescaped x's to 0-9.
         $new_str = "";
@@ -102,6 +75,8 @@ class BaseType
         return \trim($new_str);
     }
 
+    //  -------------------------------------------------------------------------
+    
     /**
      * Converts the following characters in the string and returns it:
      *
@@ -112,7 +87,8 @@ class BaseType
      *     x       - 0-9
      *     H       - 0-F
      */
-    protected function generate_random_alphanumeric($str) {
+    public function generateRandomAlphanumeric($str)
+    {
         $letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         $consonants = "BCDFGHJKLMNPQRSTVWXYZ";
         $vowels = "AEIOU";
@@ -181,23 +157,30 @@ class BaseType
         return \trim($new_str);
     }
 
+    
+    //  -------------------------------------------------------------------------
+    
     /**
      * Returns a random subset of an array. The result may be empty, or the same set.
      *
      * @param array $set - the set of items
      * @param integer $num - the number of items in the set to return
      */
-    protected function return_random_subset($set, $num) {
+    public function returnRandomSubset($set, $num)
+    {
         // check $num is no greater than the total set
         if ($num > \count($set)) {
             $num = \count($set);
         }
         
-        \shuffle($set);
+        \shuffle($set); 
         
         return \array_slice($set, 0, $num);
     }
 
+    
+    //  -------------------------------------------------------------------------
+  
     /**
      * Sorts a multidimensional (2 deep) array based on a particular key.
      *
@@ -205,7 +188,8 @@ class BaseType
      * @param mixed $key
      * @return array
      */
-    protected function array_sort($array, $key) {
+    public function arraySort($array, $key)
+    {
         $sort_values = array();
         
         for ($i = 0; $i < \sizeof($array); $i++) {
@@ -222,13 +206,17 @@ class BaseType
         return $sorted_arr;
     }
 
+   
+   //  -------------------------------------------------------------------------
+   
     /**
      * This function is like rand
      *
      * @param array $weights
      * @return float
      */
-    protected function get_weighted_rand($weights) {
+    public function getWeightedRand($weights)
+    {
         $r = \mt_rand(1, 1000);
         $offset = 0;
         foreach ($weights as $k => $w) {
@@ -240,87 +228,36 @@ class BaseType
             }
         }
     }
-
-    //----------------------------------------------------------
-
-    /**
-     * Fetch the ID of the dataType
-     * 
-     * @return string 
-     */
-    public function get_id() {
-        return $this->id;
-    }
+    
+    //  -------------------------------------------------------------------------
 
     /**
-     * The ID of the dataType (table_column)
-     * 
-     * @param string $id 
-     */
-    public function set_id($id) {
-        $this->id = (string) $id;
+      *  Convert Simplexml to array 
+      */
+    function xmlToArray($xml)
+    {
+        
+        if ($xml instanceof \SimpleXMLElement) {
+		$attributes = $xml->attributes();
+		foreach($attributes as $k=>$v) {
+			if ($v) $a[$k] = (string) $v;
+		}
+		$x = $xml;
+		$xml = get_object_vars($xml);
+	}
+        
+	if (is_array($xml)) {
+		if (count($xml) == 0) return (string) $x; // for CDATA
+		foreach($xml as $key=>$value) {
+			$r[$key] = $this->xmlToArray($value);
+		}
+		if (isset($a)) $r['@attributes'] = $a;    // Attributes
+		return $r;
+	}
+	return (string) $xml;
+
     }
-
-    //------------------------------------------------------------
-
-    public function get_to_generate() {
-        return $this->to_generate;
-    }
-
-    public function set_to_generate($rows) {
-        if ((integer) $rows <= 0) {
-            throw new \Exception('Expected number of rows must be a value greater than Zero');
-        }
-
-        $this->to_generate = (integer) $rows;
-    }
-
-    //------------------------------------------------
-
-    public function generate($options= array()) {
-        //fetch the hander
-        $handler = $this->get_choice();
-
-        if ($handler !== NULL) {
-            if ($handler->do_test($this->row)) {
-                return FALSE;
-            }
-        }
-
-        return TRUE;
-    }
-
-    //-----------------------------------------------------------------------
-
-    /**
-     * Set the choice hanlder
-     *  
-     * @param \Data\Config\Interface_Choice  $choice 
-     */
-    public function set_choice(\Data\Config\Interface_Choice $choice) {
-        $this->handler = $choice;
-    }
-
-    /**
-     * Return the instance of the choice hander
-     * 
-     * @return dataChoiceInterface 
-     */
-    public function get_choice() {
-        return $this->handler;
-    }
-
-    //-----------------------------------------------------
-    /**
-     * Class Constructor
-     * @param array $options 
-     * @return void
-     */
-    function __construct(\Data\Config\Abstract_Option $options) {
-        $this->set_to_generate($options->get_to_generate());
-        $this->set_choice($options->get_choice());
-    }
-
+    
+    //  -------------------------------------------------------------------------
 }
-
-/* End of file */
+/* End of File */

@@ -1,152 +1,81 @@
 <?php
+require_once __DIR__ .'/base/AbstractProject.php';
 
-class Alpha_numeric_test extends \UnitTestCase {
+use \Migration\Components\Faker\Type\AlphaNumeric;
+use \Migration\Components\Faker\Config\AlphaNumeric as AlphaTypeConifg;
+use \Migration\Components\Faker\Utilities;
 
-    function __construct($label = FALSE) {
-            
-        \Fuel::add_package('data');
+class AlphaNumericTest extends AbstractProject
+{
+    
+    //--------------------------------------------------------------------------
+    
+    public function testDatatypeExists()
+    {
         
-        parent::__construct('Alpha Numeric DataType Test');
+        $formats = 'xxxxx|xxxxxx';
+        $id = 'table_two';
+        $utilities = new Utilities(); 
+        
+        $type = new AlphaNumeric($id,$utilities,$formats);
+        
+        $this->assertInstanceOf('\\Migration\\Components\\Faker\\TypeInterface',$type);
     }
-
-    public function setUp() {
+    
+    
+    //--------------------------------------------------------------------------
+    
+    public function testGenerateOneFormat()
+    {
+        $format = 'xxxxx';
+        $id = 'table_two';
+        $row = 1;
+        $utilities = new Utilities(); 
         
-    }
+        $type = new AlphaNumeric($id,$utilities,$format);
 
-    public function tearDown() {
-        
+        $value = $type->generate($row);
+
+        $this->assertEquals(strlen($value), 5);
     }
 
     
     //--------------------------------------------------------------------------
     
-    public function test_datatype_exists() {
-        $choice = new \Data\Config\Choice_Default(0,0);
+    public function testGenerateMultipleFormats()
+    {
        
-        $options = new \Data\Config\Option_AlphaNumeric();
-        $options->set_formats('xxxxx|xxxxxx');
-        $options->set_to_generate(5);
-        $options->set_choice($choice);
+        $formats = 'xxxxx|xxxxxx|xxxxxxx|xxxxxxxx';
         $id = 'table_two';
+        $utilities = new Utilities(); 
+        $dataType = new AlphaNumeric($id,$utilities,$formats);
+        $row = 1;
 
-        $dataType = new \Data\Config\Datatype_AlphaNumeric($id,$options);
-        
-        
-        $this->assertIsA($options, '\\Data\Config\\Option_AlphaNumeric');
-        $this->assertIsA($dataType, '\Data\\Config\\Datatype_AlphaNumeric');
-    }
-
-    
-    
-    
-    //--------------------------------------------------------------------------
-    
-    public function test_generate_one_format() {
-        $choice = new \Data\Config\Choice_Default(0,0);
-       
-        $options = new \Data\Config\Option_AlphaNumeric();
-        $options->set_formats('xxxxx');
-        $options->set_to_generate(5);
-        $options->set_choice($choice);
-        
-        $id = 'table_two';
-
-        $dataType = new \Data\Config\Datatype_AlphaNumeric($id,$options);
-
-        $value = $dataType->generate();
-
-        $this->assertEqual(strlen($value), 5);
-    }
-
-    
-    //--------------------------------------------------------------------------
-    
-    public function test_generate_multiple_formats() {
-        $choice = new \Data\Config\Choice_Default(0,0);
-       
-        $options = new \Data\Config\Option_AlphaNumeric();
-        $options->set_formats('xxxxx|xxxxxx|xxxxxxx|xxxxxxxx');
-        $options->set_to_generate(5);
-        $options->set_choice($choice);
-        
-        $id = 'table_two';
-
-        $dataType = new \Data\Config\Datatype_AlphaNumeric($id,$options);
-
-        $value = $dataType->generate();
-
+        $value = $dataType->generate($row);
 
         $this->assertTrue((strlen($value) >= 5 && strlen($value) <= 8));
     }
 
-    
     //--------------------------------------------------------------------------
     
-    public function test_random_prob() {
+    
+    public function testConfig()
+    {
+        $config_string = '<type name="alpha_numeric">
+                            <option name="format" value="xxxx|xxxxxx|xxxx" >aaaa</option>
+                            </type>';        
+                                  
+        $util = new Utilities();
+        $config = new AlphaTypeConifg($util);
+        $config_xml= simplexml_load_string($config_string);
         
-        $options = new \Data\Config\Option_AlphaNumeric();
-        $options->set_formats('xxxxx|xxxxxx|xxxxxxx|xxxxxxxx');
-        $options->set_to_generate(100);
-        $options->set_choice(new \Data\Config\Choice_Sample(100,90));
+        $cc = $util->xmlToArray($config_xml);
         
+        var_dump($cc);
         
-        $value = array();
-        
-        $id = 'table_two';
-
-        $dataType = new \Data\Config\Datatype_AlphaNumeric($id,$options);
-
-        
-        for ($i =0; $i <= 100; $i++) {
-            $values[] = $dataType->generate();
-        }
-               
-        
-        $this->assertEqual($this->count_null($values),90);
-        
+        //$config->merge($config_xml);
     }
     
-    
-    private function count_null($array) {
-        
-        $count = 0;
-        
-        foreach($array as $value)
-        {
-            if(is_null($value)) {
-                $count = ++$count;
-            }
-        }
-        
-       return $count;
-    }
-    
-    //--------------------------------------------------------------------------
-    
-     public function test_event_emitted() {
-        $choice = new \Data\Config\Choice_Default(0,0);
-        $options = new \Data\Config\Option_AlphaNumeric();
-        $options->set_formats('#####|######|#######|########');
-        $options->set_to_generate(5);
-        $options->set_choice($choice);
-        
-        $id = 'table_two';
-
-        $dataType = new \Data\Config\Datatype_AlphaNumeric($id,$options);
-        
-        $registered = FALSE;
-        
-        Event::register('value_generated', function($data,$arguments) use (&$registered) {
-            $registered = TRUE;
-        });
-    
-        $value = $dataType->generate();
-        
-        $this->assertTrue($registered,'event hanlder not called');
-    }
-
-
-    //--------------------------------------------------------------------------
     
 }
 
