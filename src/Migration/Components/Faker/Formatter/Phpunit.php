@@ -4,7 +4,7 @@ namespace Migration\Components\Faker\Formatter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Migration\Components\Writer\WriterInterface;
 
-class PHPUnit implements FormatterInterface
+class Phpunit implements FormatterInterface
 {
     
     /**

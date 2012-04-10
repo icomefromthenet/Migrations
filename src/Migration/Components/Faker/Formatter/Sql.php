@@ -3,7 +3,7 @@ namespace Migration\Components\Faker\Formatter;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Migration\Components\Writer\WriterInterface;
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\AbstractPlatform;;
 use Migration\Components\Faker\Exception as FakerException;
 
 class Sql implements FormatterInterface
@@ -20,9 +20,9 @@ class Sql implements FormatterInterface
     protected $writer;
     
     /**
-      *  @var Doctrine\DBAL\Connection 
+      *  @var use Doctrine\DBAL\Platforms\AbstractPlatform;
       */
-    protected $connection;
+    protected $platform;
     
     /**
       *  Fetch Format Event to listen to
@@ -54,12 +54,13 @@ class Sql implements FormatterInterface
       *
       *  @param EventDispatcherInterface $event
       *  @param WriterInterface $writer
+      *  @param AbstractPlatform $platform the doctine platform class
       */
-    public function __construct(EventDispatcherInterface $event, WriterInterface $writer, Connection $doctrine)
+    public function __construct(EventDispatcherInterface $event, WriterInterface $writer, AbstractPlatform $platform)
     {
         $this->setEventDispatcher($event);
         $this->setWriter($writer);
-        $this->connection = $doctrine;
+        $this->platform = $platform;
        
     }
     
@@ -92,7 +93,8 @@ class Sql implements FormatterInterface
       */
     public function onSchemaStart(GenerateEvent $event)
     {
-        
+        # return the schema name as a comment
+        return  sprintf('### Creating Data for Schema %s',$event->getId());
     }
     
     
@@ -103,7 +105,8 @@ class Sql implements FormatterInterface
       */
     public function onSchemaEnd(GenerateEvent $event)
     {
-        
+         # return the schema name as a comment
+        return  sprintf('### Finished Creating Data for Schema %s',$event->getId());
     }
     
     
@@ -114,7 +117,7 @@ class Sql implements FormatterInterface
       */
     public function onTableStart(GenerateEvent $event)
     {
-        
+        return  sprintf('### Creating Data for Table %s',$event->getId());
     }
     
     
@@ -125,7 +128,7 @@ class Sql implements FormatterInterface
       */
     public function onTableEnd(GenerateEvent $event)
     {
-        
+         return  sprintf('### Finished Creating Data for Table %s',$event->getId());
     }
     
     
@@ -136,7 +139,7 @@ class Sql implements FormatterInterface
       */
     public function onRowStart(GenerateEvent $event)
     {
-        
+        return null;
     }
     
     
@@ -147,6 +150,29 @@ class Sql implements FormatterInterface
       */
     public function onRowEnd(GenerateEvent $event)
     {
+        # build insert statement 
+        
+        $q = $this->platform->getIdentifierQuoteCharacter();
+        $table = $event->getType()->getParent()->getId();
+        
+        # column names add quotes to them
+        $column_keys = array_keys($event->getValues());
+        
+        $column_keys = array_map(function($value) use ($q){
+              return $q.$value.$q;
+        },$column_keys);
+        
+        $column_values = array_values($event->getValues());
+        
+        if(count($column_keys) !== count($column_values)) {
+            throw new FakerException('Keys do not have enough values');
+        }
+        
+        $stm = 'INSERT INTO '.$q. $table .$q.'(' .implode(',',$column_keys). ') VALUES ('. implode(',',$column_values) .');';
+
+
+
+        return $stm;
         
     }
     

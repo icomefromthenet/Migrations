@@ -10,7 +10,6 @@ interface ParserInterface
     
     public function read(FileInterface $file);
     
-    public function __construct(EventDispatcherInterface $dispatcher);
     
 }
 /* End of file */

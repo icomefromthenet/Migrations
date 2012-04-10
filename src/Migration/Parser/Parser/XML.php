@@ -293,8 +293,6 @@ class XML implements ParserInterface
             xml_parse($this->parser, "", true);
         }
         
-        var_dump($this->tree);
-        
         # close the file
         
         $file->fclose();

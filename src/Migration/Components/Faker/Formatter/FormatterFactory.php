@@ -3,16 +3,16 @@ namespace Migration\Components\Faker\Formatter;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Migration\Components\Writer\WriterInterface;
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Migration\Components\Faker\Exception as FakerException;
 
-class Factory
+class FormatterFactory
 {
     
     /**
-      *  @var Doctrine\DBAL\Connection 
+      *  @var Doctrine\DBAL\Platforms\AbstractPlatform
       */
-    protected $connection;
+    protected $platform;
     
     /**
       *  @var Migration\Components\Writer\WriterInterface 
@@ -31,11 +31,11 @@ class Factory
       * @param WriterInterface $writer
       * @param Connection $connection doctine db object
       */
-    public function __construct(EventDispatcherInterface $event, WriterInterface $writer , Connection $connection)
+    public function __construct(EventDispatcherInterface $event, WriterInterface $writer , AbstractPlatform $platform)
     {
         $this->event = $event;
         $this->writer = $writer;
-        $this->connection = $connection;
+        $this->platform = $platform;
     }
  
  
@@ -53,7 +53,7 @@ class Factory
            $class = new $class_str($this->event,$this->writer);
         }
         else {
-           $class = new $class_str($this->event,$this->writer,$this->connection);
+           $class = new $class_str($this->event,$this->writer,$this->platform);
         }
         
         # register this formatter as a subscriber 
