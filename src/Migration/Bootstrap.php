@@ -5,7 +5,7 @@ use Migration\Path;
 use Migration\Bootstrap\Log as BootLog;
 use Migration\Bootstrap\Error as BootError;
 use Migration\Bootstrap\Database as BootDatabase;
-use Symfony\Component\ClassLoader\UniversalClassLoader;
+use Migration\Autoload;
 
 //---------------------------------------------------------------
 // Setup Global Error Levels
@@ -32,21 +32,20 @@ define('VENDORPATH', __DIR__.'/Vendor' .DIRECTORY_SEPARATOR);
 //
 //------------------------------------------------------------------------------
 
-
 require_once VENDORPATH .'Symfony' .DIRECTORY_SEPARATOR. 'Component' .DIRECTORY_SEPARATOR. 'ClassLoader' .DIRECTORY_SEPARATOR.'UniversalClassLoader.php';
+require_once COREPATH .'Migration' .DIRECTORY_SEPARATOR. 'Autoload.php';
 
-$symfony_auto_loader = new UniversalClassLoader();
+$symfony_auto_loader = new Autoload();
 $symfony_auto_loader->registernamespaces(
         array(
           'Symfony'   => VENDORPATH,
           'Monolog'   => VENDORPATH,
           'Migration' => COREPATH,
           'Doctrine'  => VENDORPATH,
-
+          
 ));
 
 $symfony_auto_loader->registerPrefix('Twig_', VENDORPATH .'Symfony' . DIRECTORY_SEPARATOR);
-
 $symfony_auto_loader->register();
 
 
@@ -58,6 +57,18 @@ $symfony_auto_loader->register();
 
 $project = new Project(new Path());
 
+
+//------------------------------------------------------------------------------
+// Setup the project extension directories.
+//
+// If project folder is set by cmd this path below is overriden in Command.php
+//------------------------------------------------------------------------------
+
+$symfony_auto_loader->setExtensionNamespace('Migration\\Components\\Faker\\Extension', $project->getPath()->get());
+
+$symfony_auto_loader->setFilter(function($ns){
+   return  substr($ns,21); # remove 'Migrations/Components/' from namespace  
+});
 
 //------------------------------------------------------------------------------
 // Assign the autoloader to a DI container
@@ -72,7 +83,7 @@ $project['loader'] = $symfony_auto_loader;
 //------------------------------------------------------------------------------
 
 $project['console'] = $project->share( function ($c) use ($project) {
-   return new Migration\Command\Base\Application($project);
+   return new \Migration\Command\Base\Application($project);
 });
 
 

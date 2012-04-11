@@ -129,6 +129,23 @@ class Project extends Pimple
 
 
             }
+            
+             #make faker extension folder
+            $faker_path = $folder->getBase() . DIRECTORY_SEPARATOR . 'faker';
+            if (mkdir($faker_path,$mode) === TRUE) {
+                $output->writeln('<info>Created Faker Folder</info>');
+
+                 //copy files into it
+                $files = $skelton->iterator('faker');
+
+                foreach($files as $file){
+                    if($this->copy($file,$faker_path) === TRUE) {
+                          $output->writeln('++ Copied '.basename($file));
+                    }
+                }
+
+
+            }
 
     }
 
@@ -140,25 +157,22 @@ class Project extends Pimple
      * @param string $destination The Destination File
      * @return boolean
      */
-    public function copy($source,$destination)
+    public function copy(\Symfony\Component\Finder\SplFileInfo $source,$destination)
     {
-
-        $new_path = $destination . DIRECTORY_SEPARATOR . basename($source);
-        str_replace('//','/',$new_path); //make sure that no double colons
-
+        $new_path = $destination . DIRECTORY_SEPARATOR. $source->getRelativePathname();
 
         #Test if Source is a link
-        if(is_link($source)) {
+        if($source->isLink()) {
            return symlink($source,$new_path);
         }
 
         # Test if source is a directory
-        if(is_dir($source)){
+        if($source->isDir()){
             return mkdir($new_path);
         }
 
         #Test if Source is a file
-        if(is_file($source)) {
+        if($source->isFile()) {
             return copy($source,$new_path);
 
         }

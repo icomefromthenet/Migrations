@@ -11,7 +11,7 @@ class AbstractProject extends PHPUnit_Framework_TestCase
 {
 
 
-    protected $backupGlobalsBlacklist = array('project');
+    protected $backupGlobalsBlacklist = array('project','symfony_auto_loader');
 
 
     protected $migration_dir = 'myproject';
@@ -56,7 +56,11 @@ class AbstractProject extends PHPUnit_Framework_TestCase
         global $project;
 
         $project->getPath()->parse((string)__DIR__.'/../myproject');
-        
+       
+        $project['loader']->setExtensionNamespace(
+               'Migration\\Components\\Faker\\Extension' , $project->getPath()->get()
+            );
+       
         if(isset($project['data_path']) === false) {
             $project['data_path'] = new \Migration\Path(__DIR__.'/../../data');
         }

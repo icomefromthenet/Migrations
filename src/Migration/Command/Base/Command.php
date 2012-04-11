@@ -41,6 +41,11 @@ class Command extends BaseCommand
        if (true === $input->hasParameterOption(array('--path', '-p'))) {
             #switch path to the argument
             $project->getPath()->parse((string)$input->getOption('path'));
+       
+            # change the extension directories
+            $project['loader']->setExtensionNamespace(
+               'Migration\\Components\\Faker\\Extension' , $project->getPath()->get()
+            );
        }
 
         #try and detect if path exits
