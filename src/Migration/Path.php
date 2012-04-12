@@ -74,6 +74,14 @@ class Path
 
         $this->path = $project_folder;
 
+
+        # load the extension bootstrap file
+
+        $extension_bootstrap = $this->path . DIRECTORY_SEPARATOR . 'extension'. DIRECTORY_SEPARATOR .'bootstrap.php';
+        if(is_file($extension_bootstrap)) {
+            require $extension_bootstrap;
+        }
+        
         return $this->path;
     }
 }

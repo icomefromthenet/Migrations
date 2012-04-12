@@ -55,11 +55,11 @@ class AbstractProject extends PHPUnit_Framework_TestCase
         # but for testing its a global variable
         global $project;
 
-        $project->getPath()->parse((string)__DIR__.'/../myproject');
+        $path = $project->getPath()->parse((string)__DIR__.'/../myproject');
        
         $project['loader']->setExtensionNamespace(
-               'Migration\\Components\\Faker\\Extension' , $project->getPath()->get()
-            );
+               'Migration\\Components\\Extension' , $project->getPath()->get()
+        );
        
         if(isset($project['data_path']) === false) {
             $project['data_path'] = new \Migration\Path(__DIR__.'/../../data');

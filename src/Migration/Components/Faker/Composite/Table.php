@@ -30,7 +30,7 @@ class Table implements CompositeInterface
       *  @param string $id the schema name
       *  @param Schema $parent 
       */
-    public function __construct($id  Schema $parent)
+    public function __construct($id , Schema $parent)
     {
         $this->id = $id;
         $this->setParent($parent);
@@ -40,7 +40,7 @@ class Table implements CompositeInterface
     /**
       *  @inheritdoc 
       */
-    public function generate($rows,$values = array)
+    public function generate($rows,$values = array())
     {
         foreach($this->child_types as $type) {
             $type->generate($rows,$values);

@@ -2,6 +2,7 @@
 namespace Migration\Components\Faker\Composite;
 
 use Migration\Components\Faker\Exception as FakerException;
+use Doctrine\DBAL\Types\Type as ColumnType;
 
 class Column implements CompositeInterface
 {
@@ -21,6 +22,10 @@ class Column implements CompositeInterface
       */
     protected $id;
     
+    /**
+      *  @var Doctrine\DBAL\Types\Type the mapper to convert php types into database representations
+      */
+    protected $column_type;
     
     /**
       *  Class construtor
@@ -30,17 +35,18 @@ class Column implements CompositeInterface
       *  @param string $id the schema name
       *  @param Table $parent 
       */
-    public function __construct($id  Table $parent)
+    public function __construct($id, Table $parent, ColumnType $type)
     {
         $this->id = $id;
         $this->setParent($parent);
+        $this->column_type = $type;
         
     }
     
     /**
       *  @inheritdoc 
       */
-    public function generate($rows,$values = array)
+    public function generate($rows,$values = array())
     {
         foreach($this->child_types as $type) {
             $type->generate($rows,$values);
@@ -86,11 +92,25 @@ class Column implements CompositeInterface
     /**
       *  @inheritdoc
       */
-    public function addChild(CompositeInterface $child);
+    public function addChild(CompositeInterface $child)
     {
         return array_push($this->child_types,$child);
     }
     
+    //  ----------------------------------------------------------------------------
+    
+    /**
+      *  Fetch the Doctrine Column Type
+      *
+      *  @return Doctrine\DBAL\Types\Type
+      *  @access public
+      */    
+    public function getColumnType()
+    {
+        return $this->column_type;
+    }
+    
+    //  ----------------------------------------------------------------------------
     
 }
 

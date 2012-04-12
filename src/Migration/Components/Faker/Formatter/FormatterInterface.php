@@ -37,6 +37,39 @@ interface FormatterInterface extends EventSubscriberInterface
     public function setWriter(WriterInterface $writer);
     
     /**
+      *  Fetch a associative array column id => Doctrine\DBAL\Types\Type
+      *
+      *  @return \Doctrine\DBAL\Types\Type[]
+      */
+    public function getColumnMap();
+    
+    /**
+      *   Process a single column with the column map
+      *   convert the php type into a database representaion for the given platform
+      *   assigned to the formatter
+      */
+    public function processColumnWithMap($key,$value);
+    
+    /**
+      *  Return the assigned platform
+      *
+      *  @access public
+      *  @return Doctrine\DBAL\Platforms\AbstractPlatform
+      */
+    public function getPlatform();
+    
+    /**
+      *  Convert php primitatives to representation
+      *  in a text file
+      *
+      *  e.g add string quotes to strings
+      *
+      *  @return mixed
+      */
+    public function convertForText($value);
+    
+    
+    /**
       *  Handles Event FormatEvents::onSchemaStart
       *
       *  @param GenerateEvent $event

@@ -10,9 +10,10 @@ class DoctrinePlatformFactoryTest extends AbstractProject
     public function testFactoryCreate()
     {
         $factory = new PlatformFactory();
+        $project = $this->getProject();
         
         $this->assertInstanceOf('Doctrine\\DBAL\\Platforms\\DB2Platform',$factory->create('db2'));
-        $this->assertInstanceOf('Doctrine\\DBAL\\Platforms\\MySqlPlatform',$factory->create('mysql'));
+        $this->assertInstanceOf('Migration\\Components\\Extension\\Doctrine\\Platforms\\MySqlPlatform',$factory->create('mysql'));
         $this->assertInstanceOf('Doctrine\\DBAL\\Platforms\\OraclePlatform',$factory->create('oracle'));
         $this->assertInstanceOf('Doctrine\\DBAL\\Platforms\\PostgreSqlPlatform',$factory->create('postgresql'));
         $this->assertInstanceOf('Doctrine\\DBAL\\Platforms\\SqlitePlatform', $factory->create('sqlite'));

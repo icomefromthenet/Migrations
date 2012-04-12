@@ -131,15 +131,15 @@ class Project extends Pimple
             }
             
              #make faker extension folder
-            $faker_path = $folder->getBase() . DIRECTORY_SEPARATOR . 'faker';
-            if (mkdir($faker_path,$mode) === TRUE) {
-                $output->writeln('<info>Created Faker Folder</info>');
+            $extension_path = $folder->getBase() . DIRECTORY_SEPARATOR . 'extension';
+            if (mkdir($extension_path,$mode) === TRUE) {
+                $output->writeln('<info>Created Extension Folder</info>');
 
                  //copy files into it
-                $files = $skelton->iterator('faker');
+                $files = $skelton->iterator('extension');
 
                 foreach($files as $file){
-                    if($this->copy($file,$faker_path) === TRUE) {
+                    if($this->copy($file,$extension_path) === TRUE) {
                           $output->writeln('++ Copied '.basename($file));
                     }
                 }

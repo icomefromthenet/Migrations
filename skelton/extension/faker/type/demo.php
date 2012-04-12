@@ -1,5 +1,5 @@
 <?php
-namespace Migration\Components\Faker\Extension\Type;
+namespace Migration\Components\Extension\Faker\Type;
 
 use Migration\Components\Faker\TypeInterface;
 

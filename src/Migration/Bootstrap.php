@@ -64,11 +64,12 @@ $project = new Project(new Path());
 // If project folder is set by cmd this path below is overriden in Command.php
 //------------------------------------------------------------------------------
 
-$symfony_auto_loader->setExtensionNamespace('Migration\\Components\\Faker\\Extension', $project->getPath()->get());
+$symfony_auto_loader->setExtensionNamespace('Migration\\Components\\Extension', $project->getPath()->get());
 
 $symfony_auto_loader->setFilter(function($ns){
    return  substr($ns,21); # remove 'Migrations/Components/' from namespace  
 });
+
 
 //------------------------------------------------------------------------------
 // Assign the autoloader to a DI container

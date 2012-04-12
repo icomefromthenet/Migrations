@@ -3,7 +3,7 @@ namespace Migration\Components\Faker\Formatter;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Migration\Components\Writer\WriterInterface;
-use Doctrine\DBAL\Platforms\AbstractPlatform;;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Migration\Components\Faker\Exception as FakerException;
 
 class Sql implements FormatterInterface
@@ -25,6 +25,11 @@ class Sql implements FormatterInterface
     protected $platform;
     
     /**
+      *  @var \Doctrine\DBAL\Types\Type[] 
+      */
+    protected $column_map = array();
+    
+    /**
       *  Fetch Format Event to listen to
       *
       *  @return mixed[]
@@ -41,7 +46,7 @@ class Sql implements FormatterInterface
             FormatEvents::onRowEnd         => array('onRowEnd',0),
             FormatEvents::onColumnStart    => array('onColumnStart',0),
             FormatEvents::onColumnGenerate => array('onColumnGenerate',0),
-            FormatEvents::onColumnEnd      =>  array('onColumnEnd',0),
+            FormatEvents::onColumnEnd      => array('onColumnEnd',0),
         
         );
     }
@@ -82,6 +87,57 @@ class Sql implements FormatterInterface
         $this->writer = $writer;
     }
     
+    /**
+      *  Returns the column map
+      *
+      *  @access public
+      *  @return \Doctrine\DBAL\Types\Type[]
+      */
+    public function getColumnMap()
+    {
+        return $this->column_map;
+    }
+    
+    /**
+      *  Process a column with the map 
+      */
+    public function processColumnWithMap($key,$value)
+    {
+        $map = $this->getColumnMap();
+        
+        if(isset($map[$key]) === false) {
+            throw new FakerException('Unknown column mapping at key::'.$key);
+        }
+        
+        return $map[$key]->convertToDatabaseValue($value,$this->getPlatform());
+    }
+    
+    
+     /**
+      *  Convert php primitatives to representation
+      *  in a text file
+      *
+      *  e.g add string quotes to strings
+      *
+      *  @return mixed
+      */
+    public function convertForText($value)
+    {
+        
+        
+    }
+    
+    /**
+      *  Return the assigned platform
+      *
+      *  @access public
+      *  @return Doctrine\DBAL\Platforms\AbstractPlatform
+      */
+    public function getPlatform()
+    {
+        return $this->platform;
+    }
+    
     //  -------------------------------------------------------------------------
     # Format Events
     
@@ -117,7 +173,17 @@ class Sql implements FormatterInterface
       */
     public function onTableStart(GenerateEvent $event)
     {
-        return  sprintf('### Creating Data for Table %s',$event->getId());
+       # build a column map
+       $map = array();
+       $columns = $event->getType()->getChildren();
+       
+       foreach($columns as $column) {
+            $map[$column->getId()] = $column->getColumnType();
+       }
+       
+       $this->column_map = $map;
+       
+       return  sprintf('### Creating Data for Table %s',$event->getId());
     }
     
     
@@ -128,7 +194,10 @@ class Sql implements FormatterInterface
       */
     public function onTableEnd(GenerateEvent $event)
     {
-         return  sprintf('### Finished Creating Data for Table %s',$event->getId());
+       # unset the column map for next table
+       $this->column_map = null;
+       
+       return  sprintf('### Finished Creating Data for Table %s',$event->getId());
     }
     
     
@@ -150,25 +219,32 @@ class Sql implements FormatterInterface
       */
     public function onRowEnd(GenerateEvent $event)
     {
+        # iterate over the values and convert run them through the column map
+        $map = $this->getColumnMap();
+        $values = $event->getValues();
+        
+        foreach($values as $key => &$value) {
+            $value = $this->processColumnWithMap($key,$value);
+        }
+        
         # build insert statement 
         
         $q = $this->platform->getIdentifierQuoteCharacter();
         $table = $event->getType()->getParent()->getId();
         
         # column names add quotes to them
-        $column_keys = array_keys($event->getValues());
         
         $column_keys = array_map(function($value) use ($q){
               return $q.$value.$q;
-        },$column_keys);
+        },array_keys($values));
         
-        $column_values = array_values($event->getValues());
+        $column_values = array_values($values);
         
         if(count($column_keys) !== count($column_values)) {
             throw new FakerException('Keys do not have enough values');
         }
         
-        $stm = 'INSERT INTO '.$q. $table .$q.'(' .implode(',',$column_keys). ') VALUES ('. implode(',',$column_values) .');';
+        $stm = 'INSERT INTO '.$q. $table .$q.' (' .implode(',',$column_keys). ') VALUES ('. implode(',',$column_values) .');';
 
 
 

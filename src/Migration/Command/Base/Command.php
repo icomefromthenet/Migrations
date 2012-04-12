@@ -44,7 +44,7 @@ class Command extends BaseCommand
        
             # change the extension directories
             $project['loader']->setExtensionNamespace(
-               'Migration\\Components\\Faker\\Extension' , $project->getPath()->get()
+               'Migration\\Components\\Extension' , $project->getPath()->get()
             );
        }
 

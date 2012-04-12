@@ -66,7 +66,7 @@ class AlphaNumeric implements ConfigurationInterface
      * @param array $configs
      * @return boolean true if merge sucessful
      */
-    public function merge(\SimpleXMLElement $config)
+    public function merge($config)
     {
         $processor = new Processor();
         $configuration = $this;

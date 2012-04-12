@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ .'/base/AbstractProject.php';
 
-use Migration\Components\Faker\Extension\Type\Demo; 
+use Migration\Components\Extension\Faker\Type\Demo; 
 
 class FakerExtensionTest extends AbstractProject
 {
@@ -11,7 +11,7 @@ class FakerExtensionTest extends AbstractProject
         $project = $this->getProject();
         
         $demo = new Demo();
-        $this->assertInstanceOf('\Migration\Components\Faker\Extension\Type\Demo',$demo);
+        $this->assertInstanceOf('\Migration\Components\Extension\Faker\Type\Demo',$demo);
         
     }
     

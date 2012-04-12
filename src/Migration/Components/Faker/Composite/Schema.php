@@ -30,7 +30,7 @@ class Schema implements CompositeInterface
       *  @param string $id the schema name
       *  @param CompositeInterface $parent (Optional for this object)
       */
-    public function __construct($id  CompositeInterface $parent = null)
+    public function __construct($id , CompositeInterface $parent = null)
     {
          $this->id = $id;
             
@@ -42,7 +42,7 @@ class Schema implements CompositeInterface
     /**
       *  @inheritdoc 
       */
-    public function generate($rows,$values = array)
+    public function generate($rows,$values = array())
     {
         foreach($this->child_types as $type) {
             $type->generate($rows,$values);
@@ -88,7 +88,7 @@ class Schema implements CompositeInterface
     /**
       *  @inheritdoc
       */
-    public function addChild(CompositeInterface $child);
+    public function addChild(CompositeInterface $child)
     {
         return array_push($this->child_types,$child);
     }
