@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<schema name="skilia">
+    <writter formatter="sql" platform="mysql" />
+    <writter formatter="phpunit" platform="sqlite" />
+    
+    <table name="user" generate="100">
+        <column name="id" type="integer">
+            <type name="alphanumeric">
+                <option name="formats" value="xxx|xxx|xxx" />
+                <option name="increment" value="5" />
+            </type>
+        </column>
+        <column name="username" type="string">
+            <type name="constant">
+                <option name="formats" value="232|666|999" />
+                <option name="increment" value="5" />
+            </type>
+        </column>
+    </table>
+    
+    <table name="user_profile" generate="100">
+        
+    </table>
+    
+</schema>

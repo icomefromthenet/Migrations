@@ -14,6 +14,8 @@
 
 use Migration\PlatformFactory;
 use Migration\ColumnTypeFactory;
+use Migration\Components\Faker\Formatter\FormatterFactory;
+use Migration\Components\Faker\TypeConfigFactory;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,19 +59,35 @@ use Migration\ColumnTypeFactory;
     
 /*
 |--------------------------------------------------------------------------
-| Faker DataTypes
+| Faker Config DataTypes
 |--------------------------------------------------------------------------
+| 
+| To Add a new datatype a config object must be registered, the config object
+| implements \\Migration\\Components\\Faker\\TypeConfigInterface.
 |
+| You are only required to register the config as it containsa factory for the partner datatype. 
+|
+| You may also override built in types using the same key.
+|
+| Example:
+|
+| TypeConfigFactory::registerExtension('vector','Migration\\Components\\Extension\\Faker\\Config\\Vector');
 */
 
-
+ //TypeConfigFactory::registerExtension('vector','Migration\\Components\\Extension\\Faker\\Config\\Vector');
 
 /*
 |--------------------------------------------------------------------------
-| FakerDataTypeConfig
+| Faker Formatters
 |--------------------------------------------------------------------------
+|
+| Regiater a new formatter, which control how data is written to the writter
+|
+| FormatterFactory::registerExtension('mongo','Migration\\Components\\Extension\\Faker\\Formatter\\Mongo');
 |
 */ 
     
+  //FormatterFactory::registerExtension('mongo','Migration\\Components\\Extension\\Faker\\Formatter\\Mongo');
+   
 
 /* End of File */

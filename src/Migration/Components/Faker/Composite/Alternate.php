@@ -6,8 +6,27 @@ use Migration\Components\Faker\Formatter\FormatEvents;
 use Migration\Components\Faker\Formatter\GenerateEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-
-class Column implements CompositeInterface
+/**
+  *  Allows many datatypes to be used based on
+  *  alternate pattern.
+  *
+  *  @example
+  *
+  * formats xxxx |xxx-xx | xx-xxxxx
+  * step = 1 
+  *
+  * Each call to generate will generate once and switch to the next
+  * format until format list is exhausted where repeat.
+  *
+  * formats xxxx |xxx-xx | xx-xxxxx
+  * step = 100 
+  *
+  * Each call to generate will same format 100 times and switch to the next
+  * format until format list is exhausted where repeat.
+  * 
+  *
+  */
+class Alternate implements CompositeInterface
 {
     
     /**
@@ -24,11 +43,11 @@ class Column implements CompositeInterface
       *  @var string the id of the component 
       */
     protected $id;
-    
-    /**
-      *  @var Doctrine\DBAL\Types\Type the mapper to convert php types into database representations
-      */
-    protected $column_type;
+   
+   /**
+     * @var integer the step value  
+     */
+    protected $step = 1; 
     
     /**
       *  @var Symfony\Component\EventDispatcher\EventDispatcherInterface
@@ -43,11 +62,21 @@ class Column implements CompositeInterface
       *  @param string $id the schema name
       *  @param Table $parent 
       */
-    public function __construct($id, Table $parent, EventDispatcherInterface $event)
+    public function __construct($id, Table $parent, EventDispatcherInterface $event,$step =1)
     {
         $this->id = $id;
         $this->setParent($parent);
         $this->event = $event;
+        
+        if(is_integer($step) === false) {
+            throw new FakerException('Step must be an integer');
+        }
+        
+        if($step <= 0) {
+           throw new FakerException('Step must be greater than 0');
+        }
+        
+        $this->step = $step;
         
     }
     
@@ -56,36 +85,17 @@ class Column implements CompositeInterface
       */
     public function generate($rows,$values = array())
     {
-        # dispatch the start event
-        
-        $this->event->dispatch(
-                        FormatEvents::onColumnStart,
-                        new GenerateEvent($this,$values,$this->getId())
-        );
-        
-        # send the generate command to the type
-        
-        foreach($this->child_types as $type) {
-            $values[$this->getId()] = $value = $type->generate($rows,$values);
-            
-            # dispatch the generate event
-            
-            $this->event->dispatch(
-                FormatEvents::onColumnGenerate,
-                new GenerateEvent($this,array( $this->getId() => $value ),$this->getId())
-            );
-                        
+        $number_types = count($this->child_types);
+        $use = 0;
+
+        # find which child should be used
+        # first row is 1 no zero
+        foreach($this->child_types as $index => $type) {
+            if($rows <= $this->step * ($index+1)) {
+                return $type->generate($rows,$values);
+                break;
+            }
         }
-        
-        # dispatch the stop event
-        
-        $this->event->dispatch(
-                FormatEvents::onColumnEnd,
-                new GenerateEvent($this,$values,$this->getId())
-        );
-        
-        return $values;
-        
     }
     
     //  -------------------------------------------------------------------------
@@ -143,20 +153,11 @@ class Column implements CompositeInterface
     {
         return $this->event;
     }
-
-    /**
-      *  Convert the column into xml representation
-      *
-      *  @return string
-      *  @access public
-      */
+    
+    
     public function toXml()
     {
-        $str = sprintf('<column name="%s" type="%s">',$this->getId(),$this->column_type);
-        $str .= '</column>';
-      
-        return $str;
-        
+       ''
     }
     
     //  -------------------------------------------------------------------------

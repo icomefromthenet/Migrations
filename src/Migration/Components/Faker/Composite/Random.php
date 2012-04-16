@@ -7,7 +7,7 @@ use Migration\Components\Faker\Formatter\GenerateEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 
-class Column implements CompositeInterface
+class Random implements CompositeInterface
 {
     
     /**
@@ -56,37 +56,42 @@ class Column implements CompositeInterface
       */
     public function generate($rows,$values = array())
     {
-        # dispatch the start event
+        $format = $this->binRand(0,(count($this->child_types)-1));
+        return $this->child_types[$format]->generate($rows,$values);
+    }
+    
+    //  -------------------------------------------------------------------------
+
+    
+    /**
+      * Fenerates a random binominal distributed integer. 
+      *
+      *  @source http://www.php.net/manual/en/function.rand.php#107712 
+      */
+    function binRand($min = null, $max = null)
+    {
+        $min = ($min) ? (int) $min : 0;
+        $max = ($max) ? (int) $max : PHP_INT_MAX;
         
-        $this->event->dispatch(
-                        FormatEvents::onColumnStart,
-                        new GenerateEvent($this,$values,$this->getId())
-        );
+        $range = range($min, $max);
+        $average = array_sum($range) / count($range);
         
-        # send the generate command to the type
-        
-        foreach($this->child_types as $type) {
-            $values[$this->getId()] = $value = $type->generate($rows,$values);
-            
-            # dispatch the generate event
-            
-            $this->event->dispatch(
-                FormatEvents::onColumnGenerate,
-                new GenerateEvent($this,array( $this->getId() => $value ),$this->getId())
-            );
-                        
+        $dist = array();
+        for ($x = $min; $x <= $max; $x++) {
+            $dist[$x] = -abs($average - $x) + $average + 1;
         }
         
-        # dispatch the stop event
+        $map = array();
+        foreach ($dist as $int => $quantity) {
+            for ($x = 0; $x < $quantity; $x++) {
+                $map[] = $int;
+            }
+        }
         
-        $this->event->dispatch(
-                FormatEvents::onColumnEnd,
-                new GenerateEvent($this,$values,$this->getId())
-        );
-        
-        return $values;
-        
+        shuffle($map);
+        return current($map);
     }
+    
     
     //  -------------------------------------------------------------------------
     
@@ -144,19 +149,10 @@ class Column implements CompositeInterface
         return $this->event;
     }
 
-    /**
-      *  Convert the column into xml representation
-      *
-      *  @return string
-      *  @access public
-      */
+    
     public function toXml()
     {
-        $str = sprintf('<column name="%s" type="%s">',$this->getId(),$this->column_type);
-        $str .= '</column>';
-      
-        return $str;
-        
+        return '';
     }
     
     //  -------------------------------------------------------------------------

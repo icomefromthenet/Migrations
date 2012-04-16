@@ -7,8 +7,7 @@ use Migration\Components\Faker\Formatter\GenerateEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 
-
-class Schema implements CompositeInterface
+class Switch implements CompositeInterface
 {
     
     /**
@@ -27,7 +26,12 @@ class Schema implements CompositeInterface
     protected $id;
     
     /**
-      *  @var EventDispatcherInterface 
+      *  @var Doctrine\DBAL\Types\Type the mapper to convert php types into database representations
+      */
+    protected $column_type;
+    
+    /**
+      *  @var Symfony\Component\EventDispatcher\EventDispatcherInterface
       */
     protected $event;
     
@@ -37,16 +41,14 @@ class Schema implements CompositeInterface
       *  @access public
       *  @return void
       *  @param string $id the schema name
-      *  @param CompositeInterface $parent (Optional for this object)
+      *  @param Table $parent 
       */
-    public function __construct($id , CompositeInterface $parent = null, EventDispatcherInterface $event)
+    public function __construct($id, Table $parent, EventDispatcherInterface $event)
     {
         $this->id = $id;
+        $this->setParent($parent);
         $this->event = $event;
-            
-        if($parent !== null) {
-            $this->setParent($parent);
-        }
+        
     }
     
     /**
@@ -54,27 +56,25 @@ class Schema implements CompositeInterface
       */
     public function generate($rows,$values = array())
     {
-          # dispatch the start event
        
-          $this->event->dispatch(
-               FormatEvents::onSchemaStart,
-               new GenerateEvent($this,array(),$this->getId())
-          );
+       # iterate over children and ask if we should process
+       # might delgate this to children but since
+       # all php types are valid return values we would't know which
+       # generate call to return
         
-          # send generate command to children
-       
-          foreach($this->child_types as $type) {
-               $type->generate($rows,$values);
-          }
-       
-          # dispatch the stop event
-     
-          $this->event->dispatch(
-               FormatEvents::onSchemaEnd,
-               new GenerateEvent($this,array(),$this->getId())
-          );
+        foreach($this->child_types as $type) {
+            
+            if($type->useMe($rows) === true) {
+                $value = $type->generate($rows,$values);
+                break;
+            }
+                        
+        }
+        
+        return $value;
     }
     
+    //  -------------------------------------------------------------------------
     
     /**
       *  @inheritdoc 
@@ -119,27 +119,22 @@ class Schema implements CompositeInterface
         return array_push($this->child_types,$child);
     }
     
+    
     /**
-      *  @inheritdoc
-      */
+      *  Get Event Dispatcher
+      *
+      *  @return Symfony\Component\EventDispatcher\EventDispatcherInterface 
+      */ 
     public function getEventDispatcher()
     {
-          return $this->event;
+        return $this->event;
     }
+
     
     public function toXml()
     {
-          $str = sprintf('<schema name="%s">',$this->getId());
-     
-          foreach($this->child_types as $child) {
-               $str .= $child->toXml();     
-          }
-     
-          $str .= '</schema>';
-      
-          return $str;
     }
     
-    
+    //  -------------------------------------------------------------------------
 }
 /* End of File */

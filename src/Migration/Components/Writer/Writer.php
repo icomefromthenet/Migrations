@@ -3,7 +3,7 @@ namespace Migration\Components\Writer;
 
 use Migration\Components\Writer\Io;
 use Migration\Components\Writer\Cache;
-use Migration\Components\Writer\Exception as writerException;
+use Migration\Components\Writer\Exception as WriterException;
 use Migration\Componenets\Writer\Stream;
 
 /**
@@ -35,7 +35,7 @@ class Writer implements WriterInterface
       * @param string $line
       * @return void
       * @access public
-      * @throws :: writerException()
+      * @throws :: WriterException()
       */
     public function write($line)
     {
@@ -54,7 +54,7 @@ class Writer implements WriterInterface
             
         }
         catch(\Exception $e) {
-            throw new writerException($e->getMessage());
+            throw new WriterException($e->getMessage());
         }
 
     }
@@ -66,7 +66,7 @@ class Writer implements WriterInterface
       *  Flush the stream and cache
       *
       *  @access public
-      *  @throws :: writerException()
+      *  @throws :: WriterException()
       */    
     public function flush()
     {
@@ -83,7 +83,7 @@ class Writer implements WriterInterface
             
         }
         catch(\Exception $e) {
-            throw new writerException($e->getMessage());
+            throw new WriterException($e->getMessage());
         }
 
     }

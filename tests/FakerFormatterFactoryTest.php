@@ -12,12 +12,10 @@ class FakerFormatterFactoryTest extends AbstractProject
     
     public function testFactoryConstructor()
     {
-        $event    = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
-        $writer   = $this->getMockBuilder('Migration\Components\Writer\WriterInterface')->getMock();
-        $platform = $this->getMockBuilder('Doctrine\DBAL\Platforms\AbstractPlatform')
-                         ->getMockForAbstractClass();
+        $event    = $this->getMockBuilder('\Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
+        $writer   = $this->getMockBuilder('\Migration\Components\Writer\WriterInterface')->getMock();
         
-        $factory = new FormatterFactory($event,$writer,$platform);
+        $factory = new FormatterFactory($event,$writer);
         
         $this->assertInstanceOf('Migration\Components\Faker\Formatter\FormatterFactory',$factory);
         
@@ -30,17 +28,17 @@ class FakerFormatterFactoryTest extends AbstractProject
         $formatter_full = '\\Migration\\Components\\Faker\\Formatter\\Sql';
         $formatter_key = 'Sql';
         
-        $event    = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->setMethods(array('addSubscriber'))->getMockForAbstractClass();
+        $event    = $this->getMockBuilder('\\Symfony\\Component\\EventDispatcher\\EventDispatcherInterface')->getMock();
         $event->expects($this->once())
               ->method('addSubscriber');
         
-        $writer   = $this->getMockBuilder('Migration\Components\Writer\WriterInterface')->getMock();
-        $platform = $this->getMockBuilder('Doctrine\DBAL\Platforms\AbstractPlatform')
+        $writer   = $this->getMockBuilder('\Migration\Components\Writer\WriterInterface')->getMock();
+        $platform = $this->getMockBuilder('\Doctrine\DBAL\Platforms\AbstractPlatform')
                          ->getMockForAbstractClass();
         
-        $factory = new FormatterFactory($event,$writer,$platform);
+        $factory = new FormatterFactory($event,$writer);
         
-        $this->assertInstanceOf($formatter_full,$factory->create($formatter_key));
+        $this->assertInstanceOf($formatter_full,$factory->create($formatter_key,$platform));
         
     }
     
@@ -50,17 +48,17 @@ class FakerFormatterFactoryTest extends AbstractProject
         $formatter_full = '\\Migration\\Components\\Faker\\Formatter\\Phpunit';
         $formatter_key = 'Phpunit';
         
-        $event    = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->setMethods(array('addSubscriber'))->getMockForAbstractClass();
+        $event    = $this->getMockBuilder('\Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
         $event->expects($this->once())
               ->method('addSubscriber');
         
-        $writer   = $this->getMockBuilder('Migration\Components\Writer\WriterInterface')->getMock();
-        $platform = $this->getMockBuilder('Doctrine\DBAL\Platforms\AbstractPlatform')
+        $writer   = $this->getMockBuilder('\Migration\Components\Writer\WriterInterface')->getMock();
+        $platform = $this->getMockBuilder('\Doctrine\DBAL\Platforms\AbstractPlatform')
                          ->getMockForAbstractClass();
         
-        $factory = new FormatterFactory($event,$writer,$platform);
+        $factory = new FormatterFactory($event,$writer);
         
-        $this->assertInstanceOf($formatter_full,$factory->create($formatter_key));
+        $this->assertInstanceOf($formatter_full,$factory->create($formatter_key,$platform));
         
     }
     
@@ -70,17 +68,17 @@ class FakerFormatterFactoryTest extends AbstractProject
         $formatter_full = '\\Migration\\Components\\Faker\\Formatter\\phpunit';
         $formatter_key = 'phpunit';
         
-        $event    = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->setMethods(array('addSubscriber'))->getMockForAbstractClass();
+        $event    = $this->getMockBuilder('\Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
         $event->expects($this->once())
               ->method('addSubscriber');
         
-        $writer   = $this->getMockBuilder('Migration\Components\Writer\WriterInterface')->getMock();
-        $platform = $this->getMockBuilder('Doctrine\DBAL\Platforms\AbstractPlatform')
+        $writer   = $this->getMockBuilder('\Migration\Components\Writer\WriterInterface')->getMock();
+        $platform = $this->getMockBuilder('\Doctrine\DBAL\Platforms\AbstractPlatform')
                          ->getMockForAbstractClass();
         
-        $factory = new FormatterFactory($event,$writer,$platform);
+        $factory = new FormatterFactory($event,$writer);
         
-        $this->assertInstanceOf($formatter_full,$factory->create($formatter_key));
+        $this->assertInstanceOf($formatter_full,$factory->create($formatter_key,$platform));
         
     }
     
@@ -91,15 +89,15 @@ class FakerFormatterFactoryTest extends AbstractProject
     {
         $formatter_key = 'bad_key';
         
-        $event    = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->setMethods(array('addSubscriber'))->getMockForAbstractClass();
+        $event    = $this->getMockBuilder('\Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
         
-        $writer   = $this->getMockBuilder('Migration\Components\Writer\WriterInterface')->getMock();
-        $platform = $this->getMockBuilder('Doctrine\DBAL\Platforms\AbstractPlatform')
+        $writer   = $this->getMockBuilder('\Migration\Components\Writer\WriterInterface')->getMock();
+        $platform = $this->getMockBuilder('\Doctrine\DBAL\Platforms\AbstractPlatform')
                          ->getMockForAbstractClass();
         
-        $factory = new FormatterFactory($event,$writer,$platform);
+        $factory = new FormatterFactory($event,$writer);
         
-        $factory->create($formatter_key);
+        $factory->create($formatter_key,$platform);
         
     }
     

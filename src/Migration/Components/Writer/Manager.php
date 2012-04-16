@@ -24,8 +24,6 @@ class Manager implements ManagerInterface
 
     protected $loader;
 
-    protected $writer;
-
     protected $io;
 
     protected $output;
@@ -83,11 +81,9 @@ class Manager implements ManagerInterface
       */
     public function getWriter()
     {
-        if($this->writer === NULL) {
-            $this->writer = new Writer($this->io,$this->getStream(),$this->getCache(),$this->getCacheMax());
-        }
-
-        return $this->writer;
+      
+       return new Writer($this->io,$this->getStream(),$this->getCache(),$this->getCacheMax());
+      
     }
 
     //  -------------------------------------------------------------------------

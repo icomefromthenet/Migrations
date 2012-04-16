@@ -6,9 +6,12 @@ use Migration\Components\Faker\Formatter\FormatEvents;
 use Migration\Components\Faker\Formatter\GenerateEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-
-
-class Schema implements CompositeInterface
+/**
+  *  Child to Switch
+  *
+  *  need to specify at which row to switch
+  */
+class When implements CompositeInterface
 {
     
     /**
@@ -27,9 +30,16 @@ class Schema implements CompositeInterface
     protected $id;
     
     /**
-      *  @var EventDispatcherInterface 
+      *  @var Doctrine\DBAL\Types\Type the mapper to convert php types into database representations
+      */
+    protected $column_type;
+    
+    /**
+      *  @var Symfony\Component\EventDispatcher\EventDispatcherInterface
       */
     protected $event;
+    
+    protected $swtich;
     
     /**
       *  Class construtor
@@ -37,16 +47,23 @@ class Schema implements CompositeInterface
       *  @access public
       *  @return void
       *  @param string $id the schema name
-      *  @param CompositeInterface $parent (Optional for this object)
+      *  @param Table $parent 
       */
-    public function __construct($id , CompositeInterface $parent = null, EventDispatcherInterface $event)
+    public function __construct($id, Table $parent, EventDispatcherInterface $event,$switch)
     {
         $this->id = $id;
+        $this->setParent($parent);
         $this->event = $event;
-            
-        if($parent !== null) {
-            $this->setParent($parent);
+        
+        if(is_integer($switch) === false) {
+            throw new FakerException('Switch-When must be an integer');
         }
+        
+        if($switch <= 0) {
+           throw new FakerException('Switch-When must be greater than 0');
+        }
+        
+        $this->swtich = $switch;
     }
     
     /**
@@ -54,27 +71,23 @@ class Schema implements CompositeInterface
       */
     public function generate($rows,$values = array())
     {
-          # dispatch the start event
-       
-          $this->event->dispatch(
-               FormatEvents::onSchemaStart,
-               new GenerateEvent($this,array(),$this->getId())
-          );
+        if(isset($this->child_types[0]) === false) {
+            throw new FakerException('Switch has not been given a type to use');
+        }
         
-          # send generate command to children
-       
-          foreach($this->child_types as $type) {
-               $type->generate($rows,$values);
-          }
-       
-          # dispatch the stop event
-     
-          $this->event->dispatch(
-               FormatEvents::onSchemaEnd,
-               new GenerateEvent($this,array(),$this->getId())
-          );
+        return $this->child_types[0]->generate($rows,$values);
     }
     
+    
+    //  -------------------------------------------------------------------------
+    
+    public function useMe($rows)
+    {
+        # switch at 100 will return false at 101 but true at 100 
+        return ($rows <= $this->swtich) ? true : false
+    }
+    
+    //  -------------------------------------------------------------------------
     
     /**
       *  @inheritdoc 
@@ -119,27 +132,23 @@ class Schema implements CompositeInterface
         return array_push($this->child_types,$child);
     }
     
+    
     /**
-      *  @inheritdoc
-      */
+      *  Get Event Dispatcher
+      *
+      *  @return Symfony\Component\EventDispatcher\EventDispatcherInterface 
+      */ 
     public function getEventDispatcher()
     {
-          return $this->event;
+        return $this->event;
     }
+
     
     public function toXml()
     {
-          $str = sprintf('<schema name="%s">',$this->getId());
-     
-          foreach($this->child_types as $child) {
-               $str .= $child->toXml();     
-          }
-     
-          $str .= '</schema>';
-      
-          return $str;
+        return '';
     }
     
-    
+    //  -------------------------------------------------------------------------
 }
 /* End of File */

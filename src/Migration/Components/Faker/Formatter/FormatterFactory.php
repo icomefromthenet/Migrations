@@ -2,17 +2,21 @@
 namespace Migration\Components\Faker\Formatter;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Doctrine\DBAL\Platforms\AbstractPlatform as Platform;
 use Migration\Components\Writer\WriterInterface;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Migration\Components\Faker\Exception as FakerException;
 
 class FormatterFactory
 {
     
     /**
-      *  @var Doctrine\DBAL\Platforms\AbstractPlatform
+      *  @var array[] of namespaces 
       */
-    protected $platform;
+    protected static $formatters = array(
+        'sql'     => 'Migration\\Components\\Faker\\Formatter\\Sql',                
+        'phpunit' => 'Migration\\Components\\Faker\\Formatter\\Phpunit'
+    );
+    
     
     /**
       *  @var Migration\Components\Writer\WriterInterface 
@@ -31,36 +35,55 @@ class FormatterFactory
       * @param WriterInterface $writer
       * @param Connection $connection doctine db object
       */
-    public function __construct(EventDispatcherInterface $event, WriterInterface $writer , AbstractPlatform $platform)
+    public function __construct(EventDispatcherInterface $event, WriterInterface $writer)
     {
         $this->event = $event;
         $this->writer = $writer;
-        $this->platform = $platform;
     }
  
  
-    public function create($formatter)
+    public function create($formatter, Platform $platform)
     {
-        $class_str = '\\Migration\\Components\\Faker\\Formatter\\'.ucfirst($formatter);
+        $formatter = strtolower($formatter);
         
-        if(class_exists($class_str) === false) {
-            throw new FakerException('Formatter does not exist at::'.$class_str);
+        if(isset(self::$formatters[$formatter]) === false) {
+            throw new FakerException('Formatter does not exist at::'.$formatter);
         }
        
-        # check if we don't need to pass doctrine to the formatter
-        
-        if($class_str === '\\Migration\\Components\\Faker\\Formatter\\PHPUnit') {
-           $class = new $class_str($this->event,$this->writer);
-        }
-        else {
-           $class = new $class_str($this->event,$this->writer,$this->platform);
-        }
+        $class = new self::$formatters[$formatter]($this->event,$this->writer,$platform);
         
         # register this formatter as a subscriber 
-
         $this->event->addSubscriber($class); 
         
         return $class;
+    }
+    
+    //  -------------------------------------------------------------------------
+    
+    /**
+      *  Register an new formatter or overrite and existing
+      *
+      *  @param string $key lowercase key
+      *  @param string $ns the namespace
+      *  @access public
+      */    
+    public static function registerExtension($key,$ns)
+    {
+        $key = strtolower((string)$key);
+        self::$formatters[$key] = $ns;
+    }
+    
+    /**
+      *  Register an new formatter or overrite and existing
+      *
+      *  @param array $ext associate array with key and namespace as value
+      *  @access public
+      */
+    public static function registerExtensions(array $ext)
+    {
+        foreach($ext as $key => $ns) {
+            self::registerExtension($key,$ns);
+        }
     }
     
 }

@@ -7,8 +7,7 @@ use Migration\Components\Faker\Formatter\GenerateEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 
-
-class Schema implements CompositeInterface
+class Pick implements CompositeInterface
 {
     
     /**
@@ -27,9 +26,19 @@ class Schema implements CompositeInterface
     protected $id;
     
     /**
-      *  @var EventDispatcherInterface 
+      *  @var Doctrine\DBAL\Types\Type the mapper to convert php types into database representations
+      */
+    protected $column_type;
+    
+    /**
+      *  @var Symfony\Component\EventDispatcher\EventDispatcherInterface
       */
     protected $event;
+
+    /**
+      *  @var double the figure to use as probability cutoff 
+      */
+    protected $probability;
     
     /**
       *  Class construtor
@@ -37,16 +46,32 @@ class Schema implements CompositeInterface
       *  @access public
       *  @return void
       *  @param string $id the schema name
-      *  @param CompositeInterface $parent (Optional for this object)
+      *  @param Table $parent 
       */
-    public function __construct($id , CompositeInterface $parent = null, EventDispatcherInterface $event)
+    public function __construct($id, Table $parent, EventDispatcherInterface $event,$probability)
     {
         $this->id = $id;
+        $this->setParent($parent);
         $this->event = $event;
-            
-        if($parent !== null) {
-            $this->setParent($parent);
+        
+        if (is_numeric($probability) === FALSE) {
+            throw new FakerException('Probability must be a number');
         }
+
+        $probability = (double) $probability;
+
+        if ($probability > 100 || $probability < 0) {
+            throw new FakerException('Probability must be a between 0-1 or 0-100');
+        }
+
+        //if a whole number is given divide to get a number
+        //between 0 - 1;
+
+        if ($probability > 1) {
+            $probability = $probability / 100;
+        }
+
+        $this->probability = $probability;
     }
     
     /**
@@ -54,27 +79,17 @@ class Schema implements CompositeInterface
       */
     public function generate($rows,$values = array())
     {
-          # dispatch the start event
-       
-          $this->event->dispatch(
-               FormatEvents::onSchemaStart,
-               new GenerateEvent($this,array(),$this->getId())
-          );
         
-          # send generate command to children
-       
-          foreach($this->child_types as $type) {
-               $type->generate($rows,$values);
-          }
-       
-          # dispatch the stop event
-     
-          $this->event->dispatch(
-               FormatEvents::onSchemaEnd,
-               new GenerateEvent($this,array(),$this->getId())
-          );
+        $index = (\mt_rand(0,1)) <= $this->probability) ? 0 : 1;
+        
+        if(isset($this->child_types[$index]) == false) {
+           throw new FakerException('Pick must have TWO types set');
+        }
+
+        return $this->child_types[$index]->generate($rows,$values);
     }
     
+    //  -------------------------------------------------------------------------
     
     /**
       *  @inheritdoc 
@@ -119,27 +134,23 @@ class Schema implements CompositeInterface
         return array_push($this->child_types,$child);
     }
     
+    
     /**
-      *  @inheritdoc
-      */
+      *  Get Event Dispatcher
+      *
+      *  @return Symfony\Component\EventDispatcher\EventDispatcherInterface 
+      */ 
     public function getEventDispatcher()
     {
-          return $this->event;
+        return $this->event;
     }
+
     
     public function toXml()
     {
-          $str = sprintf('<schema name="%s">',$this->getId());
-     
-          foreach($this->child_types as $child) {
-               $str .= $child->toXml();     
-          }
-     
-          $str .= '</schema>';
-      
-          return $str;
+        return '';
     }
     
-    
+    //  -------------------------------------------------------------------------
 }
 /* End of File */

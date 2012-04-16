@@ -2,6 +2,7 @@
 namespace Migration\Components\Faker\Formatter;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Migration\Components\Writer\WriterInterface;
 
 class Phpunit implements FormatterInterface
@@ -16,6 +17,18 @@ class Phpunit implements FormatterInterface
       *  @var Migration\Components\Writer\WriterInterface 
       */
     protected $writer;
+    
+    /**
+      *  @var use Doctrine\DBAL\Platforms\AbstractPlatform;
+      */
+    protected $platform;
+    
+    /**
+      *  @var \Doctrine\DBAL\Types\Type[] 
+      */
+    protected $column_map = array();
+    
+    
     
     /**
       *  Fetch Format Event to listen to
@@ -47,12 +60,14 @@ class Phpunit implements FormatterInterface
       *
       *  @param EventDispatcherInterface $event
       *  @param WriterInterface $writer
+      *  @param AbstractPlatform $platform the doctine platform class
       */
-    public function __construct(EventDispatcherInterface $event, WriterInterface $writer)
+    public function __construct(EventDispatcherInterface $event, WriterInterface $writer, AbstractPlatform $platform)
     {
         $this->setEventDispatcher($event);
         $this->setWriter($writer);
-    
+        $this->platform = $platform;
+       
     }
     
     
@@ -72,6 +87,59 @@ class Phpunit implements FormatterInterface
     {
         $this->writer = $writer;
     }
+    
+    
+    /**
+      *  Returns the column map
+      *
+      *  @access public
+      *  @return \Doctrine\DBAL\Types\Type[]
+      */
+    public function getColumnMap()
+    {
+        return $this->column_map;
+    }
+    
+    /**
+      *  Process a column with the map 
+      */
+    public function processColumnWithMap($key,$value)
+    {
+        $map = $this->getColumnMap();
+        
+        if(isset($map[$key]) === false) {
+            throw new FakerException('Unknown column mapping at key::'.$key);
+        }
+        
+        return $map[$key]->convertToDatabaseValue($value,$this->getPlatform());
+    }
+    
+    
+     /**
+      *  Convert php primitatives to representation
+      *  in a text file
+      *
+      *  e.g add string quotes to strings
+      *
+      *  @return mixed
+      */
+    public function convertForText($value)
+    {
+        
+        
+    }
+    
+    /**
+      *  Return the assigned platform
+      *
+      *  @access public
+      *  @return Doctrine\DBAL\Platforms\AbstractPlatform
+      */
+    public function getPlatform()
+    {
+        return $this->platform;
+    }
+    
     
     //  -------------------------------------------------------------------------
     # Format Events

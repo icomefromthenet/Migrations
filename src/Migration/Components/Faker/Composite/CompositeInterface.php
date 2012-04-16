@@ -2,6 +2,7 @@
 namespace Migration\Components\Faker\Composite;
 
 use Migration\Components\Faker\TypeInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 interface CompositeInterface extends TypeInterface
 {
@@ -38,6 +39,21 @@ interface CompositeInterface extends TypeInterface
       *  @param Migration\Components\Faker\Composite\CompositeInterface $child
       */
     public function addChild(CompositeInterface $child);
+    
+    
+    /**
+      *  Get Event Dispatcher
+      *
+      *  @return Symfony\Component\EventDispatcher\EventDispatcherInterface 
+      */ 
+    public function getEventDispatcher();
+    
+    /**
+      *  Convert the composite to xml
+      *
+      *  @return string of xml
+      */
+    public function toXml();
     
 }
 /* End of File */
