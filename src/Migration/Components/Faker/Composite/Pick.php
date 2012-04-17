@@ -46,9 +46,11 @@ class Pick implements CompositeInterface
       *  @access public
       *  @return void
       *  @param string $id the schema name
-      *  @param Table $parent 
+      *  @param CompositeInterface $parent
+      *  @param EventDispatcherInterface $event
+      *  @param double $probability
       */
-    public function __construct($id, Table $parent, EventDispatcherInterface $event,$probability)
+    public function __construct($id, CompositeInterface $parent, EventDispatcherInterface $event,$probability)
     {
         $this->id = $id;
         $this->setParent($parent);
@@ -64,15 +66,44 @@ class Pick implements CompositeInterface
             throw new FakerException('Probability must be a between 0-1 or 0-100');
         }
 
-        //if a whole number is given divide to get a number
-        //between 0 - 1;
-
-        if ($probability > 1) {
-            $probability = $probability / 100;
-        }
-
+        
         $this->probability = $probability;
     }
+    
+    
+    //  -------------------------------------------------------------------------
+
+
+     /**
+      * Fenerates a random binominal distributed integer. 
+      *
+      *  @source http://www.php.net/manual/en/function.rand.php#107712 
+      */
+    function binRand($min = null, $max = null)
+    {
+        $min = ($min) ? (int) $min : 0;
+        $max = ($max) ? (int) $max : PHP_INT_MAX;
+        
+        $range = range($min, $max);
+        $average = array_sum($range) / count($range);
+        
+        $dist = array();
+        for ($x = $min; $x <= $max; $x++) {
+            $dist[$x] = -abs($average - $x) + $average + 1;
+        }
+        
+        $map = array();
+        foreach ($dist as $int => $quantity) {
+            for ($x = 0; $x < $quantity; $x++) {
+                $map[] = $int;
+            }
+        }
+        
+        shuffle($map);
+        return current($map);
+    }
+       
+   //  -------------------------------------------------------------------------
     
     /**
       *  @inheritdoc 
@@ -80,7 +111,7 @@ class Pick implements CompositeInterface
     public function generate($rows,$values = array())
     {
         
-        $index = (\mt_rand(0,1)) <= $this->probability) ? 0 : 1;
+        $index = ($this->binRand(1,100) <= $this->probability) ? 0 : 1;
         
         if(isset($this->child_types[$index]) == false) {
            throw new FakerException('Pick must have TWO types set');

@@ -1,144 +1,132 @@
 <?php
 require_once __DIR__ .'/base/AbstractProject.php';
 
-use Migration\Components\Faker\Composite\Table;
+use Migration\Components\Faker\Composite\Column;
 use Migration\Components\Faker\Composite\CompositeInterface; 
 use Migration\Components\Faker\Formatter\FormatEvents;
 use Migration\Components\Faker\Formatter\GenerateEvent;
+use Doctrine\DBAL\Types\Type as ColumnType;
 
-class FakerCompositeTableTest extends AbstractProject
+class FakerCompositeColumnTest extends AbstractProject
 {
     
     public function testImplementsCompositeInterface()
     {
         $id = 'table_1';
         $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
-        $rows_generate = 100;
         $parent = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
-
+        $column_type = $this->getMockBuilder('Doctrine\DBAL\Types\Type')->disableOriginalConstructor()->getMock();
+      
+        $Column = new Column($id,$parent,$event,$column_type);
         
-        $table = new Table($id,$parent,$event,$rows_generate);
-        
-        $this->assertInstanceOf('Migration\Components\Faker\Composite\CompositeInterface',$table);
+        $this->assertInstanceOf('Migration\Components\Faker\Composite\CompositeInterface',$Column);
+    
     }
     
     public function testSchemaDispatchesEvent()
     {
         $id = 'table_1';
-        $rows_generate = 1;
-       
+        $column_type = $this->getMockBuilder('Doctrine\DBAL\Types\Type')->disableOriginalConstructor()->getMock();
+      
         $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
         $parent = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
  
-        $event->expects($this->exactly(4))
+        $event->expects($this->exactly(3))
               ->method('dispatch')
               ->with($this->logicalOr(
-                        $this->stringContains(FormatEvents::onTableStart),
-                        $this->stringContains(FormatEvents::onTableEnd),
-                        $this->stringContains(FormatEvents::onRowStart),
-                        $this->stringContains(FormatEvents::onColumnGenerate),                     
-                        $this->stringContains(FormatEvents::onRowEnd)
+                        $this->stringContains(FormatEvents::onColumnStart),
+                        $this->stringContains(FormatEvents::onColumnGenerate),
+                        $this->stringContains(FormatEvents::onColumnEnd)
                         ),
                         $this->isInstanceOf('\Migration\Components\Faker\Formatter\GenerateEvent'));
        
         $child_a = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
         $child_a->expects($this->once())
                 ->method('generate')
-                ->with($this->equalTo($rows_generate),$this->isType('array'))
+                ->with($this->equalTo(1),$this->isType('array'))
                 ->will($this->returnValue('example'));
        
               
-        $table = new Table($id,$parent,$event,$rows_generate);
-        
-        $table->addChild($child_a);
- 
-        
-        $table->generate(1,array());
+        $column = new Column($id,$parent,$event,$column_type);
+        $column->addChild($child_a);
+        $column->generate(1,array());
         
     }
+    
     
     
     public function testChildrenGenerateCalled()
     {
         $id = 'table_1';
-        $rows_generate = 100;
+        $column_type = $this->getMockBuilder('Doctrine\DBAL\Types\Type')->disableOriginalConstructor()->getMock();
        
         $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
         $parent = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
 
         
-        $table = new Table($id,$parent,$event,$rows_generate);
+        $column = new Column($id,$parent,$event,$column_type);
              
         $child_a = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
-        $child_a->expects($this->exactly(100))
+        $child_a->expects($this->exactly(1))
                 ->method('generate')
                 ->with($this->isType('integer'),$this->isType('array'))
                 ->will($this->returnValue('example'));
             
        
         $child_b = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
-        $child_b->expects($this->exactly(100))
+        $child_b->expects($this->exactly(1))
                 ->method('generate')
                 ->with($this->isType('integer'),$this->isType('array'))
                 ->will($this->returnValue('example'));
         
-       
-        $table->addChild($child_a);        
-        $table->addChild($child_b);        
+        $column->addChild($child_a);        
+        $column->addChild($child_b);        
         
-        $table->generate(1,array());
+        $column->generate(100,array());
    
     }
     
     
     public function testToXml()
     {
-        $id = 'table_1';
+        $id = 'column_1';
         $rows_generate = 100;
-       
+        $column_type = $this->getMockBuilder('Doctrine\DBAL\Types\Type')->disableOriginalConstructor()->getMock();
+        $column_type->expects($this->once())
+                    ->method('getName')
+                    ->will($this->returnValue('type'));
        
         $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
         $parent = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
         
-        $table = new Table($id,$parent,$event,$rows_generate);
+        $column = new Column($id,$parent,$event,$column_type);
      
-        $child_a = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
-        $child_a->expects($this->once())
-                ->method('toXml')
-                ->will($this->returnValue('<column></column>'));
-                
-        $child_b = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
-        $child_b->expects($this->once())
-                ->method('toXml')
-                ->will($this->returnValue('<column></column>'));
-          
-        $table->addChild($child_a);        
-        $table->addChild($child_b);        
         
-        $this->assertEquals('<table name="table_1" generate="0"><column></column><column></column></table>', $table->toXml());
+        $this->assertEquals('<column name="column_1" type="type"></column>', $column->toXml());
     }
     
     
     public function testProperties()
     {
-        $id = 'schema_1';
-        $rows_generate = 100;
+        $id = 'column_1';
+        $column_type = $this->getMockBuilder('Doctrine\DBAL\Types\Type')->disableOriginalConstructor()->getMock();
        
         $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
         $parent = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
     
-        $table = new Table($id,$parent,$event,$rows_generate);
+        $column = new Column($id,$parent,$event,$column_type);
      
         $child_a = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
         $child_b = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
           
-        $table->addChild($child_a);        
-        $table->addChild($child_b);        
+        $column->addChild($child_a);        
+        $column->addChild($child_b);        
         
-        $this->assertEquals($table->getChildren(),array($child_a,$child_b));
-        $this->assertSame($table->getEventDispatcher(),$event);
-        $this->assertEquals($parent,$table->getParent());
-        $this->assertEquals($id,$table->getId());
+        $this->assertEquals($column->getChildren(),array($child_a,$child_b));
+        $this->assertSame($column->getEventDispatcher(),$event);
+        $this->assertEquals($parent,$column->getParent());
+        $this->assertEquals($id,$column->getId());
+        $this->assertSame($column_type,$column->getColumnType());
     }
     
 }

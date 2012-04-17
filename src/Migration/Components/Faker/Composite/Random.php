@@ -41,9 +41,9 @@ class Random implements CompositeInterface
       *  @access public
       *  @return void
       *  @param string $id the schema name
-      *  @param Table $parent 
+      *  @param CompositeInterface $parent 
       */
-    public function __construct($id, Table $parent, EventDispatcherInterface $event)
+    public function __construct($id, CompositeInterface $parent, EventDispatcherInterface $event)
     {
         $this->id = $id;
         $this->setParent($parent);
@@ -57,6 +57,7 @@ class Random implements CompositeInterface
     public function generate($rows,$values = array())
     {
         $format = $this->binRand(0,(count($this->child_types)-1));
+        
         return $this->child_types[$format]->generate($rows,$values);
     }
     

@@ -6,6 +6,7 @@ use Migration\Components\Faker\Formatter\FormatEvents;
 use Migration\Components\Faker\Formatter\GenerateEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+
 /**
   *  Allows many datatypes to be used based on
   *  alternate pattern.
@@ -60,9 +61,11 @@ class Alternate implements CompositeInterface
       *  @access public
       *  @return void
       *  @param string $id the schema name
-      *  @param Table $parent 
+      *  @param CompositeInterface $parent
+      *  @param EventDispatcherInterface $event
+      *  @param intger $step
       */
-    public function __construct($id, Table $parent, EventDispatcherInterface $event,$step =1)
+    public function __construct($id, CompositeInterface $parent, EventDispatcherInterface $event,$step =1)
     {
         $this->id = $id;
         $this->setParent($parent);
@@ -80,22 +83,47 @@ class Alternate implements CompositeInterface
         
     }
     
+    //  -------------------------------------------------------------------------
+    
+    /**
+      *  @var the current index 
+      */
+    protected $current = 0;
+    
+    /**
+      *  @var the current step value 
+      */
+    protected $current_step = 0;
+    
     /**
       *  @inheritdoc 
       */
     public function generate($rows,$values = array())
     {
-        $number_types = count($this->child_types);
-        $use = 0;
-
-        # find which child should be used
+        # set alternate loop counter if at 0
+        if($this->current_step === 0) {
+            $this->current_step = $this->step;
+        }
+        
         # first row is 1 no zero
-        foreach($this->child_types as $index => $type) {
-            if($rows <= $this->step * ($index+1)) {
-                return $type->generate($rows,$values);
-                break;
+        $value = $this->child_types[$this->current]->generate($rows,$values);
+        
+        # deincrement the loop
+        $this->current_step = $this->current_step -1;
+        
+        # have we reached the end of the current step
+        if($this->current_step === 0) {
+            
+            # yes alternate the current index to next child
+            $this->current++; 
+            
+            # are we at the end of the list?
+            if(($this->current) >= count($this->child_types)) {
+                $this->current = 0;
             }
         }
+        
+        return $value;
     }
     
     //  -------------------------------------------------------------------------
@@ -157,7 +185,7 @@ class Alternate implements CompositeInterface
     
     public function toXml()
     {
-       ''
+       return '';
     }
     
     //  -------------------------------------------------------------------------

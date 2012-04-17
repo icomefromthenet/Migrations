@@ -39,7 +39,10 @@ class When implements CompositeInterface
       */
     protected $event;
     
-    protected $swtich;
+    /**
+      *  @var integer the row number to swap at 
+      */
+    protected $swap;
     
     /**
       *  Class construtor
@@ -47,23 +50,25 @@ class When implements CompositeInterface
       *  @access public
       *  @return void
       *  @param string $id the schema name
-      *  @param Table $parent 
+      *  @param CompositeInterface $parent
+      *  @param EventDispatcherInterface $event
+      *  @param integer $swap
       */
-    public function __construct($id, Table $parent, EventDispatcherInterface $event,$switch)
+    public function __construct($id, CompositeInterface $parent, EventDispatcherInterface $event,$swap)
     {
         $this->id = $id;
         $this->setParent($parent);
         $this->event = $event;
         
-        if(is_integer($switch) === false) {
-            throw new FakerException('Switch-When must be an integer');
+        if(is_integer($swap) === false) {
+            throw new FakerException('Swap-When must be an integer');
         }
         
-        if($switch <= 0) {
-           throw new FakerException('Switch-When must be greater than 0');
+        if($swap <= 0) {
+           throw new FakerException('Swap-When must be greater than 0');
         }
         
-        $this->swtich = $switch;
+        $this->swap = $swap;
     }
     
     /**
@@ -81,10 +86,9 @@ class When implements CompositeInterface
     
     //  -------------------------------------------------------------------------
     
-    public function useMe($rows)
+    public function getSwap()
     {
-        # switch at 100 will return false at 101 but true at 100 
-        return ($rows <= $this->swtich) ? true : false
+        return $this->swap;
     }
     
     //  -------------------------------------------------------------------------

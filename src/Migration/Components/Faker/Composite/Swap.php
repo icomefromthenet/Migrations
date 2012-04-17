@@ -7,7 +7,7 @@ use Migration\Components\Faker\Formatter\GenerateEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 
-class Switch implements CompositeInterface
+class Swap implements CompositeInterface
 {
     
     /**
@@ -26,14 +26,15 @@ class Switch implements CompositeInterface
     protected $id;
     
     /**
-      *  @var Doctrine\DBAL\Types\Type the mapper to convert php types into database representations
-      */
-    protected $column_type;
-    
-    /**
       *  @var Symfony\Component\EventDispatcher\EventDispatcherInterface
       */
     protected $event;
+
+    /**
+      *  @var integer[] the ranges to swap from  
+      */
+    protected $switch_map = null;    
+    
     
     /**
       *  Class construtor
@@ -41,9 +42,10 @@ class Switch implements CompositeInterface
       *  @access public
       *  @return void
       *  @param string $id the schema name
-      *  @param Table $parent 
+      *  @param CompositeInterface $parent
+      *  @param EventDispatcherInterface $event
       */
-    public function __construct($id, Table $parent, EventDispatcherInterface $event)
+    public function __construct($id, CompositeInterface $parent, EventDispatcherInterface $event)
     {
         $this->id = $id;
         $this->setParent($parent);
@@ -51,27 +53,57 @@ class Switch implements CompositeInterface
         
     }
     
-    /**
-      *  @inheritdoc 
-      */
+    //  -------------------------------------------------------------------------
+    
+    
     public function generate($rows,$values = array())
     {
+       $high = 0;
+       $low = 0;
+       $i = 0;
+       $use_index = 0;
+       $key_map = array();
+       $value_map = array();
+      
+       # test if we have a range map
        
-       # iterate over children and ask if we should process
-       # might delgate this to children but since
-       # all php types are valid return values we would't know which
-       # generate call to return
-        
-        foreach($this->child_types as $type) {
+       if($this->switch_map === null) {
             
-            if($type->useMe($rows) === true) {
-                $value = $type->generate($rows,$values);
+            foreach($this->child_types as $index => $type) {
+                $this->switch_map[$index] = (integer) $type->getSwap();
+            } 
+       
+            # low to high quicksort (maintains key associations)
+       
+            asort($this->switch_map,SORT_NUMERIC);
+       }
+       
+       $key_map = array_keys($this->switch_map);
+       $value_map = array_values($this->switch_map);
+       
+       # find which child should be using for the current row
+
+       $last = count($value_map) -1;
+       $i = 0;
+
+       for($i; $i <= $last; $i++) {
+        
+            # if we no other ranges check then use the last.
+            if($i === $last) {
+                $use_index = $key_map[$i];
                 break;
             }
-                        
-        }
         
-        return $value;
+            $high = $value_map[$i+1];
+            $low = $value_map[$i];
+        
+            if($rows <= $high AND $rows  >= $low ) {
+                $use_index = $key_map[$i];        
+                break;
+            }
+       }
+       
+       return $this->child_types[$use_index]->generate($rows,$values);
     }
     
     //  -------------------------------------------------------------------------
@@ -133,6 +165,7 @@ class Switch implements CompositeInterface
     
     public function toXml()
     {
+        return '';
     }
     
     //  -------------------------------------------------------------------------

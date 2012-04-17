@@ -77,7 +77,11 @@ class Table implements CompositeInterface
    
    
         do {
-        
+                
+                # reset values for next row run.
+                
+                $values = array();
+                
                 # dispatch the row start event
             
                 $this->event->dispatch(

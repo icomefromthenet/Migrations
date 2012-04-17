@@ -5,6 +5,7 @@ use Migration\Components\Faker\Exception as FakerException;
 use Migration\Components\Faker\Formatter\FormatEvents;
 use Migration\Components\Faker\Formatter\GenerateEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Doctrine\DBAL\Types\Type as ColumnType;
 
 
 class Column implements CompositeInterface
@@ -41,14 +42,14 @@ class Column implements CompositeInterface
       *  @access public
       *  @return void
       *  @param string $id the schema name
-      *  @param Table $parent 
+      *  @param CompositeInterface $parent 
       */
-    public function __construct($id, Table $parent, EventDispatcherInterface $event)
+    public function __construct($id, CompositeInterface $parent, EventDispatcherInterface $event, ColumnType $column)
     {
         $this->id = $id;
         $this->setParent($parent);
         $this->event = $event;
-        
+        $this->column_type = $column;
     }
     
     /**
@@ -83,6 +84,9 @@ class Column implements CompositeInterface
                 FormatEvents::onColumnEnd,
                 new GenerateEvent($this,$values,$this->getId())
         );
+        
+        
+        # return values so they can be grouped in table parent
         
         return $values;
         
@@ -143,7 +147,8 @@ class Column implements CompositeInterface
     {
         return $this->event;
     }
-
+    
+    
     /**
       *  Convert the column into xml representation
       *
@@ -152,11 +157,23 @@ class Column implements CompositeInterface
       */
     public function toXml()
     {
-        $str = sprintf('<column name="%s" type="%s">',$this->getId(),$this->column_type);
+        $str = sprintf('<column name="%s" type="%s">',$this->getId(),$this->getColumnType()->getName());
         $str .= '</column>';
       
         return $str;
         
+    }
+    
+    //  -------------------------------------------------------------------------
+    
+    /**
+      *  Return the doctrine column type
+      *
+      * @return Doctrine\DBAL\Types\Type
+      */
+    public function getColumnType()
+    {
+        return $this->column_type;        
     }
     
     //  -------------------------------------------------------------------------
