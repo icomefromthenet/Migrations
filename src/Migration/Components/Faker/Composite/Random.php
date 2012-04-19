@@ -157,5 +157,26 @@ class Random implements CompositeInterface
     }
     
     //  -------------------------------------------------------------------------
+    
+    public function validate()
+    {
+       # ask children to validate themselves
+        
+        foreach($this->getChildren() as $child) {
+        
+          $child->validate(); 
+        }
+        
+        # check that children have been added
+        
+        if(count($this->getChildren()) === 0) {
+          throw new FakerException('Random must have at least 2 types');
+        }
+
+        return true;       
+        
+    }
+
+    //  -------------------------------------------------------------------------
 }
 /* End of File */

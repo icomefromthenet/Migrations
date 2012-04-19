@@ -154,5 +154,26 @@ class When implements CompositeInterface
     }
     
     //  -------------------------------------------------------------------------
+    
+    public function validate()
+    {
+        # ask children to validate themselves
+        
+        foreach($this->getChildren() as $child) {
+        
+          $child->validate(); 
+        }
+        
+        # check that children have been added
+        
+        if(count($this->getChildren()) === 0) {
+          throw new FakerException('When must have at least 1 type');
+        }
+
+        return true;      
+        
+    }
+
+    //  -------------------------------------------------------------------------
 }
 /* End of File */

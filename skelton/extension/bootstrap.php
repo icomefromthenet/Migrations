@@ -15,7 +15,7 @@
 use Migration\PlatformFactory;
 use Migration\ColumnTypeFactory;
 use Migration\Components\Faker\Formatter\FormatterFactory;
-use Migration\Components\Faker\TypeConfigFactory;
+use Migration\Components\Faker\TypeFactory;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,11 +59,11 @@ use Migration\Components\Faker\TypeConfigFactory;
     
 /*
 |--------------------------------------------------------------------------
-| Faker Config DataTypes
+| Faker DataTypes
 |--------------------------------------------------------------------------
 | 
-| To Add a new datatype a config object must be registered, the config object
-| implements \\Migration\\Components\\Faker\\TypeConfigInterface.
+| To Add a new datatype a it must be registerd registered, the  object
+| implements TypeConfigInterface,CompositeInterface and TypeInterface.
 |
 | You are only required to register the config as it containsa factory for the partner datatype. 
 |
@@ -71,10 +71,10 @@ use Migration\Components\Faker\TypeConfigFactory;
 |
 | Example:
 |
-| TypeConfigFactory::registerExtension('vector','Migration\\Components\\Extension\\Faker\\Config\\Vector');
+| TypeFactory::registerExtension('vector','Migration\\Components\\Extension\\Faker\\Type\\Vector');
 */
 
- //TypeConfigFactory::registerExtension('vector','Migration\\Components\\Extension\\Faker\\Config\\Vector');
+ //TypeFactory::registerExtension('vector','Migration\\Components\\Extension\\Faker\\Type\\Vector');
 
 /*
 |--------------------------------------------------------------------------

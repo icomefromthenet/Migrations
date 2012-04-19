@@ -183,5 +183,26 @@ class Pick implements CompositeInterface
     }
     
     //  -------------------------------------------------------------------------
+    
+    public function validate()
+    {
+       # ask children to validate themselves
+        
+        foreach($this->getChildren() as $child) {
+        
+          $child->validate(); 
+        }
+        
+        # check that children have been added
+        
+        if(count($this->getChildren()) <= 1) {
+          throw new FakerException('Pick must have at least 2 types');
+        }
+
+        return true;  
+        
+    }
+
+    //  -------------------------------------------------------------------------
 }
 /* End of File */

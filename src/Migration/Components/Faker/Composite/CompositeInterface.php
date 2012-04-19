@@ -55,5 +55,14 @@ interface CompositeInterface extends TypeInterface
       */
     public function toXml();
     
+    /**
+      *  Checks that each composite is in valid state
+      *
+      *  @return boolean
+      *  @access public
+      *  @throws Migration\Components\Faker\Exception
+      */
+    public function validate();
+    
 }
 /* End of File */

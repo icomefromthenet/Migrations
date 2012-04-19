@@ -99,4 +99,32 @@ class FakerCompositeSchemaTest extends AbstractProject
         $this->assertEquals($id,$schema->getId());
     }
     
+    /**
+      *  @expectedException Migration\Components\Faker\Exception
+      *  @expectedExceptionMessage Schema must have at least 1 table
+      */
+    public function testValidateWithException()
+    {
+        $id = 'schema_1';
+        $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
+        $schema = new Schema($id,null,$event);
+     
+        $schema->validate();
+     
+    }
+    
+    public function testValidate()
+    {
+        $id = 'schema_1';
+        $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
+        $schema = new Schema($id,null,$event);
+        
+        $child_a = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
+          
+        $schema->addChild($child_a);        
+        
+        $schema->validate();
+     
+    }
+    
 }

@@ -140,5 +140,41 @@ class FakerCompositeTableTest extends AbstractProject
         $this->assertEquals($parent,$table->getParent());
         $this->assertEquals($id,$table->getId());
     }
+ 
+ 
+    /**
+      *  @expectedException Migration\Components\Faker\Exception
+      *  @expectedExceptionMessage Table must have at least 1 column
+      */
+    public function testValidateWithException()
+    {
+        $id = 'schema_1';
+        $rows_generate = 100;
+       
+        $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
+        $parent = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
+    
+        $table = new Table($id,$parent,$event,$rows_generate);
+     
+        $table->validate();
+     
+    }
+    
+    public function testValidate()
+    {
+        $id = 'schema_1';
+        $rows_generate = 100;
+       
+        $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
+        $parent = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
+    
+        $table = new Table($id,$parent,$event,$rows_generate);
+     
+        $child_a = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
+        $table->addChild($child_a);        
+        
+        $table->validate();
+     
+    }
     
 }

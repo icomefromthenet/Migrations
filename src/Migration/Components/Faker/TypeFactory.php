@@ -4,25 +4,41 @@ namespace Migration\Components\Faker;
 use Migration\Components\Faker\Utilities;
 use Migration\Components\Faker\Exception as FakerException;
 use Migration\Components\Faker\TypeConfigInterface;
+use Migration\Components\Faker\Composite\CompositeInterface;
+
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
   *  Construct new DatatypeConfig objects under the namespace Migration\Components\Faker\Config
   *  these config objects are factories for their partner datatypes.
   */
-class TypeConfigFactory
+class TypeFactory
 {
 
-    static $types = array();
+    /**
+      *  @var 'name' => 'class'
+      */
+    static $types = array(
+                             
+    );
 
     /**
       *  @var  Migration\Components\Faker\Utilities
       */
     protected $util;
     
+    /**
+      *  @var EventDispatcherInterface 
+      */
+    protected $event;
     
-    public function __create(Utilities $util)
+    //  -------------------------------------------------------------------------
+    
+    
+    public function __construct(Utilities $util, EventDispatcherInterface $event)
     {
         $this->util = $util;
+        $this->event = $event;
     }
     
     
@@ -30,20 +46,26 @@ class TypeConfigFactory
     # Factory Method
     
     /**
-      *  Create a new DatatypeConfig object
+      *  Create a new Type object
       *
       *  @param string lowercase name
       *  @return TypeConfigInterface
       */
-    public function create($name)
+    public function create($name, CompositeInterface $parent)
     {
         $name = strtolower($name);
         
-        if(self::$types[$name] === false) {
-            throw new FakerException('DatatypeConfig not found at::'.$name);
+        if(isset(self::$types[$name]) === false) {
+            throw new FakerException('Type not found at::'.$name);
+        }
+     
+        if(class_exists(self::$types[$name]) === false) {
+            throw new FakerException('Class not found at::'.self::$types[$name]);
         }
         
-        return new self::$types[$name]($this->util);
+        $type =  new self::$types[$name]($name,$parent,$this->event,$this->util);
+    
+        return $type;
     }
     
     //  ----------------------------------------------------------------------------
@@ -73,6 +95,11 @@ class TypeConfigFactory
         foreach($ext as $key => $ns) {
             self::registerExtension($key,$ns);
         }
+    }
+    
+    public static function clearExtensions()
+    {
+        self::$types = array();
     }
     
 }
