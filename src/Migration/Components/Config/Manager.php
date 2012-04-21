@@ -1,12 +1,9 @@
 <?php
 namespace Migration\Components\Config;
 
-use Monolog\Logger as Logger;
-use Symfony\Component\Console\Output\OutputInterface as Output;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface as Event;
-use Migration\Components\ManagerInterface;
 use Migration\Io\IoInterface;
-use Doctrine\DBAL\Connection;
+use Migration\Project;
+use Migration\Components\ManagerInterface;
 
 /*
  * class Manager
@@ -20,14 +17,11 @@ class Manager implements ManagerInterface
     protected $writer;
 
     protected $io;
-
-    protected $output;
-
-    protected $log;
-
-    protected $database;
-
-    protected $event;
+    
+    /**
+      *  @var Migration\Project 
+      */   
+    protected $project;
 
     //  -------------------------------------------------------------------------
     # Class Constructor
@@ -36,16 +30,12 @@ class Manager implements ManagerInterface
      * __construct()
      * @param $arg
      */
-    public function __construct(IoInterface $io,Logger $log, Output $output, Event $event ,Connection $database = null)
+    public function __construct(IoInterface $io,Project $di)
     {
         $this->io = $io;
-        $this->log = $log;
-        $this->output = $output;
-        $this->database = $database;
-        $this->event = $event;
+        $this->project = $di;   
+
     }
-
-
     //  -------------------------------------------------------------------------
     # Congfig file loader
 
@@ -61,7 +51,7 @@ class Manager implements ManagerInterface
     public function getLoader()
     {
         if($this->loader === NULL) {
-            $this->loader = new Loader($this->io,$this->log,$this->output,null);
+            $this->loader = new Loader($this->io,$this->project['logger'],$this->project['console_output'],null);
         }
 
         return $this->loader;
@@ -82,7 +72,7 @@ class Manager implements ManagerInterface
     public function getWriter()
     {
         if($this->writer === NULL) {
-            $this->writer = new Writer($this->io,$this->log,$this->output,null);
+            $this->writer = new Writer($this->io,$this->project['logger'],$this->project['console_output'],null);
         }
 
         return $this->writer;

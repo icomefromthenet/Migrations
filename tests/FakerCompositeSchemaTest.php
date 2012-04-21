@@ -92,11 +92,13 @@ class FakerCompositeSchemaTest extends AbstractProject
           
         $schema->addChild($child_a);        
         $schema->addChild($child_b);        
+        $schema->setWritters(array('one','two'));
         
         $this->assertEquals($schema->getChildren(),array($child_a,$child_b));
         $this->assertSame($schema->getEventDispatcher(),$event);
         $this->assertEquals(null,$schema->getParent());
         $this->assertEquals($id,$schema->getId());
+        $this->assertEquals(array('one','two'),$schema->getWritters());
     }
     
     /**
@@ -118,13 +120,16 @@ class FakerCompositeSchemaTest extends AbstractProject
         $id = 'schema_1';
         $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
         $schema = new Schema($id,null,$event);
+        $writter = $this->getMockBuilder('Symfony\Components\Faker\Formatter\FormatterInterface')->getMock();
         
         $child_a = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
           
         $schema->addChild($child_a);        
+        $schema->setWritters(array($writter));
         
         $schema->validate();
      
     }
+    
     
 }

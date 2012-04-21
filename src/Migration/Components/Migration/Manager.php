@@ -1,10 +1,8 @@
 <?php
 namespace Migration\Components\Migration;
 
-use Monolog\Logger as Logger;
-use Symfony\Component\Console\Output\OutputInterface as Output;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface as Event;
-use Doctrine\DBAL\Connection;
+use Migration\Project;
+
 use Migration\Components\Migration\Driver\SchemaInterface;
 use Migration\Components\Migration\Driver\TableInterface;
 use Migration\Components\Migration\Exception as MigrationException;
@@ -40,35 +38,10 @@ class Manager
     protected $io;
 
     /**
-      *  @var \Doctrine\DBAL\Connection; 
+      *  @var Migration\Project 
       */
-    protected $database;
-
-    /**
-      *  @var \Symfony\Component\Console\Output\OutputInterface 
-      */
-    protected $output;
-
-    /**
-      * @var Monolog\Logger 
-      */
-    protected $log;
-
-    /**
-      *  @var \Migration\Components\Config\Entity 
-      */
-    protected $config;
-
-    /**
-      *  @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
-      */
-    protected $event;
-    
-    /**
-      *  @var \Migration\Components\Migration\Event\Handler 
-      */
-    protected $handler;
-    
+    protected $project;
+      
     /**
       *  @var Migration\Components\Migration\FileName 
       */
@@ -89,14 +62,10 @@ class Manager
      * @param $arg
      */
 
-    public function __construct(IoInterface $io,Logger $log, Output $output, Connection $database , ConfigEntity $config, Event $event )
+    public function __construct(IoInterface $io, Project $di )
     {
         $this->io = $io;
-        $this->log = $log;
-        $this->output = $output;
-        $this->database = $database;
-        $this->config = $config;
-        $this->event = $event;
+        $this->project = $di;
     }
 
     //  -------------------------------------------------------------------------
@@ -112,7 +81,9 @@ class Manager
     {
         if($this->handler === null) {
           # load the event handler
-            $this->handler = new MigrationHandler($this->event,$this->getTableManager(),$this->database);   
+            $this->handler = new MigrationHandler($this->project['event_dispatcher'],
+                                                  $this->getTableManager(),
+                                                  $this->project['database']);   
         }
          
         return $this->handler;        
@@ -131,7 +102,9 @@ class Manager
     public function getMigrationCollection()
     {
         if($this->migration_collection === null) {
-            $this->migration_collection =  new MigrationCollection($this->output,$this->log,$this->io);
+            $this->migration_collection =  new MigrationCollection($this->project['console_output'],
+                                                                   $this->project['logger'],
+                                                                   $this->io);
         }
         
         return $this->migration_collection
@@ -287,9 +260,13 @@ class Manager
     
     
         if(class_exists($class) === true) {
-            $class = new $class($this->log, $this->output, $this->database);
+            $class = new $class($this->project['logger'],
+                                $this->project['console_output'],
+                                $this->project['database']);
         } else {
-            $class = new $generic($this->log, $this->output, $this->database);
+            $class = new $generic($this->project['logger'],
+                                  $this->project['output'],
+                                  $this->project['database']);
         }
     
         return $class;
@@ -325,9 +302,13 @@ class Manager
     
     
         if(class_exists($class) === true) {
-            $class = new $class($this->database,  $this->log,  $this->config->migrationtable );
+            $class = new $class($this->project['database'],
+                                $this->project['logger'],
+                                $this->config->migrationtable );
         } else {
-            $class = new $generic($this->database, $this->log, $this->config->migrationtable );
+            $class = new $generic($this->project['database'],
+                                  $this->project['logger'],
+                                  $this->config->migrationtable );
         }
     
         return $class;

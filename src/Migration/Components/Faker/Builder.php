@@ -71,7 +71,7 @@ class Builder
     /**
       *  @var FormatterInterface[] the assigned writters 
       */
-    protected $formatters;
+    protected $formatters = array();
     
     /**
       *  @var Symfony\Component\EventDispatcher\EventDispatcherInterface 
@@ -97,10 +97,10 @@ class Builder
     {
         # instance a platform
         
-        $platform = $this->platform_factory->create($platform);
+        $platform_instance = $this->platform_factory->create($platform);
         
         $this->formatters[] = $this->formatter_factory
-                                   ->create($formatter,$platform); 
+                                   ->create($formatter,$platform_instance); 
         
         return $this;
     }
@@ -139,7 +139,7 @@ class Builder
     //  -------------------------------------------------------------------------
 
     
-    public function addTable($name,$to_generate)
+    public function addTable($name,$options)
     {
         # check if schema exist
         
@@ -153,6 +153,10 @@ class Builder
             throw new FakerException('Table must have a name');
         }
         
+        if(isset($options['generate']) === false) {
+            throw new FakerException('Table requires rows to generate');
+        }
+        
         # null the current table,column,selector and type ie the children
         
         $this->current_type     = null;
@@ -162,7 +166,7 @@ class Builder
         
         # create the new table
         
-        $this->current_table = new Table($name,$this->current_schema,$this->event,$to_generate);
+        $this->current_table = new Table($name,$this->current_schema,$this->event,(integer)$options['generate']);
     
         # add table to schema
         
@@ -173,7 +177,7 @@ class Builder
 
     //  -------------------------------------------------------------------------
     
-    public function addColumn($name,$doctine_type)
+    public function addColumn($name,$options)
     {
         # schema and table exist
         
@@ -184,10 +188,14 @@ class Builder
         if(empty($name)) {
             throw new FakerException('Column must have a name');
         }
+        
+        if(isset($options['type']) === false) {
+            throw new FakerException('Column requires a doctrine type');
+        }
     
         # find the doctine column type
         
-        $doctrine = $this->column_factory->create($doctine_type);
+        $doctrine = $this->column_factory->create($options['type']);
         
         # remove column,selector,type
         
@@ -370,6 +378,14 @@ class Builder
       */ 
     public function build()
     {
+        if($this->current_schema === null) {
+            throw new FakerException('Can not build no schema set');
+        }
+        
+        # add the writters to the composite
+        
+        $this->current_schema->setWritters($this->formatters);
+        
         # validate the composite
 
         $this->current_schema->validate();

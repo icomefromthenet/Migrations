@@ -194,7 +194,7 @@ $project['config_manager'] = $project->share(function($project){
     $event = $project['event_dispatcher'];
 
     # instance the manager, no database needed here
-    return new \Migration\Components\Config\Manager($io,$project->getLogger(),new \Symfony\Component\Console\Output\ConsoleOutput(),$event,null);
+    return new \Migration\Components\Config\Manager($io,$project);
 });
 
 
@@ -215,7 +215,7 @@ $project['migration_manager'] = $project->share(function($project){
     $event   = $project['event_dispatcher'];
   
     # instance the manager, no database needed here
-    return new \Migration\Components\Migration\Manager($io,$logger,$console,$project['database'],$config,$event);
+    return new \Migration\Components\Migration\Manager($io,$project);
 });
 
 
@@ -231,7 +231,7 @@ $project['template_manager'] = $project->share(function($project){
     $event = $project['event_dispatcher'];
 
     # instance the manager, no database needed here
-    return new \Migration\Components\Templating\Manager($io,$project->getLogger(),new \Symfony\Component\Console\Output\ConsoleOutput(),$event,null);
+    return new \Migration\Components\Templating\Manager($io,$project);
 
 });
 
@@ -242,8 +242,6 @@ $project['template_manager'] = $project->share(function($project){
 
 $project['writer_lines_per_file'] = 500;
 $project['writer_cache_max'] = 1000;
-$project['writer_footer_template'] ='faker_footer.twig';
-$project['writer_header_template'] = 'faker_header.twig';
 
 $project['writer_manager'] = $project->share(function($project)
 {
@@ -252,13 +250,10 @@ $project['writer_manager'] = $project->share(function($project)
     $event = $project['event_dispatcher'];
 
     # instance the manager, no database needed here
-    $manager = new \Migration\Components\Writer\Manager($io,$project->getLogger(),new \Symfony\Component\Console\Output\ConsoleOutput(),$event,null);
+    $manager = new \Migration\Components\Writer\Manager($io,$project);
 
-    $manager->setTemplateLoader($project['template_manager']->getLoader());
     $manager->setCacheMax($project['writer_cache_max']);
     $manager->setLinesInFile($project['writer_lines_per_file']);
-    $manager->setFooterTemplate($project['writer_footer_template']);
-    $manager->setHeaderTemplate($project['writer_header_template']);
     
    return $manager;
 
@@ -271,5 +266,17 @@ $project['writer_manager'] = $project->share(function($project)
 //---------------------------------------------------------------
 
 $project['event_dispatcher'] = $project->share(function($project){
+   
    return new \Symfony\Component\EventDispatcher\EventDispatcher();
 });
+
+
+//---------------------------------------------------------------
+// Console Output
+//
+//---------------------------------------------------------------
+$project['console_output'] = $project->share(function($project){
+   
+   return new \Symfony\Component\Console\Output\ConsoleOutput();
+});
+

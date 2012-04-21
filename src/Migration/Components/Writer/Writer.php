@@ -4,7 +4,7 @@ namespace Migration\Components\Writer;
 use Migration\Components\Writer\Io;
 use Migration\Components\Writer\Cache;
 use Migration\Components\Writer\Exception as WriterException;
-use Migration\Componenets\Writer\Stream;
+use Migration\Components\Writer\Stream;
 
 /**
   *  Class Writer
@@ -42,7 +42,7 @@ class Writer implements WriterInterface
         try {
         
             # add to cache
-            $cache->write($line);
+            $this->cache->write($line);
             
             # test cache limit
             if($this->cache->count() >= $this->cache_limit ) {
@@ -95,7 +95,7 @@ class Writer implements WriterInterface
     * Class Constructor
     *
     */
-    public function __construct(Stream $stream Cache $cache,$cache_limit = 500)
+    public function __construct(Stream $stream, Cache $cache, $cache_limit = 500)
     {
         $this->stream = $stream;
         $this->cache = $cache;
@@ -103,6 +103,42 @@ class Writer implements WriterInterface
         
     }
 
-
+    //  -------------------------------------------------------------------------
+    # Property Accessors
+   
+    /**
+      *  Fetch the writer stream
+      *
+      *  @access public
+      *  @return Migration\Components\Writer\Stream
+      */
+    public function getStream()
+    {
+        return $this->stream;        
+    }
+    
+    /**
+      *  Fetch the writers cache
+      *
+      *  @access public
+      *  @return Migration\Components\Writer\Cache
+      */ 
+    public function getCache()
+    {
+        return $this->cache;
+    }
+    
+    /**
+      *  Fetch the cache limit
+      *
+      *  @access public
+      *  @return integer the cache limit
+      */
+    public function getCacheLimit()
+    {
+        return $this->cache_limit;
+    }
+    
+    //  -------------------------------------------------------------------------
 }
 /* End of File */

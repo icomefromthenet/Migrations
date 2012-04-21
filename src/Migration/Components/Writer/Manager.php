@@ -1,39 +1,29 @@
 <?php
 namespace Migration\Components\Writer;
 
-use Monolog\Logger;
-use Symfony\Component\Console\Output\OutputInterface as Output;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface as Event;
-use Migration\Components\ManagerInterface;
 use Migration\Io\IoInterface;
-use Doctrine\DBAL\Connection;
-use Migration\Components\Templating\Loader as TemplateLoader;
+use Migration\Project;
+use Migration\Components\ManagerInterface;
+
 
 use Migration\Components\Writer\Cache;
 use Migration\Components\Writer\Limit;
 use Migration\Components\Writer\Stream;
 use Migration\Components\Writer\Sequence;
-use Migration\Componnets\Writer\Writer;
+use Migration\Components\Writer\Writer;
 
 /*
  * class Manager
  */
 
-class Manager implements ManagerInterface
+class Manager 
 {
 
-    protected $loader;
+    protected $id;
 
-    protected $io;
+    protected $project;
 
-    protected $output;
-
-    protected $log;
-
-    protected $database;
-
-    protected $event;
-
+   
     //  -------------------------------------------------------------------------
     # Class Constructor
 
@@ -49,13 +39,10 @@ class Manager implements ManagerInterface
        *
        *  @access public
        */
-    public function __construct(IoInterface $io,Logger $log, Output $output, Event $event, Connection $database = null)
+    public function __construct(IoInterface $io,Project $di)
     {
         $this->io = $io;
-        $this->log = $log;
-        $this->output = $output;
-        $this->database = $database;
-        $this->event = $event;
+        $this->project = $di;
     }
 
 
@@ -79,42 +66,9 @@ class Manager implements ManagerInterface
       * @access public
       * @return \Migration\Components\Config\Writer
       */
-    public function getWriter()
+    public function getWriter($platform)
     {
-      
-       return new Writer($this->io,$this->getStream(),$this->getCache(),$this->getCacheMax());
-      
-    }
-
-    //  -------------------------------------------------------------------------
-    # Template Dependency
-
-    /**
-      *  @var Migration\Components\Templating\Loader
-      */
-    protected $template;
-
-    /**
-      *  Template Loader
-      *
-      *  @param \Migration\Components\Templating\Loader
-      *  @return void
-      *  @access public
-      */
-    public function setTemplateLoader(TemplateLoader $loader)
-    {
-        $this->template = $loader;
-    }
-
-    /**
-      *  Template Loader
-      *
-      *  @return \Migration\Components\Templating\Loader
-      *  @access public
-      */
-    public function getTemplateLoader()
-    {
-        return $this->template;
+       return new Writer($this->getStream($platform),$this->getCache(),$this->getCacheMax());
     }
 
     //  -------------------------------------------------------------------------
@@ -127,17 +81,17 @@ class Manager implements ManagerInterface
 
     public function getLimit()
     {
-      return new Limit($this->setLinesInFile());
+      return new Limit($this->getLinesInFile());
     }
 
-    public function getStream()
+    public function getStream($platform)
     {
-        return new Stream($this->getTemplate())
+        return new Stream($this->getHeaderTemplate($platform),$this->getFooterTemplate($platform),$this->getSequence($platform, 'schema', 'table', 'sql'),$this->getLimit(),$this->io);
     }
     
-    public function getSequence()
+    public function getSequence($prefix, $body, $suffix, $extension,$format = '{prefix}_{body}_{suffix}_{seq}.{ext}')
     {
-        return new Sequence();    
+        return new Sequence($prefix, $body, $suffix, $extension,$format);    
     }
     
 
@@ -155,6 +109,8 @@ class Manager implements ManagerInterface
     {
         return $this->lines_in_file;
     }
+
+    //  -------------------------------------------------------------------------
     
     protected $cache_max = 1000;
     
@@ -167,14 +123,17 @@ class Manager implements ManagerInterface
     {
         return $this->cache_max;
     }
+    
+    //  -------------------------------------------------------------------------
+    
+    protected $header_template ='header_template.twig';
 
     
-    protected $header_template = 'faker_header.twig';
-
-    
-    public function getHeaderTemplate()
+    public function getHeaderTemplate($platform)
     {
-        return $this->template_header()->load($this->header_template);
+        return $this->project['template_manager']
+                    ->getLoader()
+                    ->load( $platform . DIRECTORY_SEPARATOR .$this->header_template);
     }
     
     public function setHeaderTemplate($template)
@@ -183,24 +142,23 @@ class Manager implements ManagerInterface
     }
     
     
-    protected $footer_template = 'faker_footer.twig';
+    //  -------------------------------------------------------------------------
+    
+    protected $footer_template = 'footer_template.twig';
     
     
     public function setFooterTemplate($template)
     {
-        $this->footer_template = $template
+        $this->footer_template = $template;
     }
     
-    public function getFooterTemplate()
+    public function getFooterTemplate($platform)
     {
-        return $this->template_header()->load($this->footer_template);    
+        return $this->project['template_manager']
+                    ->getLoader()
+                    ->load($platform . DIRECTORY_SEPARATOR .$this->footer_template);    
     }
     
     //  -------------------------------------------------------------------------
-    # Template Defaults
-    
-    
-    
-
 }
 /* End of File */

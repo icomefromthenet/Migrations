@@ -1,12 +1,11 @@
 <?php
 namespace Migration\Components\Templating;
 
-use Monolog\Logger as Logger;
-use Symfony\Component\Console\Output\OutputInterface as Output;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface as Event;
-use Migration\Components\ManagerInterface;
 use Migration\Io\IoInterface;
-use Doctrine\DBAL\Connection;
+use Migration\Project;
+use Migration\Components\ManagerInterface;
+
+
 use Migration\Components\Templating\Exception as TemplatingException;
 
 /*
@@ -21,12 +20,8 @@ class Manager implements ManagerInterface
     protected $writer;
 
     protected $io;
-
-    protected $output;
-
-    protected $log;
-
-    protected $event;
+    
+    protected $project;
 
     //  -------------------------------------------------------------------------
     # Class Constructor
@@ -43,14 +38,11 @@ class Manager implements ManagerInterface
        *
        *  @access public
        */
-    public function __construct(IoInterface $io,Logger $log, Output $output, Event $event, Connection $database = null)
+    public function __construct(IoInterface $io,Project $di)
     {
         $this->io = $io;
-        $this->log = $log;
-        $this->output = $output;
-        $this->event = $event;
+        $this->project = $di;       
     }
-
 
     //  -------------------------------------------------------------------------
     # Congfig file loader

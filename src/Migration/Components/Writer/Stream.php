@@ -73,19 +73,19 @@ class Stream implements WriterInterface
         if($this->file_handle === null) {
             
             # increment the file sequence
-            $this->file_sequence->add();
+            $this->getSequence()->add();
             
             # reset the limit
-            $this->write_limit->reset();
+            $this->getLimit()->reset();
             
             # generate new template string
-            $file_name = $this->file_sequence->get();
+            $file_name = $this->getSequence()->get();
             
             # write template (will overrite file)
-            $this->io->write($file_name,'','',true);
+            $this->getIo()->write($file_name,'','',true);
             
             # get file handle (SplFileInfo -> SplFileObject)
-            $this->file_handle = $this->io->load($file_name,'',true)->openFile('a');
+            $this->file_handle = $this->getIo()->load($file_name,'',true)->openFile('a');
             
             $this->writeHeader();
         }
@@ -94,17 +94,13 @@ class Stream implements WriterInterface
         $this->file_handle->fwrite($line);   
            
         # increment the limit
-        $this->limit->increment();
+        $this->getLimit()->increment();
     
         # if at limit write footer template
         
-        if($limit->atLimit() === true) {
+        if($this->getLimit()->atLimit() === true) {
            
-            $this->writeFooter();
-            
-            # remove the old file hander
-            $this->file_handle = null;
-       
+            $this->flush();
         }
     }
     
@@ -138,19 +134,66 @@ class Stream implements WriterInterface
         $this->file_handle = null;
     }
     
+    
     //  -------------------------------------------------------------------------
-    # Destructor
+    # properties Accessors
     
-    
-    public function __destruct()
+    /**
+      *  Fetch the writers sequence
+      *
+      *  @access public
+      *  @return Migration\Components\Writer\Sequence
+      */
+    public function getSequence()
     {
-        $this->file_handle = null;
-        $this->header_template = null;
-        $this->footer_template = null;
-        $this->file_sequence = null;
-        $this->io = null;
-        $this->write_limit = null;
+        return $this->file_sequence;
     }
+    
+    /**
+      *  Fetch the IO
+      *
+      *  @access public
+      *  @return Migration\Components\Writer\Io;
+      */
+    public function getIo()
+    {
+        return $this->io;
+    }
+    
+    /**
+      *  Fetch the Write Limiter
+      *
+      *  @access public
+      *  @return Migration\Components\Writer\Limit;
+      */
+    public function getLimit()
+    {
+        return $this->write_limit;
+    }
+    
+    /**
+      *  Fetch the header template
+      *
+      *  @access public
+      *  @return Migration\Components\Templating\Template
+      */
+    public function getHeaderTemplate()
+    {
+        return $this->header_template;        
+    }
+    
+    /**
+      *  Fetch the footer template
+      *
+      *  @access public
+      *  @return Migration\Components\Templating\Template
+      */
+    public function getFooterTemplate()
+    {
+        return $this->footer_template;
+    }
+    
+    //  -------------------------------------------------------------------------
 
 }
 /* End of File */

@@ -41,9 +41,36 @@ class FakerCompositeAlternateTest extends AbstractProject
     
     public function testAddWritter()
     {
-    
-    
-    
+        
+        $formatter ='sql';
+        $platform  = 'test';
+        
+        $event               = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
+       
+        $platform_instance   = $this->getMockBuilder('Doctrine\DBAL\Platforms\AbstractPlatform')->disableOriginalConstructor()->getMockForAbstractClass();
+        $platform_factory    = $this->getMockBuilder('Migration\PlatformFactory')->disableOriginalConstructor()->getMock();
+        
+        $platform_factory->expects($this->once())
+                         ->method('create')
+                         ->with($this->equalTo($platform))
+                         ->will($this->returnValue($platform_instance));
+       
+       
+        $column_type_factory = $this->getMockBuilder('Migration\ColumnTypeFactory')->disableOriginalConstructor()->getMock();
+        $type_factory        = $this->getMockBuilder('Migration\Components\Faker\TypeFactory')->disableOriginalConstructor()->getMock();        
+      
+        $formatter_sql       = $this->getMockBuilder('Migration\Components\Faker\Formatter\FormatterInterface')->getMock();        
+        $formatter_factory   = $this->getMockBuilder('Migration\Components\Faker\Formatter\FormatterFactory')->disableOriginalConstructor()->getMock(); 
+        $formatter_factory->expects($this->once())
+                          ->method('create')
+                          ->with($this->equalTo($formatter),$this->equalTo($platform_instance))
+                          ->will($this->returnValue($formatter_sql));
+                          
+        $builder = new Builder($event,$platform_factory,$column_type_factory,$type_factory,$formatter_factory);       
+        
+        $builder->addSchema('myschema',array())
+                ->addWritter($platform,$formatter);
+        
     
     }
     
@@ -120,7 +147,8 @@ class FakerCompositeAlternateTest extends AbstractProject
         $builder = new Builder($event,$platform_factory,$column_type_factory,$type_factory,$formatter_factory);       
         
         $id = 'myschema';
-        $builder->addSchema($id,array())->addTable('table1',100);
+        $builder->addSchema($id,array())
+                ->addTable('table1',array('generate' => 100));
         
         $this->assertTrue(true);
          
@@ -149,7 +177,7 @@ class FakerCompositeAlternateTest extends AbstractProject
     
         $builder = new Builder($event,$platform_factory,$column_type_factory,$type_factory,$formatter_factory);       
         
-        $builder->addSchema('schema_1',array())->addTable('table_1',100)->addColumn('column_1','integer');
+        $builder->addSchema('schema_1',array())->addTable('table_1',array('generate' => 100))->addColumn('column_1',array('type'=>'integer'));
     }
     
     //  -------------------------------------------------------------------------
@@ -210,7 +238,7 @@ class FakerCompositeAlternateTest extends AbstractProject
         $builder = new Builder($event,$platform_factory,$column_type_factory,$type_factory,$formatter_factory);       
         
         $builder->addSchema('schema_1',array())
-                ->addTable('table_1',100)
+                ->addTable('table_1',array('generate' =>100))
                 ->addSelector('alternate',array());
     }
 
@@ -236,8 +264,8 @@ class FakerCompositeAlternateTest extends AbstractProject
         $builder = new Builder($event,$platform_factory,$column_type_factory,$type_factory,$formatter_factory);       
         
         $builder->addSchema('schema_1',array())
-                ->addTable('table_1',100)
-                ->addColumn('column_1','integer')
+                ->addTable('table_1',array('generate' => 100))
+                ->addColumn('column_1',array('type'=>'integer'))
                 ->addSelector('alternate',array('step' => 1));
     }
    
@@ -264,8 +292,8 @@ class FakerCompositeAlternateTest extends AbstractProject
         $builder = new Builder($event,$platform_factory,$column_type_factory,$type_factory,$formatter_factory);       
         
         $builder->addSchema('schema_1',array())
-                ->addTable('table_1',100)
-                ->addColumn('column_1','integer')
+                ->addTable('table_1',array('generate' => 100))
+                ->addColumn('column_1',array('type'=>'integer'))
                 ->addSelector('a',array());
     }
     
@@ -292,8 +320,8 @@ class FakerCompositeAlternateTest extends AbstractProject
         $builder = new Builder($event,$platform_factory,$column_type_factory,$type_factory,$formatter_factory);       
         
         $builder->addSchema('schema_1',array())
-                ->addTable('table_1',100)
-                ->addColumn('column_1','integer')
+                ->addTable('table_1',array('generate' => 100))
+                ->addColumn('column_1',array('type' => 'integer'))
                 ->addSelector('alternate',array());
     }
     
@@ -320,8 +348,8 @@ class FakerCompositeAlternateTest extends AbstractProject
         $builder = new Builder($event,$platform_factory,$column_type_factory,$type_factory,$formatter_factory);       
         
         $builder->addSchema('schema_1',array())
-                ->addTable('table_1',100)
-                ->addColumn('column_1','integer')
+                ->addTable('table_1',array('generate' => 100))
+                ->addColumn('column_1',array('type' =>'integer'))
                 ->addSelector('pick',array());
     }
    
@@ -349,8 +377,8 @@ class FakerCompositeAlternateTest extends AbstractProject
         $builder = new Builder($event,$platform_factory,$column_type_factory,$type_factory,$formatter_factory);       
         
         $builder->addSchema('schema_1',array())
-                ->addTable('table_1',100)
-                ->addColumn('column_1','integer')
+                ->addTable('table_1',array('generate' => 100))
+                ->addColumn('column_1',array('type'=>'integer'))
                 ->addSelector('when',array());
     }
   
@@ -376,8 +404,8 @@ class FakerCompositeAlternateTest extends AbstractProject
         $builder = new Builder($event,$platform_factory,$column_type_factory,$type_factory,$formatter_factory);       
         
         $builder->addSchema('schema_1',array())
-                ->addTable('table_1',100)
-                ->addColumn('column_1','integer')
+                ->addTable('table_1',array('generate' => 100))
+                ->addColumn('column_1',array('type'=>'integer'))
                 ->addSelector('swap',array())
                 ->addSelector('when',array('switch' => 1));
         
@@ -407,8 +435,8 @@ class FakerCompositeAlternateTest extends AbstractProject
         $builder = new Builder($event,$platform_factory,$column_type_factory,$type_factory,$formatter_factory);       
         
         $builder->addSchema('schema_1',array())
-                ->addTable('table_1',100)
-                ->addColumn('column_1','integer')
+                ->addTable('table_1',array('generate' => 100))
+                ->addColumn('column_1',array('type'=>'integer'))
                 ->addSelector('swap',array())
                 ->addSelector('when',array());
         
@@ -473,7 +501,7 @@ class FakerCompositeAlternateTest extends AbstractProject
         $builder = new Builder($event,$platform_factory,$column_type_factory,$type_factory,$formatter_factory);       
         
         $builder->addSchema('schema_1',array())
-                ->addTable('table_1',100)
+                ->addTable('table_1',array('generate' => 100))
                 ->addType('alternate',array());                    
     }
     
@@ -508,8 +536,8 @@ class FakerCompositeAlternateTest extends AbstractProject
         $builder = new Builder($event,$platform_factory,$column_type_factory,$type_factory,$formatter_factory);       
         
         $builder->addSchema('schema_1',array())
-                ->addTable('table_1',100)
-                ->addColumn('column_1','integer')
+                ->addTable('table_1',array('generate' => 100))
+                ->addColumn('column_1',array('type'=>'integer'))
                 ->addType('alphanumeric',array());
     
     }
@@ -541,8 +569,8 @@ class FakerCompositeAlternateTest extends AbstractProject
         $builder = new Builder($event,$platform_factory,$column_type_factory,$type_factory,$formatter_factory);       
         
         $builder->addSchema('schema_1',array())
-                ->addTable('table_1',100)
-                ->addColumn('column_1','integer')
+                ->addTable('table_1',array('generate' => 100))
+                ->addColumn('column_1',array( 'type' =>'integer'))
                 ->addSelector('random',array())
                 ->addType('alphanumeric',array())
                 ->addType('alphanumeric',array());    
@@ -575,8 +603,8 @@ class FakerCompositeAlternateTest extends AbstractProject
         $builder = new Builder($event,$platform_factory,$column_type_factory,$type_factory,$formatter_factory);       
         
         $builder->addSchema('schema_1',array())
-                ->addTable('table_1',100)
-                ->addColumn('column_1','integer')
+                ->addTable('table_1',array('generate' => 100))
+                ->addColumn('column_1',array('type' =>'integer'))
                 ->addSelector('swap',array())
                 ->addSelector('when',array('switch' => 10))
                 ->addType('alphanumeric',array());
@@ -610,22 +638,29 @@ class FakerCompositeAlternateTest extends AbstractProject
         $builder = new Builder($event,$platform_factory,$column_type_factory,$type_factory,$formatter_factory);       
         
         $builder->addSchema('schema_1',array())
-                ->addTable('table_1',100)
-                ->addColumn('column_1','integer')
+                ->addTable('table_1',array('generate' => 100))
+                ->addColumn('column_1',array( 'type' =>'integer'))
                 ->addSelector('swap',array())
                 ->addSelector('when',array('switch' => 10))
                 ->setTypeOption('op1','po2');
     }
     
    
+    
     public function testTypeSetOption()
     {
-        $event               = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
-        $platform_factory    = $this->getMockBuilder('Migration\PlatformFactory')->disableOriginalConstructor()->getMock();
-        $column_type_factory = $this->getMockBuilder('Migration\ColumnTypeFactory')->disableOriginalConstructor()->getMock();
-     
-        $column_type = $this->getMockBuilder('Doctrine\DBAL\Types\Type')->disableOriginalConstructor()->getMock();
-     
+        $event               = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')
+                                    ->getMock();
+        $platform_factory    = $this->getMockBuilder('Migration\PlatformFactory')
+                                    ->disableOriginalConstructor()
+                                    ->getMock();
+        
+        $column_type = $this->getMockBuilder('Doctrine\DBAL\Types\Type')
+                            ->disableOriginalConstructor()
+                            ->getMock();
+        $column_type_factory = $this->getMockBuilder('Migration\ColumnTypeFactory')
+                                    ->disableOriginalConstructor()
+                                    ->getMock();
         $column_type_factory->expects($this->once())
                             ->method('create')
                             ->with($this->equalTo('integer'))
@@ -634,12 +669,12 @@ class FakerCompositeAlternateTest extends AbstractProject
         $type_mock  = $this->getMockBuilder('Migration\Components\Faker\Type\Type')
                             ->setMethods(array('setOption'))
                             ->disableOriginalConstructor()
-                            ->getMockForAbstractClass();   
-        
-        $type_mock->expects($this->exactly(1))
+                            ->getMockForAbstractClass();
+                            
+        $type_mock->expects($this->once())
                   ->method('setOption')
-                  ->with($this->equalTo('op1'),$this->equalTo('op2'));
-        
+                  //->with($this->equalTo('op1'),$this->equalTo('op2'))
+                  ->will($this->returnValue(true));
         
         $type_factory = $this->getMockBuilder('Migration\Components\Faker\TypeFactory')
                             ->disableOriginalConstructor()
@@ -650,18 +685,20 @@ class FakerCompositeAlternateTest extends AbstractProject
                      ->with($this->equalto('alphanumeric'),$this->isInstanceOf('Migration\Components\Faker\Composite\When'))
                      ->will($this->returnValue($type_mock));
                      
-        $formatter_factory   = $this->getMockBuilder('Migration\Components\Faker\Formatter\FormatterFactory')->disableOriginalConstructor()->getMock(); 
-        
+        $formatter_factory   = $this->getMockBuilder('Migration\Components\Faker\Formatter\FormatterFactory')
+                                    ->disableOriginalConstructor()
+                                    ->getMock(); 
+       
             
         $builder = new Builder($event,$platform_factory,$column_type_factory,$type_factory,$formatter_factory);       
-        
-        $builder->addSchema('schema_1',array())
-                ->addTable('table_1',100)
-                ->addColumn('column_1','integer')
-                ->addSelector('swap',array())
-                ->addSelector('when',array('switch' => 10))
-                ->addType('alphanumeric',array())
-                ->setTypeOption('op1','po2');  
+
+        $builder->addSchema('schema_1',array());
+        $builder->addTable('table_1',array('generate' => 100));
+        $builder->addColumn('column_1',array('type' =>'integer'));
+        $builder->addSelector('swap',array());
+        $builder->addSelector('when',array('switch' => 10));
+        $builder->addType('alphanumeric',array());
+        $builder->setTypeOption('op1','po2');  
     }
    
     
@@ -671,13 +708,30 @@ class FakerCompositeAlternateTest extends AbstractProject
     
     public function testBuild()
     {
-        $event               = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
+        
+        $formatter ='sql';
+        $platform  = 'test';
+        
+       
+        $platform_instance   = $this->getMockBuilder('Doctrine\DBAL\Platforms\AbstractPlatform')->disableOriginalConstructor()->getMockForAbstractClass();
         $platform_factory    = $this->getMockBuilder('Migration\PlatformFactory')->disableOriginalConstructor()->getMock();
+        $platform_factory->expects($this->any())
+                         ->method('create')
+                         ->with($this->equalTo($platform))
+                         ->will($this->returnValue($platform_instance));
+       
+        $formatter_sql       = $this->getMockBuilder('Migration\Components\Faker\Formatter\FormatterInterface')->getMock();        
+        $formatter_factory   = $this->getMockBuilder('Migration\Components\Faker\Formatter\FormatterFactory')->disableOriginalConstructor()->getMock(); 
+        $formatter_factory->expects($this->any())
+                          ->method('create')
+                          ->with($this->equalTo('sql'),$this->isInstanceOf('Doctrine\DBAL\Platforms\AbstractPlatform'))
+                          ->will($this->returnValue($formatter_sql));
+                          
+        $event               = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
         $column_type_factory = $this->getMockBuilder('Migration\ColumnTypeFactory')->disableOriginalConstructor()->getMock();
      
         $column_type = $this->getMockBuilder('Doctrine\DBAL\Types\Type')->disableOriginalConstructor()->getMock();
-     
-        $column_type_factory->expects($this->once())
+        $column_type_factory->expects($this->any())
                             ->method('create')
                             ->with($this->equalTo('integer'))
                             ->will($this->returnValue($column_type));
@@ -692,19 +746,18 @@ class FakerCompositeAlternateTest extends AbstractProject
                             ->disableOriginalConstructor()
                             ->getMock();        
         
-        $type_factory->expects($this->once())
+        $type_factory->expects($this->any())
                      ->method('create')
                      ->with($this->equalto('alphanumeric'),$this->isInstanceOf('Migration\Components\Faker\Composite\When'))
                      ->will($this->returnValue($type_mock));
                      
-        $formatter_factory   = $this->getMockBuilder('Migration\Components\Faker\Formatter\FormatterFactory')->disableOriginalConstructor()->getMock(); 
-        
             
         $builder = new Builder($event,$platform_factory,$column_type_factory,$type_factory,$formatter_factory);       
         
         $builder->addSchema('schema_1',array())
-                ->addTable('table_1',100)
-                ->addColumn('column_1','integer')
+                ->addWritter($platform,$formatter)
+                ->addTable('table_1',array('generate' => 100))
+                ->addColumn('column_1',array('type' => 'integer'))
                 ->addSelector('swap',array())
                 ->addSelector('when',array('switch' => 10))
                 ->addType('alphanumeric',array());

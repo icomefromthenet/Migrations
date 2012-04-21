@@ -32,6 +32,12 @@ class Schema implements CompositeInterface
     protected $event;
     
     /**
+      *  @var FormatterInterface[] the assigned writters  
+      */
+    protected $writters;
+    
+    
+    /**
       *  Class construtor
       *
       *  @access public
@@ -73,6 +79,24 @@ class Schema implements CompositeInterface
                FormatEvents::onSchemaEnd,
                new GenerateEvent($this,array(),$this->getId())
           );
+    }
+    
+     /**
+       *  Return the writters
+       *
+       *  @return FormaterInterface[] 
+       */    
+    public function getWritters()
+    {
+          return $this->writters;
+    }
+    
+    /**
+      *   
+      */
+    public function setWritters(array $writters)
+    {
+        $this->writters = $writters;
     }
     
     
@@ -155,6 +179,11 @@ class Schema implements CompositeInterface
         
         if(count($this->getChildren()) === 0) {
           throw new FakerException('Schema must have at least 1 table');
+        }
+        
+        # check if a writter been set
+        if(count($this->writters) === 0) {
+          throw new FakerException('Writter not found must have atleast on writter');
         }
 
         return true;          

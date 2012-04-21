@@ -9,7 +9,6 @@ class Template
 
     protected $template;
 
-
     protected $vars;
     
 

@@ -146,6 +146,14 @@ class Project extends Pimple
 
 
             }
+            
+            #make dump folder
+            $dump_path = $folder->getBase() . DIRECTORY_SEPARATOR . 'dump';
+            if (mkdir($dump_path,$mode) === TRUE) {
+                $output->writeln('<info>Created Dump Folder</info>');
+
+            }
+            
 
     }
 

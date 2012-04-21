@@ -13,9 +13,11 @@ class FakerFormatterFactoryTest extends AbstractProject
     public function testFactoryConstructor()
     {
         $event    = $this->getMockBuilder('\Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
-        $writer   = $this->getMockBuilder('\Migration\Components\Writer\WriterInterface')->getMock();
+        $writer_manager   = $this->getMockBuilder('\Migration\Components\Writer\Manager')
+                         ->disableOriginalConstructor()
+                         ->getMock();
         
-        $factory = new FormatterFactory($event,$writer);
+        $factory = new FormatterFactory($event,$writer_manager);
         
         $this->assertInstanceOf('Migration\Components\Faker\Formatter\FormatterFactory',$factory);
         
@@ -31,12 +33,29 @@ class FakerFormatterFactoryTest extends AbstractProject
         $event    = $this->getMockBuilder('\\Symfony\\Component\\EventDispatcher\\EventDispatcherInterface')->getMock();
         $event->expects($this->once())
               ->method('addSubscriber');
+  
+        $writer_instance = $this->getMockBuilder('\Migration\Components\Writer\WriterInterface')->getMock();
         
-        $writer   = $this->getMockBuilder('\Migration\Components\Writer\WriterInterface')->getMock();
+        
+        $writer_manager   = $this->getMockBuilder('\Migration\Components\Writer\Manager')
+                        ->disableOriginalConstructor()
+                        ->getMock();
+        
+        $writer_manager->expects($this->once())
+               ->method('getWriter')
+               ->with($this->equalTo('mysql'))
+               ->will($this->returnValue($writer_instance));
+                   
+                        
         $platform = $this->getMockBuilder('\Doctrine\DBAL\Platforms\AbstractPlatform')
                          ->getMockForAbstractClass();
         
-        $factory = new FormatterFactory($event,$writer);
+        $platform->expects($this->once())
+                  ->method('getName')
+                  ->will($this->returnValue('mysql'));
+        
+        
+        $factory = new FormatterFactory($event,$writer_manager);
         
         $this->assertInstanceOf($formatter_full,$factory->create($formatter_key,$platform));
         
@@ -52,11 +71,28 @@ class FakerFormatterFactoryTest extends AbstractProject
         $event->expects($this->once())
               ->method('addSubscriber');
         
-        $writer   = $this->getMockBuilder('\Migration\Components\Writer\WriterInterface')->getMock();
+        $writer_instance = $this->getMockBuilder('\Migration\Components\Writer\WriterInterface')->getMock();
+        
+        
+        $writer_manager   = $this->getMockBuilder('\Migration\Components\Writer\Manager')
+                        ->disableOriginalConstructor()
+                        ->getMock();
+        
+        $writer_manager->expects($this->once())
+               ->method('getWriter')
+               ->with($this->equalTo('mysql'))
+               ->will($this->returnValue($writer_instance));
+       
+    
         $platform = $this->getMockBuilder('\Doctrine\DBAL\Platforms\AbstractPlatform')
                          ->getMockForAbstractClass();
         
-        $factory = new FormatterFactory($event,$writer);
+        $platform->expects($this->once())
+                  ->method('getName')
+                  ->will($this->returnValue('mysql'));
+        
+        
+        $factory = new FormatterFactory($event,$writer_manager);
         
         $this->assertInstanceOf($formatter_full,$factory->create($formatter_key,$platform));
         
@@ -72,11 +108,29 @@ class FakerFormatterFactoryTest extends AbstractProject
         $event->expects($this->once())
               ->method('addSubscriber');
         
-        $writer   = $this->getMockBuilder('\Migration\Components\Writer\WriterInterface')->getMock();
+        
+        $writer_instance = $this->getMockBuilder('\Migration\Components\Writer\WriterInterface')->getMock();
+        
+        
+        $writer_manager   = $this->getMockBuilder('\Migration\Components\Writer\Manager')
+                        ->disableOriginalConstructor()
+                        ->getMock();
+        
+        $writer_manager->expects($this->once())
+               ->method('getWriter')
+               ->with($this->equalTo('mysql'))
+               ->will($this->returnValue($writer_instance));
+       
+        
         $platform = $this->getMockBuilder('\Doctrine\DBAL\Platforms\AbstractPlatform')
                          ->getMockForAbstractClass();
         
-        $factory = new FormatterFactory($event,$writer);
+        $platform->expects($this->once())
+                  ->method('getName')
+                  ->will($this->returnValue('mysql'));
+        
+        
+        $factory = new FormatterFactory($event,$writer_manager);
         
         $this->assertInstanceOf($formatter_full,$factory->create($formatter_key,$platform));
         
@@ -91,11 +145,14 @@ class FakerFormatterFactoryTest extends AbstractProject
         
         $event    = $this->getMockBuilder('\Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
         
-        $writer   = $this->getMockBuilder('\Migration\Components\Writer\WriterInterface')->getMock();
+        $writer_manager   = $this->getMockBuilder('\Migration\Components\Writer\Manager')
+                        ->disableOriginalConstructor()
+                        ->getMock();
+                        
         $platform = $this->getMockBuilder('\Doctrine\DBAL\Platforms\AbstractPlatform')
                          ->getMockForAbstractClass();
         
-        $factory = new FormatterFactory($event,$writer);
+        $factory = new FormatterFactory($event,$writer_manager);
         
         $factory->create($formatter_key,$platform);
         

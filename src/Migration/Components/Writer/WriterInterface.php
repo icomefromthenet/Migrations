@@ -12,8 +12,7 @@ interface WriterInterface
       *  @return void;
       */
     public function write($line);
-
+    
+  
 }
-
-
 /* End of File */

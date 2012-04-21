@@ -64,6 +64,7 @@ class Sequence implements \IteratorAggregate, \Countable
         $this->sequence = 0;
         $this->files = NULL;
         $this->files = array();
+        //$this->add(); //first sequence
     }
 
     //--------------------------------------------------
@@ -92,7 +93,7 @@ class Sequence implements \IteratorAggregate, \Countable
         $this->setFormat($format);
         $this->setPrefix($prefix);
         $this->setSuffix($suffix);
-        $this->add(); //set to first file
+        //$this->add(); //set to first file
     }
 
     //-----------------------------------------------------------

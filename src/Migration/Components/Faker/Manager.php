@@ -1,17 +1,14 @@
 <?php
 namespace Migration\Components\Faker;
 
-use Monolog\Logger;
-use Symfony\Component\Console\Output\OutputInterface as Output;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface as Event;
+use Migration\Project;
 use Migration\Components\ManagerInterface;
 use Migration\Io\IoInterface;
-use Doctrine\DBAL\Connection;
-use Migration\Components\Templating\Loader as TemplateLoader;
 
-/*
- * class Manager
- */
+use Migration\PlatformFactory;
+use Migration\ColumnTypeFactory;
+use Migration\Components\Faker\Formatter\FormatterFactory;
+
 
 class Manager implements ManagerInterface
 {
@@ -22,14 +19,11 @@ class Manager implements ManagerInterface
 
     protected $io;
 
-    protected $output;
-
-    protected $log;
-
-    protected $database;
-
-    protected $event;
-
+    /**
+      *  @var Migration\Project 
+      */
+    protected $project;
+    
     //  -------------------------------------------------------------------------
     # Class Constructor
 
@@ -45,13 +39,10 @@ class Manager implements ManagerInterface
        *
        *  @access public
        */
-    public function __construct(IoInterface $io,Logger $log, Output $output, Event $event, Connection $database = null)
+    public function __construct(IoInterface $io, Project $di)
     {
         $this->io = $io;
-        $this->log = $log;
-        $this->output = $output;
-        $this->database = $database;
-        $this->event = $event;
+        $this->project = $di;
     }
 
 
@@ -69,21 +60,90 @@ class Manager implements ManagerInterface
     /**
       * function getWriter
       *
-      * return this components file writer object, which is used to write
-      * config files into the project directory
-      *
       * @access public
       * @return \Migration\Components\Config\Writer
       */
     public function getWriter()
     {
-        if($this->writer === NULL) {
-            $this->writer = new Writer($this->io,$this->log,$this->output,null);
-        }
-
-        return $this->writer;
+             
     }
+    
+    //  -------------------------------------------------------------------------
 
-
+    /**
+      *  Create a new Doctrine Platform Factory
+      *
+      *  @access public
+      *  @return \Migration\PlatformFactory
+      */    
+    public function getPlatformFactory()
+    {
+        return new PlatformFactory();
+    }
+    
+    /**
+      *  Create a new Doctrine Column Type Factory
+      *
+      *  @access public
+      *  @return Migration\ColumnTypeFactory
+      */
+    public function getColumnTypeFactory()
+    {
+        return new ColumnTypeFactory();
+        
+    }
+    
+    /**
+      *  Create a new Formatter Factory
+      *  
+      *  @access public
+      *  @return Migration\Components\Faker\Formatter\FormatterFactory
+      */
+    public function getFormatterFactory()
+    {
+        return new FormatterFactory($this->project['event_dispatcher'],
+                                    $this->getWriter());   
+    }
+    
+    /**
+      *  Load the xml schema parser
+      *
+      *  @access public
+      *  @return \Migration\Componenets\Faker\SchemaParser
+      */    
+    public function getSchemaParser()
+    {
+        return new SchemaParser($this->project['event_dispatcher']);    
+    }
+    
+    
+    /**
+      *  Create a new composite builder
+      *
+      *  @return Migration\Components\Faker\Builder
+      *  @access public
+      */    
+    public function getCompositeBuilder()
+    {
+        return new Builder($this->project['event_dispatcher'],
+                           $this->getPlatformFactory(),
+                           $this->getColumnTypeFactory(),
+                           $this->getTypeFactory(),
+                           $this->getFormatterFactory());        
+    }
+    
+    /**
+      *  Create a new type factory
+      *
+      *  @access public
+      *  @return Migration\Components\Faker\TypeFactory
+      */
+    public function getTypeFactory()
+    {
+        return new TypeFactory(new Utilities(),$this->project['event_dispatcher']);        
+    }
+    
+    //  -------------------------------------------------------------------------
+    
 }
 /* End of File */

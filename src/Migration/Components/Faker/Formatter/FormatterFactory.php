@@ -3,7 +3,7 @@ namespace Migration\Components\Faker\Formatter;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Doctrine\DBAL\Platforms\AbstractPlatform as Platform;
-use Migration\Components\Writer\WriterInterface;
+use Migration\Components\Writer\Manager as WriterManager;
 use Migration\Components\Faker\Exception as FakerException;
 
 class FormatterFactory
@@ -19,7 +19,7 @@ class FormatterFactory
     
     
     /**
-      *  @var Migration\Components\Writer\WriterInterface 
+      *  @var Migration\Components\Writer\Manager 
       */
     protected $writer;
 
@@ -32,10 +32,10 @@ class FormatterFactory
       * Class Constructor
       *
       * @param EventDispatcherInterface $event
-      * @param WriterInterface $writer
+      * @param WriterManager $writer
       * @param Connection $connection doctine db object
       */
-    public function __construct(EventDispatcherInterface $event, WriterInterface $writer)
+    public function __construct(EventDispatcherInterface $event, WriterManager $writer)
     {
         $this->event = $event;
         $this->writer = $writer;
@@ -50,7 +50,9 @@ class FormatterFactory
             throw new FakerException('Formatter does not exist at::'.$formatter);
         }
        
-        $class = new self::$formatters[$formatter]($this->event,$this->writer,$platform);
+        $class = new self::$formatters[$formatter]($this->event,
+                                                   $this->writer->getWriter($platform->getName()),
+                                                   $platform);
         
         # register this formatter as a subscriber 
         $this->event->addSubscriber($class); 
