@@ -11,8 +11,6 @@ use Migration\Parser\Exception\PHPXmlParserError;
 use Migration\Parser\Exception as ParserException;
 use Migration\Parser\Stack;
 
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-
 class XML implements ParserInterface
 {
 
@@ -36,18 +34,14 @@ class XML implements ParserInterface
       */
     protected $tree;
     
-    /**
-      *  @var  Symfony\Component\EventDispatcher\EventDispatcherInterface
-      */
-    protected $event_dispatcher;
     
     //  ----------------------------------------------------------------------------
     # Class Constructor
     
     
-    public function __construct(EventDispatcherInterface $dispatcher)
+    public function __construct()
     {
-        $this->event_dispatcher = $dispatcher;
+
     }
     
     //  ----------------------------------------------------------------------------
@@ -456,7 +450,7 @@ class XML implements ParserInterface
         
         return sprintf('XML error %d:"%s" at line %d column %d byte %d', 
                     xml_get_error_code($this->parser), 
-                    xml_error_string($this->parser), 
+                    xml_error_string(xml_get_error_code($this->parser)), 
                     xml_get_current_line_number($this->parser), 
                     xml_get_current_column_number($this->parser), 
                     xml_get_current_byte_index($this->parser)

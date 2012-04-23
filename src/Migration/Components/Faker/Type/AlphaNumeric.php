@@ -1,11 +1,10 @@
 <?php
 namespace Migration\Components\Faker\Type;
 
-use Migration\Components\Faker\TypeInterface;
 use Migration\Components\Faker\Exception as FakerException;
 use Migration\Components\Faker\Utilities;
 
-class AlphaNumeric implements TypeInterface
+class AlphaNumeric extends Type
 {
 
     /**
@@ -15,56 +14,16 @@ class AlphaNumeric implements TypeInterface
      */
     protected $formats;
     
-    /**
-      *  @var string Id for the type 
-      */
-    protected $id;
-    
-    /**
-      *  @var \Migration\Components\Faker\Utilities 
-      */
-    protected $utilities;
-    
-    /**
-     * Class constructor
-     * 
-     * @param string $id
-     * @param $string formats
-     */
-    public function __construct($id, Utilities $util ,  $formats) {
-       
-        if(empty($formats) || empty($id)) {
-            throw new FakerException('Mising required formats option or id');
-        }
-        
-        $this->id = $id;
-        $this->utilities = $util;
-        $this->formats =  $this->parseFormats($formats);
-        
-    }
     
     //  -------------------------------------------------------------------------
 
-    /**
-      *  Parse the formats into an array
-      *
-      *  @access public
-      *  @param $formats string seperated by | character
-      */    
-    public function parseFormats($formats)
-    {
-        return explode("|",(string) trim($formats));
-    }
-
-    
-    //  -------------------------------------------------------------------------
-    
     /**
      * Generate a value
      * 
      * @return string 
      */
-    public function generate($rows) {
+    public function generate($rows,$values = array())
+    {
         $formats = $this->formats;
         
         $chosen_format = $formats[0];
@@ -79,10 +38,12 @@ class AlphaNumeric implements TypeInterface
     
     //  -------------------------------------------------------------------------
 
-    public function getId()
+    public function toXml()
     {
-        return $this->id;
+       return '<datatype name="'.$this->getId().'"></datatype>' . PHP_EOL;
     }
+    
+    //  -------------------------------------------------------------------------
 
 }
 /* End of file */

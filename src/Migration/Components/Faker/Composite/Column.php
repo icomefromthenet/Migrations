@@ -157,8 +157,13 @@ class Column implements CompositeInterface
       */
     public function toXml()
     {
-        $str = sprintf('<column name="%s" type="%s">',$this->getId(),$this->getColumnType()->getName());
-        $str .= '</column>';
+        $str = '<column name="'.$this->getId().'" type="'.$this->getColumnType()->getName().'">'.PHP_EOL;
+    
+        foreach($this->getChildren() as $child) {
+            $str .= $child->toXml();
+        }
+    
+        $str .= '</column>'. PHP_EOL;
       
         return $str;
         

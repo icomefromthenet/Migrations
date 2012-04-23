@@ -12,8 +12,11 @@ require_once __DIR__ .'/base/AbstractProject.php';
 
 class WriterComponentTest extends AbstractProject
 {
+      /**
+        *  @group Writer 
+        */
       public function testManagerLoader()
-    {
+      {
         $project = $this->getProject();
 
         $manager = $project['writer_manager'];
@@ -27,7 +30,9 @@ class WriterComponentTest extends AbstractProject
 
     }
 
-
+      /**
+       *  @group Writer 
+       */
     public function testManagerGetWriter()
     {
         $project = $this->getProject();
@@ -62,7 +67,9 @@ class WriterComponentTest extends AbstractProject
     }
 
      
-    
+      /**
+        *  @group Writer 
+        */
       public function testWriterWrite()
       {
             $project = $this->getProject();
@@ -79,8 +86,6 @@ class WriterComponentTest extends AbstractProject
             $writer->write('line');
            
             $writer->flush();
-            
-            $a = 'b';
             
       }
 

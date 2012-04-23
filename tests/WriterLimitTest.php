@@ -14,7 +14,10 @@ class WriterLimitTest extends AbstractProject
 {
       //  -------------------------------------------------------------------------
       # Test Limit Class
-
+    
+    /**
+      *  @group Writer 
+      */
     public function testLimitNullValue()
     {
         # null  = no limit
@@ -23,6 +26,7 @@ class WriterLimitTest extends AbstractProject
 
     /**
       * @expectedException \InvalidArgumentException
+      * @group Writer
       */
     public function testLimitNegativeVal()
     {
@@ -31,12 +35,16 @@ class WriterLimitTest extends AbstractProject
 
     /**
       *  @expectedException \InvalidArgumentException
+      *  @group Writer
       */
     public function testLimitStringVal()
     {
       $file = new Limit('aaaa');
     }
-
+    
+    /**
+      *  @group Writer 
+      */
     public function testLimitIncrement()
     {
         $file = new Limit(100);
@@ -45,7 +53,10 @@ class WriterLimitTest extends AbstractProject
 
         $this->assertTrue(true);
     }
-
+    
+    /**
+      *  @group Writer 
+      */
     public function testLimitDeincrement()
     {
         $file = new Limit(100);
@@ -56,6 +67,9 @@ class WriterLimitTest extends AbstractProject
         $this->assertTrue(true);
     }
 
+    /**
+      *  @group Writer 
+      */
     public function testLimitIsReached()
     {
         $file = new Limit(5);
@@ -69,7 +83,10 @@ class WriterLimitTest extends AbstractProject
 
         $this->assertTrue($file->atLimit(), 'Write limt should have been reached');
     }
-
+    
+    /**
+      *  @group Writer 
+      */
     public function testLimitNotReached()
     {
         $file = new Limit(5);
@@ -79,6 +96,9 @@ class WriterLimitTest extends AbstractProject
         $this->assertFalse($file->atLimit(),'Limit should not have been reached');
     }
 
+    /**
+      *  @group Writer 
+      */
     public function testLimitReset()
     {
         $file = new Limit(5);

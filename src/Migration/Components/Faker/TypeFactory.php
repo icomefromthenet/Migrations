@@ -19,7 +19,7 @@ class TypeFactory
       *  @var 'name' => 'class'
       */
     static $types = array(
-                             
+            'alphanumeric' => '\\Migration\\Components\\Faker\\Type\\AlphaNumeric',                 
     );
 
     /**

@@ -69,7 +69,7 @@ class Builder
     protected $formatter_factory;
     
     /**
-      *  @var FormatterInterface[] the assigned writters 
+      *  @var FormatterInterface[] the assigned writers 
       */
     protected $formatters = array();
     
@@ -93,7 +93,7 @@ class Builder
     //  -------------------------------------------------------------------------
     
     
-    public function addWritter($platform,$formatter)
+    public function addWriter($platform,$formatter)
     {
         # instance a platform
         
@@ -382,9 +382,9 @@ class Builder
             throw new FakerException('Can not build no schema set');
         }
         
-        # add the writters to the composite
+        # add the writers to the composite
         
-        $this->current_schema->setWritters($this->formatters);
+        $this->current_schema->setWriters($this->formatters);
         
         # validate the composite
 

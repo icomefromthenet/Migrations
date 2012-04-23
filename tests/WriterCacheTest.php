@@ -1,5 +1,4 @@
 <?php
-
 use Migration\Project;
 use Migration\Io\Io;
 use Migration\Components\Writer\Writer;
@@ -16,7 +15,9 @@ class WriterCacheTest extends AbstractProject
      //  -------------------------------------------------------------------------
       # Test Cache Class
 
-
+    /**
+      *  @group Writer 
+      */
     public function testCacheClass()
     {
         $cache = new Cache();

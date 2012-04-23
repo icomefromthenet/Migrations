@@ -65,7 +65,7 @@ class Manager implements ManagerInterface
       */
     public function getWriter()
     {
-             
+        return $this->project['writer_manager'];     
     }
     
     //  -------------------------------------------------------------------------

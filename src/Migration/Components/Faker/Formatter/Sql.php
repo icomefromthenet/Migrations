@@ -39,7 +39,7 @@ class Sql implements FormatterInterface
     {
         return array(
             FormatEvents::onSchemaStart    => array('onSchemaStart', 0),
-            FormatEvent::onSchemaEnd       => array('onSchemaEnd', 0),
+            FormatEvents::onSchemaEnd       => array('onSchemaEnd', 0),
             FormatEvents::onTableStart     => array('onTableStart',0),
             FormatEvents::onTableEnd       => array('onTableEnd',0),
             FormatEvents::onRowStart       => array('onRowStart',0),
@@ -127,16 +127,17 @@ class Sql implements FormatterInterface
         
     }
     
-    /**
-      *  Return the assigned platform
-      *
-      *  @access public
-      *  @return Doctrine\DBAL\Platforms\AbstractPlatform
-      */
+   
     public function getPlatform()
     {
         return $this->platform;
     }
+    
+    public function getName()
+    {
+        return 'sql';
+    }
+    
     
     //  -------------------------------------------------------------------------
     # Format Events
@@ -284,6 +285,13 @@ class Sql implements FormatterInterface
         
     }
     
-    
+    //  -------------------------------------------------------------------------
+
+    public function toXml()
+    {
+        return '<writer platform="'.$this->getPlatform()->getName().'" format="'.$this->getName().'" />' . PHP_EOL;
+    }
+
+    //  -------------------------------------------------------------------------
 }
 /* End of File */

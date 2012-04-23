@@ -1,7 +1,6 @@
 <?php
 namespace Migration\Parser;
 
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 interface ParserInterface
 {

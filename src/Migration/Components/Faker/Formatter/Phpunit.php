@@ -40,7 +40,7 @@ class Phpunit implements FormatterInterface
     {
         return array(
             FormatEvents::onSchemaStart    => array('onSchemaStart', 0),
-            FormatEvent::onSchemaEnd       => array('onSchemaEnd', 0),
+            FormatEvents::onSchemaEnd       => array('onSchemaEnd', 0),
             FormatEvents::onTableStart     => array('onTableStart',0),
             FormatEvents::onTableEnd       => array('onTableEnd',0),
             FormatEvents::onRowStart       => array('onRowStart',0),
@@ -138,6 +138,11 @@ class Phpunit implements FormatterInterface
     public function getPlatform()
     {
         return $this->platform;
+    }
+
+    public function getName()
+    {
+        return 'phpunit';
     }
     
     
@@ -242,6 +247,15 @@ class Phpunit implements FormatterInterface
         
     }
     
+    //  -------------------------------------------------------------------------
+
+    public function toXml()
+    {
+        return '<writer platform="'.$this->getPlatform()->getName().'" format="'.$this->getName().'" />';
+    }
+
+    //  -------------------------------------------------------------------------
+
     
 }
 /* End of File */

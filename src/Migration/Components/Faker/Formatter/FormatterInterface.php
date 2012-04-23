@@ -70,6 +70,23 @@ interface FormatterInterface extends EventSubscriberInterface
     
     
     /**
+      *  Fetch the formatters Name
+      *
+      *  @access public
+      *  @return string the unique name
+      */
+    public function getName();
+    
+    /**
+      *  Return this object serialised to xml
+      *
+      *  @return string xml string
+      *  @access public
+      */
+    public function toXml();
+    
+    
+    /**
       *  Handles Event FormatEvents::onSchemaStart
       *
       *  @param GenerateEvent $event

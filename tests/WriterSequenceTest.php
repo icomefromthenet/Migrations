@@ -14,14 +14,19 @@ class WriterSequenceTest extends AbstractProject
 {
       //  -------------------------------------------------------------------------
       # File Sequence Tests
-
+      
+      /**
+        *  @group Writer 
+        */
       public function testNewSequence()
       {
             $seq = new Sequence('schema','table','suffix','sql');
             $this->assertInstanceOf('\Migration\Components\Writer\Sequence',$seq);
       }
 
-
+      /**
+        *  @group Writer 
+        */
       public function testSequenceReturnsValidFilename()
       {
             $seq = new Sequence('schema','table','suffix','sql');
@@ -31,7 +36,9 @@ class WriterSequenceTest extends AbstractProject
 
       }
 
-
+      /**
+        *  @group Writer 
+        */
       public function testSequenceCustomFormat()
       {
             $seq = new Sequence('schema','table','','sql','{prefix}_{body}_{seq}.{ext}');
@@ -40,7 +47,10 @@ class WriterSequenceTest extends AbstractProject
             $this->assertSame($seq->get(),'schema_table_1.sql');
 
       }
-
+      
+      /**
+        *  @group Writer 
+        */
       public function testSequenceAdd()
       {
             $seq = new Sequence('schema','table','','sql','{prefix}_{body}_{seq}.{ext}');
@@ -56,7 +66,10 @@ class WriterSequenceTest extends AbstractProject
 
             $this->assertSame(count($seq),3);
       }
-
+      
+      /**
+        *  @group Writer 
+        */
       public function testSequenceClear()
       {
             $seq = new Sequence('schema','table','','sql','{prefix}_{body}_{seq}.{ext}');

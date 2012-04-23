@@ -228,7 +228,6 @@ $project['template_manager'] = $project->share(function($project){
     # create the io dependency
 
     $io = new \Migration\Components\Templating\Io($project->getPath()->get());
-    $event = $project['event_dispatcher'];
 
     # instance the manager, no database needed here
     return new \Migration\Components\Templating\Manager($io,$project);
@@ -247,7 +246,6 @@ $project['writer_manager'] = $project->share(function($project)
 {
     # create the io dependency
     $io = new \Migration\Components\Writer\Io($project->getPath()->get());
-    $event = $project['event_dispatcher'];
 
     # instance the manager, no database needed here
     $manager = new \Migration\Components\Writer\Manager($io,$project);
@@ -259,6 +257,19 @@ $project['writer_manager'] = $project->share(function($project)
 
 });
 
+//---------------------------------------------------------------
+// Setup Writter Manager (lazy loaded)
+//
+//---------------------------------------------------------------
+
+
+$project['faker_manager'] = $project->share(function($project)
+{
+    $io = new \Migration\Components\Faker\Io($project->getPath()->get());    $event = $project['event_dispatcher'];
+   
+    return new \Migration\Components\Faker\Manager($io,$project);
+   
+});
 
 //---------------------------------------------------------------
 // Event Dispatcher

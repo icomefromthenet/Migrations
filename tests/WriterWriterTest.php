@@ -8,6 +8,9 @@ require_once __DIR__ .'/base/AbstractProject.php';
 class WriterSequenceTest extends AbstractProject
 {
 
+    /**
+      *  @group Writer 
+      */
     public function testWriterProperties()
     {
         $stream= $this->getMockBuilder('Migration\Components\Writer\Stream')
@@ -29,7 +32,9 @@ class WriterSequenceTest extends AbstractProject
     }
 
     
-   
+    /**
+      *  @group Writer 
+      */
     public function testWriteLine()
     {
         $stream= $this->getMockBuilder('Migration\Components\Writer\Stream')
@@ -72,6 +77,7 @@ class WriterSequenceTest extends AbstractProject
     /**
       *  @expectedException Migration\Components\Writer\Exception
       *  @expectedExceptionMessage a general exception
+      *  @group Writer
       */    
     public function testWriteExceptionCaught()
     {
@@ -95,7 +101,9 @@ class WriterSequenceTest extends AbstractProject
     }
     
     
-    
+    /**
+      *  @group Writer 
+      */
     public function testFlush()
     {
         $stream = $this->getMockBuilder('Migration\Components\Writer\Stream')
@@ -139,6 +147,7 @@ class WriterSequenceTest extends AbstractProject
      /**
       *  @expectedException Migration\Components\Writer\Exception
       *  @expectedExceptionMessage a general exception
+      *  @group Writer
       */    
     public function testflushCatchesException()
     {

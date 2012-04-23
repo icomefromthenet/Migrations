@@ -34,7 +34,7 @@ class Schema implements CompositeInterface
     /**
       *  @var FormatterInterface[] the assigned writters  
       */
-    protected $writters;
+    protected $writers = array();
     
     
     /**
@@ -86,17 +86,17 @@ class Schema implements CompositeInterface
        *
        *  @return FormaterInterface[] 
        */    
-    public function getWritters()
+    public function getWriters()
     {
-          return $this->writters;
+          return $this->writers;
     }
     
     /**
       *   
       */
-    public function setWritters(array $writters)
+    public function setWriters(array $writters)
     {
-        $this->writters = $writters;
+        $this->writers = $writters;
     }
     
     
@@ -153,13 +153,23 @@ class Schema implements CompositeInterface
     
     public function toXml()
     {
-          $str = sprintf('<schema name="%s">',$this->getId());
+          # schema declaration
+          
+          $str  = '<?xml version="1.0"?>' .PHP_EOL;
+          
+          $str .= '<schema name="'.$this->getId().'">' . PHP_EOL;
      
+          # generate xml def for each writter
+          
+          foreach($this->getWriters() as $writer ) {
+               $str .= $writer->toXml();
+          }
+          
           foreach($this->child_types as $child) {
                $str .= $child->toXml();     
           }
      
-          $str .= '</schema>';
+          $str .= '</schema>' . PHP_EOL;
       
           return $str;
     }
@@ -182,7 +192,7 @@ class Schema implements CompositeInterface
         }
         
         # check if a writter been set
-        if(count($this->writters) === 0) {
+        if(count($this->writers) === 0) {
           throw new FakerException('Writter not found must have atleast on writter');
         }
 

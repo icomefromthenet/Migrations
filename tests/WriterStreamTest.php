@@ -21,6 +21,9 @@ class MockSplFile {
 class WriterComponentTest extends AbstractProject
 {
     
+    /**
+      *  @group Writer 
+      */
     public function testProperties()
     {
         
@@ -48,7 +51,9 @@ class WriterComponentTest extends AbstractProject
     }
     
     
-    
+    /**
+      *  @group Writer 
+      */    
     public function testFirstLineWritesHeader()
     {
         $header_template = $this->getMockBuilder('Migration\Components\Templating\Template')

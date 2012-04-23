@@ -77,7 +77,12 @@ class FakerCompositeSchemaTest extends AbstractProject
         $schema->addChild($child_a);        
         $schema->addChild($child_b);        
         
-        $this->assertEquals('<schema name="schema_1"><table></table><table></table></schema>', $schema->toXml());
+        $xml = $schema->toXml();
+        
+        $this->assertContains('<schema name="schema_1">', $xml);
+        $this->assertContains('</schema>', $xml);
+        $this->assertContains('<?xml version="1.0"?>', $xml);
+        
     }
     
     

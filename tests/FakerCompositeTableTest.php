@@ -115,7 +115,9 @@ class FakerCompositeTableTest extends AbstractProject
         $table->addChild($child_a);        
         $table->addChild($child_b);        
         
-        $this->assertEquals('<table name="table_1" generate="0"><column></column><column></column></table>', $table->toXml());
+        $xml = $table->toXml();
+        $this->assertContains('<table name="table_1" generate="0">',$xml);
+        $this->assertContains('</table>',$xml);    
     }
     
     

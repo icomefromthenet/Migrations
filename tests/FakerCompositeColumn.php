@@ -102,7 +102,10 @@ class FakerCompositeColumnTest extends AbstractProject
         $column = new Column($id,$parent,$event,$column_type);
      
         
-        $this->assertEquals('<column name="column_1" type="type"></column>', $column->toXml());
+        $xml = $column->toXml();
+        $this->assertContains('<column name="column_1" type="type">',$xml );
+        $this->assertContains('</column>',$xml);
+    
     }
     
     

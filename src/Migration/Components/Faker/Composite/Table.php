@@ -175,13 +175,13 @@ class Table implements CompositeInterface
     
     public function toXml()
     {
-        $str = sprintf('<table name="%s" generate="0">',$this->getId());
+        $str = sprintf('<table name="%s" generate="0">',$this->getId()). PHP_EOL;
      
         foreach($this->child_types as $child) {
                $str .= $child->toXml();     
         }
      
-        $str .= '</table>';
+        $str .= '</table>' . PHP_EOL;
       
         return $str;
     }
