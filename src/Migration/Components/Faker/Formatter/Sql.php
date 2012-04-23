@@ -113,21 +113,6 @@ class Sql implements FormatterInterface
     }
     
     
-     /**
-      *  Convert php primitatives to representation
-      *  in a text file
-      *
-      *  e.g add string quotes to strings
-      *
-      *  @return mixed
-      */
-    public function convertForText($value)
-    {
-        
-        
-    }
-    
-   
     public function getPlatform()
     {
         return $this->platform;
@@ -151,7 +136,10 @@ class Sql implements FormatterInterface
     public function onSchemaStart(GenerateEvent $event)
     {
         # return the schema name as a comment
-        return  sprintf('### Creating Data for Schema %s',$event->getId());
+        $out = sprintf('### Creating Data for Schema %s'.PHP_EOL,$event->getId());
+        $this->writer->write($out);
+        
+        return  $out;
     }
     
     
@@ -162,8 +150,11 @@ class Sql implements FormatterInterface
       */
     public function onSchemaEnd(GenerateEvent $event)
     {
-         # return the schema name as a comment
-        return  sprintf('### Finished Creating Data for Schema %s',$event->getId());
+       $out = sprintf('### Finished Creating Data for Schema %s'.PHP_EOL,$event->getId());
+       $this->writer->write($out);
+       
+       # return the schema name as a comment
+       return $out;
     }
     
     
@@ -176,15 +167,16 @@ class Sql implements FormatterInterface
     {
        # build a column map
        $map = array();
-       $columns = $event->getType()->getChildren();
-       
-       foreach($columns as $column) {
+
+       foreach($event->getType()->getChildren() as $column) {
             $map[$column->getId()] = $column->getColumnType();
        }
        
        $this->column_map = $map;
        
-       return  sprintf('### Creating Data for Table %s',$event->getId());
+       $out = sprintf('### Creating Data for Table %s'.PHP_EOL,$event->getId());
+       $this->writer->write($out);
+       return  $out;
     }
     
     
@@ -198,7 +190,10 @@ class Sql implements FormatterInterface
        # unset the column map for next table
        $this->column_map = null;
        
-       return  sprintf('### Finished Creating Data for Table %s',$event->getId());
+       $out = sprintf('### Finished Creating Data for Table %s'. PHP_EOL ,$event->getId());
+       $this->writer->write($out);
+       
+       return $out;
     }
     
     
@@ -221,7 +216,7 @@ class Sql implements FormatterInterface
     public function onRowEnd(GenerateEvent $event)
     {
         # iterate over the values and convert run them through the column map
-        $map = $this->getColumnMap();
+        $map    = $this->getColumnMap();
         $values = $event->getValues();
         
         foreach($values as $key => &$value) {
@@ -230,7 +225,7 @@ class Sql implements FormatterInterface
         
         # build insert statement 
         
-        $q = $this->platform->getIdentifierQuoteCharacter();
+        $q     = $this->platform->getIdentifierQuoteCharacter();
         $table = $event->getType()->getParent()->getId();
         
         # column names add quotes to them
@@ -239,16 +234,23 @@ class Sql implements FormatterInterface
               return $q.$value.$q;
         },array_keys($values));
         
-        $column_values = array_values($values);
+        
+        $column_values = array_map(function($value){
+              return var_export($value,true);
+        }, array_values($values));
         
         if(count($column_keys) !== count($column_values)) {
             throw new FakerException('Keys do not have enough values');
         }
         
-        $stm = 'INSERT INTO '.$q. $table .$q.' (' .implode(',',$column_keys). ') VALUES ('. implode(',',$column_values) .');';
+        $stm = 'INSERT INTO '.$q. $table .$q.' (' .implode(',',$column_keys). ') VALUES ('. implode(',',$column_values) .');'.PHP_EOL;
 
-
-
+        unset($values);
+        unset($column_keys);
+        unset($column_values);
+        
+        $this->writer->write($stm);
+        
         return $stm;
         
     }

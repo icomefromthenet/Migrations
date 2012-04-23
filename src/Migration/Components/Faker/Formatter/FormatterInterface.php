@@ -59,17 +59,6 @@ interface FormatterInterface extends EventSubscriberInterface
     public function getPlatform();
     
     /**
-      *  Convert php primitatives to representation
-      *  in a text file
-      *
-      *  e.g add string quotes to strings
-      *
-      *  @return mixed
-      */
-    public function convertForText($value);
-    
-    
-    /**
       *  Fetch the formatters Name
       *
       *  @access public
@@ -84,6 +73,7 @@ interface FormatterInterface extends EventSubscriberInterface
       *  @access public
       */
     public function toXml();
+    
     
     
     /**
