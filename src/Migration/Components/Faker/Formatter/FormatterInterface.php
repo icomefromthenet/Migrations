@@ -32,9 +32,18 @@ interface FormatterInterface extends EventSubscriberInterface
     
     
     /**
-      *  Sets the write to send formatted string to 
+      *  Sets the write to send formatted string to
+      *
+      *  @param Migration\Components\Writer\WriterInterface
       */
     public function setWriter(WriterInterface $writer);
+    
+    /**
+      *  Fetches the writer
+      *
+      *  @return Migration\Components\Writer\WriterInterface
+      */
+    public function getWriter();
     
     /**
       *  Fetch a associative array column id => Doctrine\DBAL\Types\Type

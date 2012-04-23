@@ -87,6 +87,11 @@ class Sql implements FormatterInterface
         $this->writer = $writer;
     }
     
+    public function getWriter()
+    {
+        return $this->writer;
+    }
+    
     /**
       *  Returns the column map
       *
@@ -135,6 +140,12 @@ class Sql implements FormatterInterface
       */
     public function onSchemaStart(GenerateEvent $event)
     {
+
+        # set the schema prefix on writter
+        $this->writer->getStream()->getSequence()->setPrefix(strtolower($event->getId()));
+        $this->writer->getStream()->getSequence()->setSuffix('sql');
+        $this->writer->getStream()->getSequence()->setExtension('sql');
+        
         # return the schema name as a comment
         $out = sprintf('### Creating Data for Schema %s'.PHP_EOL,$event->getId());
         $this->writer->write($out);
@@ -150,6 +161,9 @@ class Sql implements FormatterInterface
       */
     public function onSchemaEnd(GenerateEvent $event)
     {
+       # flush the writer for next table
+       $this->writer->flush();
+      
        $out = sprintf('### Finished Creating Data for Schema %s'.PHP_EOL,$event->getId());
        $this->writer->write($out);
        
@@ -165,6 +179,10 @@ class Sql implements FormatterInterface
       */
     public function onTableStart(GenerateEvent $event)
     {
+       
+       # set the prefix on the writer for table 
+       $this->writer->getStream()->getSequence()->setBody(strtolower($event->getId()));
+       
        # build a column map
        $map = array();
 
@@ -187,6 +205,10 @@ class Sql implements FormatterInterface
       */
     public function onTableEnd(GenerateEvent $event)
     {
+       
+       # flush the writer for next table
+       $this->writer->flush();
+       
        # unset the column map for next table
        $this->column_map = null;
        

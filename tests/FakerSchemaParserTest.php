@@ -5,7 +5,7 @@ use Migration\Components\Faker\SchemaAnalysis;
 use Migration\Components\Faker\SchemaParser;
 use Migration\Parser\VFile;
 
-class FakerSchemaAnalysisTest extends AbstractProjectWithDb
+class FakerSchemaParserTest extends AbstractProjectWithDb
 {
 
 

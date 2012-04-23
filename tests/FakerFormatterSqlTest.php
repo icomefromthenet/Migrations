@@ -30,30 +30,66 @@ class FakerFormatterSqlTest extends AbstractProject
     }
     
     
+    protected $formatter_mock;
+    
+    
+    public function __construct()
+    {
+        parent::__construct();
+        
+        $event    = $this->getMockBuilder('\Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
+        $writer = $this->getMockBuilder('Migration\Components\Writer\WriterInterface')->setMethods(array('getStream','flush','write'))->getMock();
+        $platform          =  new Doctrine\DBAL\Platforms\MySqlPlatform();
+        $formatter         =  new Migration\Components\Faker\Formatter\Sql($event,$writer,$platform);
+    
+        $this->formatter_mock = $formatter;        
+    }
+    
+    
+    public function setUp()
+    {
+        $writer = $this->getMockBuilder('Migration\Components\Writer\WriterInterface')->setMethods(array('getStream','flush','write'))->getMock();
+        $stream = $this->getMockBuilder('Migration\Components\Writer\Stream')->disableOriginalConstructor()->getMock();
+        $sequence = $this->getMockBuilder('Migration\Components\Writer\Sequence')->disableOriginalConstructor()->getMock();
+        
+        $stream->expects($this->any())
+               ->method('getSequence')
+               ->will($this->returnValue($sequence));
+        
+        $writer->expects($this->any())
+               ->method('getStream')
+               ->will($this->returnValue($stream));
+        
+        $this->formatter_mock->setWriter($writer);
+        
+        parent::setUp();
+    }
+    
+    
     /**
       *   
       */
     public function testonSchemaStart()
     {
+        # mock the writer dep 
         
-        $project           = $this->getProject();
-        $formatter_factory = $project['faker_manager']->getFormatterFactory();
-        $platform          =  new Doctrine\DBAL\Platforms\MySqlPlatform();
-        $formatter         = $formatter_factory->create('sql',$platform);
+        $this->formatter_mock->getWriter()->getStream()->getSequence()->expects($this->once())
+                 ->method('setPrefix')
+                 ->with('schema_1');
         
-        #mock the writer ,dep outside of the component
-        $writer = $this->getMockBuilder('Migration\Components\Writer\WriterInterface')->getMockForAbstractClass();
-        $writer->expects($this->any())
-               ->method('write')
-               ->with($this->isType('string'));
+        $this->formatter_mock->getWriter()->getStream()->getSequence()->expects($this->once())
+                 ->method('setSuffix')
+                 ->with('sql');
         
-        $formatter->setWriter($writer);
+        $this->formatter_mock->getWriter()->getStream()->getSequence()->expects($this->once())
+                 ->method('setExtension')
+                 ->with('sql');                           
         
         $generate_event    = new GenerateEvent($this->getBuilderWithBasicComposite(),array(),'schema_1');
+     
         
-        $this->assertContains('schema_1',$formatter->onSchemaStart($generate_event));
+        $this->assertContains('schema_1',$this->formatter_mock->onSchemaStart($generate_event));
         
-        return $formatter;
     }
     
    
@@ -61,16 +97,18 @@ class FakerFormatterSqlTest extends AbstractProject
     /**
       *  @depends  testonSchemaStart
       */
-    public function testonTableStart(FormatterInterface $formatter)
+    public function testonTableStart()
     {
+        $this->formatter_mock->getWriter()->getStream()->getSequence()->expects($this->once())
+                                                           ->method('setBody')
+                                                           ->with('table_1');   
         $composite   = $this->getBuilderWithBasicComposite();
         $tables      = $composite->getChildren();
-
-
+       
         $generate_event    = new GenerateEvent($tables[0],array(),$tables[0]->getId());
-        $this->assertContains('### Creating Data for Table table_1',$formatter->onTableStart($generate_event));
+        $out = $this->formatter_mock->onTableStart($generate_event);
+        $this->assertContains('### Creating Data for Table table_1',$out);
         
-        return $formatter;
     }
     
     
@@ -78,17 +116,14 @@ class FakerFormatterSqlTest extends AbstractProject
     /**
       *  @depends testonTableStart 
       */
-    public function testonRowStart(FormatterInterface $formatter)
+    public function testonRowStart()
     {
         
         $composite   = $this->getBuilderWithBasicComposite();
         $tables    = $composite->getChildren();
         
         $generate_event    = new GenerateEvent($tables[0],array(),'row_1');
-        $this->assertEquals($formatter->onRowStart($generate_event),null);
-        
-        return $formatter;
-        
+        $this->assertEquals($this->formatter_mock->onRowStart($generate_event),null);
         
     }
     
@@ -96,8 +131,14 @@ class FakerFormatterSqlTest extends AbstractProject
     /**
       *  @depends  testonRowStart
       */
-    public function testonRowEnd(FormatterInterface $formatter)
+    public function testonRowEnd()
     {
+        
+        $this->testonTableStart();
+        
+         $this->formatter_mock->getWriter()->expects($this->any())
+               ->method('write')
+               ->with($this->isType('string'));
         
         $composite   = $this->getBuilderWithBasicComposite();
         $tables      = $composite->getChildren();
@@ -107,10 +148,8 @@ class FakerFormatterSqlTest extends AbstractProject
                                                       'column_2' => 5
                                                       ),'row_1');
         
-        $look = $formatter->onRowEnd($generate_event_row);
+        $look = $this->formatter_mock->onRowEnd($generate_event_row);
         $this->assertContains("INSERT INTO `schema_1` (`column_1`,`column_2`) VALUES ('a first value',5);",$look);
-        
-        return $formatter;
         
     }
     
@@ -119,16 +158,18 @@ class FakerFormatterSqlTest extends AbstractProject
     /**
       *  @depends  testonRowEnd
       */
-    public function testonTableEnd(FormatterInterface $formatter)
+    public function testonTableEnd()
     {
+    
+        $this->formatter_mock->getWriter()->expects($this->once())
+                               ->method('Flush');    
+    
         $composite   = $this->getBuilderWithBasicComposite();
         $tables    = $composite->getChildren();
-
+    
 
         $generate_event = new GenerateEvent($tables[0],array(),$tables[0]->getId());
-        $this->assertContains('### Finished Creating Data for Table table_1',$formatter->onTableEnd($generate_event));
-        
-        return $formatter;
+        $this->assertContains('### Finished Creating Data for Table table_1',$this->formatter_mock->onTableEnd($generate_event));
     }
     
     
@@ -136,14 +177,15 @@ class FakerFormatterSqlTest extends AbstractProject
      /**
       *  @depends  testonTableEnd
       */
-    public function testonSchemaEnd(FormatterInterface $formatter)
+    public function testonSchemaEnd()
     {
+        
+        $this->formatter_mock->getWriter()->expects($this->once())
+                               ->method('Flush');
+        
         $generate_event    = new GenerateEvent($this->getBuilderWithBasicComposite(),array(),'schema_1');
         
-        $this->assertContains('### Finished Creating Data for Schema schema_1',$formatter->onSchemaEnd($generate_event));
-        
-        return $formatter;
-        
+        $this->assertContains('### Finished Creating Data for Schema schema_1',$this->formatter_mock->onSchemaEnd($generate_event));
     }
     
     

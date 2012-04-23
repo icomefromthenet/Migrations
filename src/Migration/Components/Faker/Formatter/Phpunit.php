@@ -80,14 +80,15 @@ class Phpunit implements FormatterInterface
     }
     
      
-    /**
-      *  Sets the write to send formatted string to 
-      */
     public function setWriter(WriterInterface $writer)
     {
         $this->writer = $writer;
     }
     
+    public function getWriter()
+    {
+        return $this->writer;        
+    }
     
     /**
       *  Returns the column map
