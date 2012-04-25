@@ -8,6 +8,7 @@ use Migration\Io\IoInterface;
 use Migration\PlatformFactory;
 use Migration\ColumnTypeFactory;
 use Migration\Components\Faker\Formatter\FormatterFactory;
+use Migration\Components\Faker\SchemaAnalysis;
 
 
 class Manager implements ManagerInterface
@@ -116,6 +117,18 @@ class Manager implements ManagerInterface
         return new SchemaParser($this->project['event_dispatcher']);    
     }
     
+    /**
+      *  Loads the schema analyser
+      *
+      *  @access public
+      *  @return \Migration\Components\Faker\SchemaAnalysis
+      */
+    public function getSchemaAnalyser()
+    {
+        return new SchemaAnalysis();
+    }
+    
+    
     
     /**
       *  Create a new composite builder
@@ -145,5 +158,17 @@ class Manager implements ManagerInterface
     
     //  -------------------------------------------------------------------------
     
+    /**
+      *  Loads the component IO
+      *
+      *  @access public
+      *  @return Migration\Io\IoInterface
+      */    
+    public function getIo()
+    {
+        return $this->io;
+    }
+    
+    //  -------------------------------------------------------------------------
 }
 /* End of File */

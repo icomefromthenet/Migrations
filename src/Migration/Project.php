@@ -130,7 +130,7 @@ class Project extends Pimple
 
             }
             
-             #make faker extension folder
+             #make extension extension folder
             $extension_path = $folder->getBase() . DIRECTORY_SEPARATOR . 'extension';
             if (mkdir($extension_path,$mode) === TRUE) {
                 $output->writeln('<info>Created Extension Folder</info>');

@@ -11,7 +11,7 @@ class Io extends Base implements IoInterface
 {
 
 
-    protected $dir = 'faker';
+    protected $dir = 'dump';
 
 
     /*

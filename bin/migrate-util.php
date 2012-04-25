@@ -3,6 +3,7 @@
 use Migration\Project;
 use Migration\Command\Application;
 use Migration\Command\BuildFaker;
+use Migration\Command\AnalyseCommand;
 
 
 if(strpos('@PHP-BIN@', '@PHP-BIN@') === 0) {
@@ -33,8 +34,8 @@ else {
 //
 //--------------------------------------------------------------------
 
-$project->getConsole()->add(new BuildFaker('build-faker'));
-
+$project->getConsole()->add(new BuildFaker('generate'));
+$project->getConsole()->add(new AnalyseCommand('analyse'));
 
 
 //--------------------------------------------------------------------
@@ -42,7 +43,6 @@ $project->getConsole()->add(new BuildFaker('build-faker'));
 //--------------------------------------------------------------------
 
 $project->getConsole()->run();
-
 
 
 /* End of Class */

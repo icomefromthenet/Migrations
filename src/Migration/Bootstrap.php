@@ -128,6 +128,7 @@ set_exception_handler(array($project['error'],'exceptionHandler'));
 //
 //--------------------------------------------------------------
 
+$project['config_name'] = 'config';
 $project['database'] = $project->share(function($project){
 
     $config_manager = $project->getConfigManager();
@@ -137,10 +138,10 @@ $project['database'] = $project->share(function($project){
     }
 
     # if config name not set that we use the default
-    $config_name = ($project->getConfigName() === null) ?  'default.php' : $project->getConfigName(). '.php';
+    $config_name = ($project->getConfigName() === null) ?  'config.php' : $project->getConfigName(). '.php';
 
         # is the dsn set
-    if(isset($project['dsn_command']) === false) {
+    if(isset($project['dsn_command']) === true) {
 
         $dsn =  $project['dsn_command'];
         $user = $project['username_command'];

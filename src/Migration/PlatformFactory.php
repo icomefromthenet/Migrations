@@ -5,7 +5,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Migration\Components\Faker\Exception as FakerException;
 use Migration\ExtensionInterface;
 
-class PlatformFactory implements ExtensionInterface;
+class PlatformFactory implements ExtensionInterface
 {
     
     /**

@@ -70,7 +70,9 @@ class ConfigureCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $manager = $this->bootConfigManager();
+        $project = $this->getApplication()->getProject();
+    
+        $manager = $project['config_manager'];
 
         try {
 
