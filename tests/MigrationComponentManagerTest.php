@@ -1,11 +1,11 @@
 <?php
 
-require_once __DIR__ .'/base/AbstractProject.php';
+require_once __DIR__ .'/base/AbstractProjectWithDb.php';
 
 use \Migration\Components\Migration\Manager;
 
 
-class MigrationComponentManagerTest extends AbstractProject
+class MigrationComponentManagerTest extends AbstractProjectWithDb
 {
 
     /**

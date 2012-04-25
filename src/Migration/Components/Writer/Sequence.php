@@ -89,7 +89,7 @@ class Sequence implements \IteratorAggregate, \Countable
     public function __construct($prefix, $body, $suffix, $extension, $format = '{prefix}_{body}_{suffix}_{seq}.{ext}')
     {
         $this->setExtension($extension);
-        $this->setbody($body);
+        $this->setBody($body);
         $this->setFormat($format);
         $this->setPrefix($prefix);
         $this->setSuffix($suffix);

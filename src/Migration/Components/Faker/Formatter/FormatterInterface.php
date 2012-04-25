@@ -32,9 +32,18 @@ interface FormatterInterface extends EventSubscriberInterface
     
     
     /**
-      *  Sets the write to send formatted string to 
+      *  Sets the write to send formatted string to
+      *
+      *  @param Migration\Components\Writer\WriterInterface
       */
     public function setWriter(WriterInterface $writer);
+    
+    /**
+      *  Fetches the writer
+      *
+      *  @return Migration\Components\Writer\WriterInterface
+      */
+    public function getWriter();
     
     /**
       *  Fetch a associative array column id => Doctrine\DBAL\Types\Type
@@ -59,17 +68,6 @@ interface FormatterInterface extends EventSubscriberInterface
     public function getPlatform();
     
     /**
-      *  Convert php primitatives to representation
-      *  in a text file
-      *
-      *  e.g add string quotes to strings
-      *
-      *  @return mixed
-      */
-    public function convertForText($value);
-    
-    
-    /**
       *  Fetch the formatters Name
       *
       *  @access public
@@ -84,6 +82,7 @@ interface FormatterInterface extends EventSubscriberInterface
       *  @access public
       */
     public function toXml();
+    
     
     
     /**

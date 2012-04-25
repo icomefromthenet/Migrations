@@ -42,6 +42,7 @@ $symfony_auto_loader->registernamespaces(
           'Monolog'   => VENDORPATH,
           'Migration' => COREPATH,
           'Doctrine'  => VENDORPATH,
+          'Zend'      => VENDORPATH,
           
 ));
 

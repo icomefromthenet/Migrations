@@ -1,126 +1,193 @@
 <?php
 require_once __DIR__ .'/base/AbstractProject.php';
 
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Migration\Components\Writer\WriterInterface;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Migration\Components\Faker\Composite\CompositeInterface;
-
-use  Migration\Components\Faker\Formatter\Sql;
-use  Migration\Components\Faker\Formatter\GenerateEvent;
+use Migration\Components\Faker\Builder;
+use Migration\Components\Faker\Formatter\GenerateEvent;
+use Migration\Components\Faker\Formatter\FormatterInterface;
+use Doctrine\DBAL\Platforms\MySqlPlatform;
 
 class FakerFormatterSqlTest extends AbstractProject
 {
     
+    
+    protected function getBuilderWithBasicComposite()
+    {
+         # build a composite for this formatter 
+        $project = $this->getProject();
+        $builder = $project['faker_manager']->getCompositeBuilder();
+       
+        $builder->addSchema('schema_1',array())
+                ->addTable('table_1',array('generate' => 1000))
+                ->addColumn('column_1',array('type' => 'text'))
+                ->addType('alphanumeric',array())
+                ->addColumn('column_2',array('type' => 'integer'))
+                ->addType('alphanumeric',array())
+                ->addWriter('mysql','sql');
+        
+        
+        return $builder->build();
+        
+    }
+    
+    
+    protected $formatter_mock;
+    
+    
+    public function __construct()
+    {
+        parent::__construct();
+        
+        $event    = $this->getMockBuilder('\Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
+        $writer = $this->getMockBuilder('Migration\Components\Writer\WriterInterface')->setMethods(array('getStream','flush','write'))->getMock();
+        $platform          =  new Doctrine\DBAL\Platforms\MySqlPlatform();
+        $formatter         =  new Migration\Components\Faker\Formatter\Sql($event,$writer,$platform);
+    
+        $this->formatter_mock = $formatter;        
+    }
+    
+    
+    public function setUp()
+    {
+        $writer = $this->getMockBuilder('Migration\Components\Writer\WriterInterface')->setMethods(array('getStream','flush','write'))->getMock();
+        $stream = $this->getMockBuilder('Migration\Components\Writer\Stream')->disableOriginalConstructor()->getMock();
+        $sequence = $this->getMockBuilder('Migration\Components\Writer\Sequence')->disableOriginalConstructor()->getMock();
+        
+        $stream->expects($this->any())
+               ->method('getSequence')
+               ->will($this->returnValue($sequence));
+        
+        $writer->expects($this->any())
+               ->method('getStream')
+               ->will($this->returnValue($stream));
+        
+        $this->formatter_mock->setWriter($writer);
+        
+        parent::setUp();
+    }
+    
+    
+    /**
+      *   
+      */
     public function testonSchemaStart()
     {
-        $writer   = $this->getMockBuilder('Migration\Components\Writer\WriterInterface')->getMock();
-        $event    = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMockForAbstractClass();
-        $platform = new Doctrine\DBAL\Platforms\MySqlPlatform ();
-        $composite = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
+        # mock the writer dep 
         
-        $generate_event    = new GenerateEvent($composite,array(),'schema1');
-        $formatter = new Sql($event,$writer,$platform);
+        $this->formatter_mock->getWriter()->getStream()->getSequence()->expects($this->once())
+                 ->method('setPrefix')
+                 ->with('schema_1');
         
-        $this->assertEquals($formatter->onSchemaStart($generate_event),'### Creating Data for Schema schema1');
-    }
-    
-    
-    public function testonSchemaEnd()
-    {
-        $writer   = $this->getMockBuilder('Migration\Components\Writer\WriterInterface')->getMock();
-        $event    = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMockForAbstractClass();
-        $platform = new Doctrine\DBAL\Platforms\MySqlPlatform ();
-        $composite = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
+        $this->formatter_mock->getWriter()->getStream()->getSequence()->expects($this->once())
+                 ->method('setSuffix')
+                 ->with('sql');
         
-        $generate_event    = new GenerateEvent($composite,array(),'schema1');
-        $formatter = new Sql($event,$writer,$platform);
+        $this->formatter_mock->getWriter()->getStream()->getSequence()->expects($this->once())
+                 ->method('setExtension')
+                 ->with('sql');                           
         
-        $this->assertEquals($formatter->onSchemaEnd($generate_event),'### Finished Creating Data for Schema schema1');
+        $generate_event    = new GenerateEvent($this->getBuilderWithBasicComposite(),array(),'schema_1');
+     
+        
+        $this->assertContains('schema_1',$this->formatter_mock->onSchemaStart($generate_event));
         
     }
     
+   
     
+    /**
+      *  @depends  testonSchemaStart
+      */
     public function testonTableStart()
     {
-        $writer   = $this->getMockBuilder('Migration\Components\Writer\WriterInterface')->getMock();
-        $event    = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMockForAbstractClass();
-        $platform = new Doctrine\DBAL\Platforms\MySqlPlatform ();
-        $composite = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
-        
-        $generate_event    = new GenerateEvent($composite,array(),'table1');
-        $formatter = new Sql($event,$writer,$platform);
-        
-        $this->assertEquals($formatter->onTableStart($generate_event),'### Creating Data for Table table1');
-        
-        
-    }
-    
-    public function testonTableEnd()
-    {
-        $writer   = $this->getMockBuilder('Migration\Components\Writer\WriterInterface')->getMock();
-        $event    = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMockForAbstractClass();
-        $platform = new Doctrine\DBAL\Platforms\MySqlPlatform ();
-        $composite = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
-        
-        $generate_event    = new GenerateEvent($composite,array(),'table1');
-        $formatter = new Sql($event,$writer,$platform);
-        
-        $this->assertEquals($formatter->onTableEnd($generate_event),'### Finished Creating Data for Table table1');
-        
+        $this->formatter_mock->getWriter()->getStream()->getSequence()->expects($this->once())
+                                                           ->method('setBody')
+                                                           ->with('table_1');   
+        $composite   = $this->getBuilderWithBasicComposite();
+        $tables      = $composite->getChildren();
+       
+        $generate_event    = new GenerateEvent($tables[0],array(),$tables[0]->getId());
+        $out = $this->formatter_mock->onTableStart($generate_event);
+        $this->assertContains('### Creating Data for Table table_1',$out);
         
     }
     
     
+   
+    /**
+      *  @depends testonTableStart 
+      */
     public function testonRowStart()
     {
-        $writer   = $this->getMockBuilder('Migration\Components\Writer\WriterInterface')->getMock();
-        $event    = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMockForAbstractClass();
-        $platform = new Doctrine\DBAL\Platforms\MySqlPlatform ();
-        $composite = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
         
-        $generate_event    = new GenerateEvent($composite,array(),'row_1');
-        $formatter = new Sql($event,$writer,$platform);
+        $composite   = $this->getBuilderWithBasicComposite();
+        $tables    = $composite->getChildren();
         
-        $this->assertEquals($formatter->onRowStart($generate_event),null);
-        
+        $generate_event    = new GenerateEvent($tables[0],array(),'row_1');
+        $this->assertEquals($this->formatter_mock->onRowStart($generate_event),null);
         
     }
     
-     public function testonRowEnd()
+    
+    /**
+      *  @depends  testonRowStart
+      */
+    public function testonRowEnd()
     {
-        $writer   = $this->getMockBuilder('Migration\Components\Writer\WriterInterface')->getMock();
-        $event    = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMockForAbstractClass();
         
-        $parent    = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMockForAbstractClass();
-        $parent->expects($this->once())
-               ->method('getId')
-               ->will($this->returnValue('table1'));
-               
-        $platform = $this->getMockBuilder('Doctrine\DBAL\Platforms\MySqlPlatform')->getMock();
-        $platform->expects($this->once())
-                 ->method('getIdentifierQuoteCharacter')
-                 ->will($this->returnValue('`'));
+        $this->testonTableStart();
         
-        $composite = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMockForAbstractClass();
-        $composite->expects($this->once())
-                  ->method('getParent')
-                  ->will($this->returnValue($parent));
+         $this->formatter_mock->getWriter()->expects($this->any())
+               ->method('write')
+               ->with($this->isType('string'));
         
-        $generate_event    = new GenerateEvent($composite,array(
-                                                      'key_1' => 'a first value',
-                                                      'key_2' => 5,
-                                                      'Key3' => false),'row_1');
+        $composite   = $this->getBuilderWithBasicComposite();
+        $tables      = $composite->getChildren();
+
+        $generate_event_row      = new GenerateEvent($tables[0],array(
+                                                      'column_1' => 'a first value',
+                                                      'column_2' => 5
+                                                      ),'row_1');
         
-        $formatter = new Sql($event,$writer,$platform);
-        
-        $look = $formatter->onRowEnd($generate_event);
-        
-        //$this->assertEquals(,'');
-        
-        var_dump($look);
+        $look = $this->formatter_mock->onRowEnd($generate_event_row);
+        $this->assertContains("INSERT INTO `schema_1` (`column_1`,`column_2`) VALUES ('a first value',5);",$look);
         
     }
+    
+    
+   
+    /**
+      *  @depends  testonRowEnd
+      */
+    public function testonTableEnd()
+    {
+    
+        $this->formatter_mock->getWriter()->expects($this->once())
+                               ->method('Flush');    
+    
+        $composite   = $this->getBuilderWithBasicComposite();
+        $tables    = $composite->getChildren();
+    
+
+        $generate_event = new GenerateEvent($tables[0],array(),$tables[0]->getId());
+        $this->assertContains('### Finished Creating Data for Table table_1',$this->formatter_mock->onTableEnd($generate_event));
+    }
+    
+    
+   
+     /**
+      *  @depends  testonTableEnd
+      */
+    public function testonSchemaEnd()
+    {
+        
+        $this->formatter_mock->getWriter()->expects($this->once())
+                               ->method('Flush');
+        
+        $generate_event    = new GenerateEvent($this->getBuilderWithBasicComposite(),array(),'schema_1');
+        
+        $this->assertContains('### Finished Creating Data for Schema schema_1',$this->formatter_mock->onSchemaEnd($generate_event));
+    }
+    
     
 }
 /* End of File */

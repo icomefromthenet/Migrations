@@ -80,14 +80,15 @@ class Phpunit implements FormatterInterface
     }
     
      
-    /**
-      *  Sets the write to send formatted string to 
-      */
     public function setWriter(WriterInterface $writer)
     {
         $this->writer = $writer;
     }
     
+    public function getWriter()
+    {
+        return $this->writer;        
+    }
     
     /**
       *  Returns the column map
@@ -114,20 +115,6 @@ class Phpunit implements FormatterInterface
         return $map[$key]->convertToDatabaseValue($value,$this->getPlatform());
     }
     
-    
-     /**
-      *  Convert php primitatives to representation
-      *  in a text file
-      *
-      *  e.g add string quotes to strings
-      *
-      *  @return mixed
-      */
-    public function convertForText($value)
-    {
-        
-        
-    }
     
     /**
       *  Return the assigned platform
