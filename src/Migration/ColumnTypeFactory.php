@@ -4,8 +4,9 @@ namespace Migration;
 use Migration\Components\Faker\Exception as FakerException;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\DBALException;
+use Migration\ExtensionInterface;
 
-class ColumnTypeFactory
+class ColumnTypeFactory implements ExtensionInterface
 {
     
     /**

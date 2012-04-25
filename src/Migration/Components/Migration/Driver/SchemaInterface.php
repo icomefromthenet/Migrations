@@ -1,7 +1,7 @@
 <?php
 namespace Migration\Components\Migration\Driver;
 
-use Doctrine\DBAL\Connection;
+
 use Migration\Components\Migration\MigrationFileInterface;
 use Migration\Components\Migration\Collection;
 

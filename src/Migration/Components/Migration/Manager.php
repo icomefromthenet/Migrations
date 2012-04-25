@@ -5,6 +5,8 @@ use Migration\Project;
 
 use Migration\Components\Migration\Driver\SchemaInterface;
 use Migration\Components\Migration\Driver\TableInterface;
+use Migration\Components\Migration\Driver\SchemaManagerFactory;
+use Migration\Components\Migration\Driver\TableManagerFactory;
 use Migration\Components\Migration\Exception as MigrationException;
 use Migration\Components\ManagerInterface;
 use Migration\Io\IoInterface;
@@ -231,93 +233,28 @@ class Manager
     //  -------------------------------------------------------------------------
 
     /**
-      *  Fetch the Schema Manager
+      *  Fetch the Schema Manager Factory
       *
-      *  @return Migration\Components\Migration\Driver\SchemaInterface
+      *  @return Migration\Components\Migration\Driver\SchemaManagerFactory
       *  @access public
       */    
-    public function getSchemaManager()
+    public function getSchemaManagerFactory()
     {
-        $driver_class   = get_Class($this->database->getDriver());
-        $drivers = array(
-            'Doctrine\DBAL\Driver\PDOMySql\Driver'  => 'Mysql' ,
-            'Doctrine\DBAL\Driver\PDOSqlite\Driver' => 'Sqlite' ,
-            'Doctrine\DBAL\Driver\PDOPgSql\Driver'  => 'Pgsql' ,
-            'Doctrine\DBAL\Driver\PDOOracle\Driver' => 'Oci' ,
-            'Doctrine\DBAL\Driver\OCI8\Driver'      => 'Oci8' ,
-            'Doctrine\DBAL\Driver\IBMDB2\DB2Driver' => 'Db2' ,
-            'Doctrine\DBAL\Driver\PDOIbm\Driver'    => 'Ibm' ,
-            'Doctrine\DBAL\Driver\PDOSqlsrv\Driver' => 'Sqlsrv' ,
-            'Doctrine\DBAL\Driver\Mysqli\Driver'    => 'Mysqli' 
-        );
-        
-        if(isset($drivers[$driver_class]) === false) {
-          throw new MigrationException('Unsupported Doctine Driver given');  
-        } 
-        
-        $class   = __NAMESPACE__ '/Driver/'.$drivers[$driver_class].'/SchemaManager';
-        $generic = __NAMESPACE__ '/Driver/Generic/SchemaManager';
-    
-    
-        if(class_exists($class) === true) {
-            $class = new $class($this->project['logger'],
-                                $this->project['console_output'],
-                                $this->project['database']);
-        } else {
-            $class = new $generic($this->project['logger'],
-                                  $this->project['output'],
-                                  $this->project['database']);
-        }
-    
-        return $class;
+        return new SchemaManagerFactory($this->project['logger'],$this->project['console_output'],$this->project['database']);
     }
     
     /**
-      *  Fetch the Table Manager
+      *  Fetch the Table Manager Factory
       *
-      *  @return Migration\Components\Migration\Driver\TableManager
+      *  @return Migration\Components\Migration\Driver\TableManagerFactory
       *  @access public
       */
-    public function getTableManager()
+    public function getTableManagerFactory()
     {
-        $driver_class   = get_Class($this->database->getDriver());
-        $drivers = array(
-            'Doctrine\DBAL\Driver\PDOMySql\Driver'  => 'Mysql' ,
-            'Doctrine\DBAL\Driver\PDOSqlite\Driver' => 'Sqlite' ,
-            'Doctrine\DBAL\Driver\PDOPgSql\Driver'  => 'Pgsql' ,
-            'Doctrine\DBAL\Driver\PDOOracle\Driver' => 'Oci' ,
-            'Doctrine\DBAL\Driver\OCI8\Driver'      => 'Oci8' ,
-            'Doctrine\DBAL\Driver\IBMDB2\DB2Driver' => 'Db2' ,
-            'Doctrine\DBAL\Driver\PDOIbm\Driver'    => 'Ibm' ,
-            'Doctrine\DBAL\Driver\PDOSqlsrv\Driver' => 'Sqlsrv' ,
-            'Doctrine\DBAL\Driver\Mysqli\Driver'    => 'Mysqli' 
-        );
-        
-        if(isset($drivers[$driver_class]) === false) {
-          throw new MigrationException('Unsupported Doctine Driver given');  
-        } 
-        
-        $class   = __NAMESPACE__ '/Driver/'.$drivers[$driver_class].'/TableManager';
-        $generic = __NAMESPACE__ '/Driver/Generic/TableManager';
-    
-    
-        if(class_exists($class) === true) {
-            $class = new $class($this->project['database'],
-                                $this->project['logger'],
-                                $this->config->migrationtable );
-        } else {
-            $class = new $generic($this->project['database'],
-                                  $this->project['logger'],
-                                  $this->config->migrationtable );
-        }
-    
-        return $class;
+        return new TableManagerFactory($this->project['database'],$this->project['logger']);
     }
     
     //  -------------------------------------------------------------------------
-    
-    
-   
     
     
 }

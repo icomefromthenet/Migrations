@@ -5,6 +5,7 @@ use Migration\Components\Faker\Utilities;
 use Migration\Components\Faker\Exception as FakerException;
 use Migration\Components\Faker\TypeConfigInterface;
 use Migration\Components\Faker\Composite\CompositeInterface;
+use Migration\ExtensionInterface;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -12,7 +13,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
   *  Construct new DatatypeConfig objects under the namespace Migration\Components\Faker\Config
   *  these config objects are factories for their partner datatypes.
   */
-class TypeFactory
+class TypeFactory implements ExtensionInterface
 {
 
     /**

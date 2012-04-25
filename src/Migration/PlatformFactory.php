@@ -3,8 +3,9 @@ namespace Migration;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Migration\Components\Faker\Exception as FakerException;
+use Migration\ExtensionInterface;
 
-class PlatformFactory
+class PlatformFactory implements ExtensionInterface;
 {
     
     /**

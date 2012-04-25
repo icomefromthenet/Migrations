@@ -16,6 +16,9 @@ use Migration\PlatformFactory;
 use Migration\ColumnTypeFactory;
 use Migration\Components\Faker\Formatter\FormatterFactory;
 use Migration\Components\Faker\TypeFactory;
+use Migration\Components\Migration\Driver\SchemaManagerFactory;
+use Migration\Components\Migration\Driver\TableManagerFactory;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -81,13 +84,41 @@ use Migration\Components\Faker\TypeFactory;
 | Faker Formatters
 |--------------------------------------------------------------------------
 |
-| Regiater a new formatter, which control how data is written to the writter
+| Register a new formatter, which control how data is written to the writter
 |
 | FormatterFactory::registerExtension('mongo','Migration\\Components\\Extension\\Faker\\Formatter\\Mongo');
 |
 */ 
     
   //FormatterFactory::registerExtension('mongo','Migration\\Components\\Extension\\Faker\\Formatter\\Mongo');
-   
+
+
+/*
+|--------------------------------------------------------------------------
+| Migration Table Managers
+|--------------------------------------------------------------------------
+|
+| Register a new table manager, which control the migration table
+|
+| TableManagerFactory::registerExtension('mongo','Migration\\Components\\Extension\\Migration\\Driver\\Mongo\\TableManager');
+|
+*/
+
+    //TableManagerFactory::registerExtension('mongo','Migration\\Components\\Extension\\Migration\\Driver\\Mongo\\TableManager');
+
+
+/*
+|--------------------------------------------------------------------------
+| Migration Schema Managers
+|--------------------------------------------------------------------------
+|
+| Register a new schema manager, which control how a schema is setup and torn down
+|
+| SchemaManagerFactory::registerExtension('mongo','Migration\\Components\\Extension\\Migration\\Driver\\Mongo\\SchemaManager');
+|
+*/
+
+    //SchemaManagerFactory::registerExtension('mongo','Migration\\Components\\Extension\\Migration\\Driver\\Mongo\\SchemaManager');
+
 
 /* End of File */

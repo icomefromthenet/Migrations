@@ -5,8 +5,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Doctrine\DBAL\Platforms\AbstractPlatform as Platform;
 use Migration\Components\Writer\Manager as WriterManager;
 use Migration\Components\Faker\Exception as FakerException;
+use Migration\ExtensionInterface;
 
-class FormatterFactory
+class FormatterFactory implements ExtensionInterface
 {
     
     /**
