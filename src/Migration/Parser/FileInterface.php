@@ -15,5 +15,8 @@ interface FileInterface
     function feof();
 
     function fclose();
+    
+    function filesize();
+   
 }
 /* End of File */

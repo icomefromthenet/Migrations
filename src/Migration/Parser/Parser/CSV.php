@@ -31,7 +31,8 @@ class CSV implements ParserInterface
 
     //--------------------------------------------------------------------------
 
-    public function read(FileInterface $file) {
+    public function read(FileInterface $file)
+    {
 
         $done = false;
         $field = "";
@@ -150,7 +151,7 @@ class CSV implements ParserInterface
                 ++$row;
 
                 // send the record to the event
-                $this->event_class->dispatch('row_parsed',new HeaderParsed($user_record,$row));
+                $this->event_class->dispatch('row_parsed',new RowParsed($user_record,$row));
             }
         }
 

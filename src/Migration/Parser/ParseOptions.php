@@ -22,8 +22,9 @@ class ParseOptions
    //---------------------------------------------------------------------------
    
    /**
-    * Type of parser to use [xml | csv]
-    * @return string 
+    * Type of parser to use
+    * 
+    * @return string xml|csv|yaml|simplexml
     */
    public function getParser()
    {
@@ -31,8 +32,9 @@ class ParseOptions
    }
 
    /**
-    * Type of parser to use 
-    * @var string [xml | csv]
+    * Type of parser to use
+    * 
+    * @var string xml | csv | yaml | simplexml
     */
    public function setParser($parser)
    {

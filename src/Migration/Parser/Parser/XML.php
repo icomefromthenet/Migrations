@@ -4,8 +4,6 @@ namespace Migration\Parser\Parser;
 use Migration\Parser\ParserInterface;
 use Migration\Parser\FileInterface;
 use Migration\Parser\ParseOptions;
-use Migration\Parser\Event\HeaderParsed;
-use Migration\Parser\Event\RowParsed;
 use Migration\Parser\Exception\RegisterParserFailure;
 use Migration\Parser\Exception\PHPXmlParserError;
 use Migration\Parser\Exception as ParserException;

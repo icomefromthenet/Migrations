@@ -8,6 +8,16 @@ class File implements FileInterface
     
     protected $file_handler;
     
+    protected $file_size;
+    
+    //  -------------------------------------------------------------------------
+    
+    public function filesize()
+    {
+        return $this->file_size;
+    }
+    
+    
     //--------------------------------------------------------------------------
     
     public function fclose()
@@ -45,6 +55,9 @@ class File implements FileInterface
             throw new CantOpenFile($filename);
         }
         
+        # set the size while have the filename
+        $this->file_size = filesize($filename);
+           
         return $this->file_handler;
     }
 

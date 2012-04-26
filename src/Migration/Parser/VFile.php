@@ -17,8 +17,16 @@ class VFile implements FileInterface
         } else {
             $this->stringDat = $string;    
         }
-    }
         
+        $this->stringLen = strlen($this->stringDat);
+
+    }
+    
+    public function filesize()
+    {
+        return $this->stringLen;    
+    }
+    
     public function fclose()
     {
        return TRUE;
