@@ -35,7 +35,9 @@ class FakerTypeFactoryTest extends AbstractProject
     {
         $id = 'schema_1';
         $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
-        $utilities = $this->getMockBuilder('Migration\Components\Faker\Utilities')->getMock();
+        $utilities = $this->getMockBuilder('Migration\Components\Faker\Utilities')
+                        ->disableOriginalConstructor()
+                        ->getMock();
 
         $this->assertInstanceOf('Migration\Components\Faker\TypeFactory',new TypeFactory($utilities,$event));        
     }
@@ -46,7 +48,9 @@ class FakerTypeFactoryTest extends AbstractProject
     {
         $id = 'schema_1';
         $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
-        $utilities = $this->getMockBuilder('Migration\Components\Faker\Utilities')->getMock();
+        $utilities = $this->getMockBuilder('Migration\Components\Faker\Utilities')
+                          ->disableOriginalConstructor()
+                          ->getMock();
         $parent = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
         
         $mock = $this->getMockBuilder('Migration\Components\Faker\Type\Type')
@@ -73,7 +77,9 @@ class FakerTypeFactoryTest extends AbstractProject
     {
         $id = 'schema_1';
         $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
-        $utilities = $this->getMockBuilder('Migration\Components\Faker\Utilities')->getMock();
+        $utilities = $this->getMockBuilder('Migration\Components\Faker\Utilities')
+                          ->disableOriginalConstructor()
+                          ->getMock();
         $parent = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
         
         $mock = $this->getMockBuilder('Migration\Components\Faker\Type\Type')
@@ -98,7 +104,10 @@ class FakerTypeFactoryTest extends AbstractProject
     {
         $id = 'schema_1';
         $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
-        $utilities = $this->getMockBuilder('Migration\Components\Faker\Utilities')->getMock();
+        $utilities = $this->getMockBuilder('Migration\Components\Faker\Utilities')
+                          ->disableOriginalConstructor()
+                          ->getMock();
+                          
         $parent = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
         
         $mock = $this->getMockBuilder('Migration\Components\Faker\Type\Type')

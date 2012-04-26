@@ -293,3 +293,16 @@ $project['console_output'] = $project->share(function($project){
    return new \Symfony\Component\Console\Output\ConsoleOutput();
 });
 
+//---------------------------------------------------------------
+// Source IO (used to load files from source dir in project)
+// 
+//---------------------------------------------------------------
+
+$project['source_io'] = $project->share(function($project){
+   $io = new \Migration\Io\Io($project->getPath()->get());
+   $io->setProjectPath('source'); 
+   return $io;
+});
+
+
+

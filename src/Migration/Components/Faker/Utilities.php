@@ -1,10 +1,36 @@
 <?php
 namespace Migration\Components\Faker;
 
+use Migration\Project;
+
+/**
+  *  This class contains some common methods used to generate
+  *  data.
+  *
+  *  Also provides all dependecies to the DataTypes hiding the
+  *  implementation of the global di class, this is needed to
+  *  prevent developers DataType extensions from breaking due
+  *  changes in the format of the Dependency Injector.
+  */
 class Utilities
 {
-
-
+    /**
+      *  @var Migration\Project the global dependency injector 
+      */
+    protected $di;
+   
+    
+   /**
+     *  Class Constructor
+     *
+     *  @var Migration/Project $di
+     */
+    public function __construct(Project $di)
+    {
+        $this->di = $di;
+    }
+   
+   
     //--------------------------------------------------------
 
     /**
@@ -42,6 +68,7 @@ class Utilities
 
         return \join(" ", $word_array);
     }
+
 
     //  -------------------------------------------------------------------------
 
@@ -98,18 +125,28 @@ class Utilities
         // unescaped x's to 0-9.
         $new_str = "";
         for ($i = 0; $i < \strlen($str); $i++) {
+            
             switch ($str[$i]) {
                 // Numbers
-                case "X": $new_str .= \rand(1, 9);
-                    break;
-                case "x": $new_str .= \rand(0, 9);
-                    break;
-
+                case "X":
+                    $new_str .= \rand(1, 9);
+                break;
+                case "x":
+                    $new_str .= \rand(0, 9);
+                break;
+                
+                // Hex
+                case "H":
+                    $new_str .= $hex[\rand(0, \strlen($hex) - 1)];
+                break;
+                    
                 // Letters
-                case "L": $new_str .= $letters[\rand(0, \strlen($letters) - 1)];
-                    break;
-                case "l": $new_str .= \strtolower($letters[\rand(0, \strlen($letters) - 1)]);
-                    break;
+                case "L":
+                    $new_str .= $letters[\rand(0, \strlen($letters) - 1)];
+                break;
+                case "l":
+                    $new_str .= \strtolower($letters[\rand(0, \strlen($letters) - 1)]);
+                break;
                 case "D":
                     $bool = \rand() & 1;
                     if ($bool)
@@ -119,10 +156,12 @@ class Utilities
                     break;
 
                 // Consonants
-                case "C": $new_str .= $consonants[\rand(0, \strlen($consonants) - 1)];
-                    break;
-                case "c": $new_str .= \strtolower($consonants[\rand(0, \strlen($consonants) - 1)]);
-                    break;
+                case "C":
+                    $new_str .= $consonants[\rand(0, \strlen($consonants) - 1)];
+                break;
+                case "c":
+                    $new_str .= \strtolower($consonants[\rand(0, \strlen($consonants) - 1)]);
+                break;
                 case "E":
                     $bool = \rand() & 1;
                     if ($bool)
@@ -132,10 +171,12 @@ class Utilities
                     break;
 
                 // Vowels
-                case "V": $new_str .= $vowels[\rand(0, \strlen($vowels) - 1)];
-                    break;
-                case "v": $new_str .= \strtolower($vowels[\rand(0, \strlen($vowels) - 1)]);
-                    break;
+                case "V":
+                    $new_str .= $vowels[\rand(0, \strlen($vowels) - 1)];
+                break;
+                case "v":
+                    $new_str .= \strtolower($vowels[\rand(0, \strlen($vowels) - 1)]);
+                break;
                 case "F":
                     $bool = \rand() & 1;
                     if ($bool)
@@ -143,14 +184,9 @@ class Utilities
                     else
                         $new_str .= \strtolower($vowels[rand(0, \strlen($vowels) - 1)]);
                     break;
-
-                case "H":
-                    $new_str .= $hex[\rand(0, \strlen($hex) - 1)];
-                    break;
-
                 default:
                     $new_str .= $str[$i];
-                    break;
+                break;
             }
         }
 
@@ -229,35 +265,87 @@ class Utilities
         }
     }
     
-    //  -------------------------------------------------------------------------
-
-    /**
-      *  Convert Simplexml to array 
-      */
-    function xmlToArray($xml)
-    {
-        
-        if ($xml instanceof \SimpleXMLElement) {
-		$attributes = $xml->attributes();
-		foreach($attributes as $k=>$v) {
-			if ($v) $a[$k] = (string) $v;
-		}
-		$x = $xml;
-		$xml = get_object_vars($xml);
-	}
-        
-	if (is_array($xml)) {
-		if (count($xml) == 0) return (string) $x; // for CDATA
-		foreach($xml as $key=>$value) {
-			$r[$key] = $this->xmlToArray($value);
-		}
-		if (isset($a)) $r['@attributes'] = $a;    // Attributes
-		return $r;
-	}
-	return (string) $xml;
-
-    }
     
     //  -------------------------------------------------------------------------
+    # Dependencies
+    
+    /**
+      * Fetch a faker database
+      *
+      * @access public
+      * @return \Doctine\DBAL\Connection
+      */
+    public function getGeneratorDatabase()
+    {
+        return $this->di['faker_database'];
+    }
+    
+    /**
+      *  Fetch the template manager
+      *
+      *  @access public
+      *  @return \Migration\Components\Templating\Manager
+      */
+    public function getTemplatingManager()
+    {
+        return $this->di['template_manager'];        
+    }
+    
+    /**
+      *  Fetch the Writer manager
+      *
+      *  @access public
+      *  @return \Migration\Components\Writer\Manager 
+      */
+    public function getWriterManager()
+    {
+        return $this->di['writer_manager'];
+    }
+    
+    /**
+      *  Fetch the Faker manager
+      *
+      *  @access public
+      *  @return \Migration\Components\Faker\Manager
+      */
+    public function getFakerManager()
+    {
+        return $this->di['faker_manager'];
+    }
+    
+       
+    /**
+      *  Fetch the Migration manager
+      *
+      *  @access public
+      *  @return \Migration\Components\Migration\Manager
+      */
+    public function getMigrationManager()
+    {
+        return $this->di['migration_manager'];
+    }
+
+    /**
+      *  Fetch the Config manager
+      *
+      *  @access public
+      *  @return \Migration\Components\Config\Manager
+      */
+    public function getConfigManager()
+    {
+        return $this->di['config_manager'];
+    }
+
+    /**
+      *  Fetch the Source IO
+      *
+      *  @access public
+      *  @return \Migration\Io\Io
+      */    
+    public function getSourceIo()
+    {
+        return $this->di['source_io'];
+    }
+    
 }
 /* End of File */

@@ -129,10 +129,10 @@ class Type implements CompositeInterface, TypeConfigInterface
     
     //  -------------------------------------------------------------------------
      
-     public function validate()
-     {
-        return false;        
-     }
+    public function validate()
+    {
+	return false;        
+    }
 
     //  ------------------------------------------------------------------------	# Block Name
 
