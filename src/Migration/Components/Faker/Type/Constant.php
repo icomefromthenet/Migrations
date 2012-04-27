@@ -1,65 +1,16 @@
 <?php
 namespace Migration\Components\Faker\Type;
 
-use Migration\Components\Faker\TypeInterface;
 use Migration\Components\Faker\Exception as FakerException;
 use Migration\Components\Faker\Utilities;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Symfony\Component\Config\Definition\Processor;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
-class Constant implements TypeInterface
+class Constant extends Type
 {
-
-    
-    /**
-     * A list of vales to use seperated by '|' char
-     * e.g male|female|both
-     * 
-     * @var string 
-     */
-    protected $values;
-   
-    /**
-     * Number loops for each options
-     * e.g male|female with loop of 60 will five 60 male and 60 female and restart
-     * 
-     * @var integer
-     */
-    protected $loop_count;
-
-    /**
-      *  @var string the components id 
-      */
-    protected $id;
-    
-    /**
-      *  @var Migration\Components\Faker\Utilities 
-      */
-    protected $utilities;
-
-    
-    //---------------------------------------------------------
-    
-    /**
-     * Class Constructor
-     * 
-     * @param string $id
-     */
-    public function __construct($id, Utilities $util, $values,$loop_count = 1)
-    {
-        if (empty($values)) {
-            throw new FakerException('Missing required value');
-        }
-        
-        $this->values = explode('|', $values);
-        $this->id = $id;
-        $this->utilities = $util;   
-        
-        if (is_numeric($loop_count) === false) {
-            throw new FakerException('Loop count must be a number'); 
-        }
-        
-        $this->loop_count = (integer) $loop_count;
-
-    }
     
     //----------------------------------------------------------
     /**
@@ -68,33 +19,62 @@ class Constant implements TypeInterface
      * @return string
      * @param interger $rows
      */
-    public function generate($rows)
+    public function generate($rows,$values = array())
     {
-
-        $num_values = count($this->values);
-        $value = null;
-
-        if ($num_values === 1)
-            $value = $this->values[0];
-            
-        else {
-                $item_index = floor(($rows - 1) / $this->loop_count);
-
-                if ($item_index > ($num_values - 1)) {
-                   $item_index = ($item_index % $num_values);
-                }
-
-                $value = $this->values[$item_index];
-        }    
-
-        return $value;
+        return $this->getOption('value');
     }
 
     //  -------------------------------------------------------------------------
 
-    public function getId()
+    public function toXml()
     {
-        return $this->id;
+       return '<datatype name="'.$this->getId().'"></datatype>' . PHP_EOL;
+    }
+ 
+    //  -------------------------------------------------------------------------
+
+   /**
+     * Generates the configuration tree builder.
+     *
+     * @return \Symfony\Component\Config\Definition\Builder\TreeBuilder The tree builder
+     */
+    public function getConfigTreeBuilder()
+    {
+        $treeBuilder = new TreeBuilder();
+        $rootNode = $treeBuilder->root('config');
+
+        $rootNode
+            ->children()
+                ->scalarNode('value')
+                    ->isRequired()
+                    ->setInfo('The constant value to use')
+                ->end()
+            ->end();
+            
+        return $treeBuilder;
+    }
+    
+    //  -------------------------------------------------------------------------
+
+    public function merge($config)
+    {
+        try {
+            
+            $processor = new Processor();
+            return $processor->processConfiguration($this, array('config' => $config));
+            
+        }catch(InvalidConfigurationException $e) {
+            
+            throw new FakerException($e->getMessage());
+        }
+    }
+    
+    //  -------------------------------------------------------------------------
+    
+    public function validate()
+    {
+        $this->options = $this->merge($this->options);
+        return true;
     }
     
     //  -------------------------------------------------------------------------

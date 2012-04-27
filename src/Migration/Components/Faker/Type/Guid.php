@@ -1,7 +1,16 @@
 <?php
 namespace Migration\Components\Faker\Type;
 
-class Guid extends Abstract_DataType implements Interface_DataType {
+use Migration\Components\Faker\Exception as FakerException;
+use Migration\Components\Faker\Utilities;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Symfony\Component\Config\Definition\Processor;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+
+class Guid extends Type
+{
 
     /**
      * A cache of previous generated GUIDs
@@ -46,7 +55,8 @@ class Guid extends Abstract_DataType implements Interface_DataType {
      * 
      * @return string 
      */
-    public function generate() {
+     public function generate($rows, array $values = null)
+     {
         $guid = NULL;
 
         if (parent::generate() === TRUE) {

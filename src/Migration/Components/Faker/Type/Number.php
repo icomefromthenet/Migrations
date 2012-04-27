@@ -9,47 +9,23 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
-class Date extends Type
+class Number extends Type
 {
 
-    /**
-      *  @var \DateTime the most recent date 
-      */
-    protected $current_date;
-
-
-    //-------------------------------------------------------------
-    /**
-     * Generates a random date from a range
-     *
-     * @return string 
-     */
+    
     public function generate($rows, $values = array())
     {
-        $date   = $this->getOption('start');
-        $modify = $this->getOption('modify');
-        $max    = $this->getOption('max');
+        $min = $this->getOption('min');
+        $max = $this->getOption('max');
+        $step = $this->getOption('step');
         
-        # on first call clone the origin date        
-        if($this->current_date === null) {
-            $this->current_date = clone $date;
-        }
-        else {
-            # on consecutive calls apply the modify value
-            $this->current_date->modify($modify);
-        }
         
-        # check if the origin has exceeded the max
         
-        if($max instanceof \DateTime) {
-            if($this->current_date->getTimestamp() > $max->getTimestamp()) {
-                $this->current_date = clone $date;
-            }
-        }
-          
-        # return new instance so later calles don't change        
-        return clone $this->current_date;
+        $value = null;
+        
+        return $value;
     }
+
     
     //  -------------------------------------------------------------------------
 
@@ -57,10 +33,11 @@ class Date extends Type
     {
        return '<datatype name="'.$this->getId().'"></datatype>' . PHP_EOL;
     }
- 
+    
     //  -------------------------------------------------------------------------
 
-   /**
+    
+    /**
      * Generates the configuration tree builder.
      *
      * @return \Symfony\Component\Config\Definition\Builder\TreeBuilder The tree builder
@@ -72,47 +49,45 @@ class Date extends Type
 
         $rootNode
             ->children()
-                ->scalarNode('start')
+                ->scalarNode('min')
                     ->isRequired()
-                    ->setInfo('The DateTime strtotime to use as base')
-                    ->setExample('Auguest 18 1818')
+                    ->setInfo('Starting Number')
+                    ->setExample('A numeric number like 1 or 1.67 or 0.87')
                     ->validate()
                         ->ifTrue(function($v){
-                            try {
-                                  $date = new \DateTime($v);
-                                  return true;
-                                } catch (\Exception $e) {
-                                    throw new \Migration\Components\Faker\Exception($e->getMessage());                                
-                                }
+                            return !is_numeric($v);
                         })
                         ->then(function($v){
-                             return new \DateTime($v);
+                            throw new \Migration\Components\Faker\Exception('Number::min Numeric is required');
                         })
                     ->end()
                 ->end()
                 ->scalarNode('max')
-                    ->defaultValue(null)
-                    ->setInfo('The maxium (strtotime) date to use')
-                    ->setExample('August 15 2012')
+                    ->isRequired()
+                    ->setExample('A numeric number like 1 or 1.67 or 0.87')
+                    ->setInfo('The maxium to use in range')
                     ->validate()
                         ->ifTrue(function($v){
-                            try {
-                                  $date = new \DateTime($v);
-                                  return true;
-                                } catch (\Exception $e) {
-                                    throw new \Migration\Components\Faker\Exception($e->getMessage());                                
-                                }
+                            return !is_numeric($v);
                         })
                         ->then(function($v){
-                             return new \DateTime($v);
+                            throw new \Migration\Components\Faker\Exception('Number::max Numeric is required');
                         })
                     ->end()
                 ->end()
-                ->scalarNode('modify')
-                   ->defaultValue(null)
-                   ->setInfo('modify string (strtotime) applied on each increment')
-                   ->setExample('+1 minute')
-                ->end()        
+                ->scalarNode('step')
+                    ->defaultValue(null)
+                    ->setExample('1 , 1.5 , 0.6')
+                    ->setInfo('Stepping value applied on every increment, not supplied will use random')
+                    ->validate()
+                        ->ifTrue(function($v){
+                            return !is_numeric($v);
+                        })
+                        ->then(function($v){
+                            throw new \Migration\Components\Faker\Exception('Number::step Numeric is required');
+                        })
+                    ->end()
+                ->end()
             ->end();
             
         return $treeBuilder;
@@ -143,6 +118,6 @@ class Date extends Type
     
     //  -------------------------------------------------------------------------
 
-
 }
+
 /* End of class */

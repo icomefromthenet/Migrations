@@ -176,7 +176,7 @@ class Type implements CompositeInterface, TypeConfigInterface
     {
 	throw new FakerException('not implemented');
     }
-
+    
+    //  -------------------------------------------------------------------------
 }
-
 /* End of File */

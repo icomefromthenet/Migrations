@@ -1,7 +1,16 @@
 <?php
 namespace Migration\Components\Faker\Type;
 
-class Email extends Abstract_DataType implements Interface_DataType {
+use Migration\Components\Faker\Exception as FakerException;
+use Migration\Components\Faker\Utilities;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Symfony\Component\Config\Definition\Processor;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+
+class Email extends Type
+{
 
     /**
      * Hold a list of names
@@ -34,8 +43,8 @@ class Email extends Abstract_DataType implements Interface_DataType {
      * 
      * @return string 
      */
-    public function generate($options) {
-
+    public function generate($rows, array $values = null)
+    {
         $g_words = self::$gWords;
         $email = NULL;
 

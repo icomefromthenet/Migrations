@@ -1,38 +1,31 @@
 <?php
 namespace Migration\Components\Faker\Type;
 
-class Null extends Abstract_DataType implements Interface_DataType {
+use Migration\Components\Faker\Exception as FakerException;
 
-    /**
-     * Class Constructor
-     * 
-     * @param string $id
-     * @param dataTypeOptionAbstract $options 
-     */
-    public function __construct($id, Data\Config\Abstract_Option $options = null) {
+class Null extends Type
+{
 
-        $this->set_id($id);
-    }
-
-    /**
-     * Generates NULL Values
-     * 
-     * @return NULL 
-     */
-    public function generate() {
-
-        $event_data = new \Data\Config\Option_Event_Generate();
-        $event_data->set_id($this->get_id());
-        $event_data->set_row($this->row);
-        $event_data->set_value(null);
-
-
-        Event::trigger('value_generated', $event_data);
-        $this->row = $this->row + 1;
-
+    public function generate($rows, $values = array())
+    {
         return NULL;
     }
 
-}
+    
+    //  -------------------------------------------------------------------------
+    
+     public function validate()
+    {
+	return true;        
+    }
+    
+    //  -------------------------------------------------------------------------
+    
+    public function merge($config)
+    {
+	return true;
+    }
 
+    //  -------------------------------------------------------------------------
+}
 /* End of class */

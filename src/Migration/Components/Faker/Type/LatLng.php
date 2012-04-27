@@ -1,10 +1,19 @@
 <?php
 namespace Migration\Components\Faker\Type;
 
-class LatLng extends Abstract_DataType implements Interface_DataType {
+use Migration\Components\Faker\Exception as FakerException;
+use Migration\Components\Faker\Utilities;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Symfony\Component\Config\Definition\Processor;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+
+class LatLng extends Type
+{
 
     /**
-     * Generate A Latitude value      * 
+     * Generate A Latitude value       
      * @var boolean 
      */
     var $latitude = FALSE;
@@ -82,8 +91,8 @@ class LatLng extends Abstract_DataType implements Interface_DataType {
      * 
      * @return string 
      */
-    public function generate() {
-        $info = NULL;
+    public function generate($rows, array $values = null)
+    {   $info = NULL;
 
         if (parent::generate() === TRUE) {
 
