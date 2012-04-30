@@ -12,16 +12,34 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 class Number extends Type
 {
 
+
+    protected $last_value;
     
     public function generate($rows, $values = array())
     {
         $min = $this->getOption('min');
         $max = $this->getOption('max');
         $step = $this->getOption('step');
-        
-        
-        
         $value = null;
+        
+        # on first generate call set last value to min
+        if($this->last_value === null) {
+            $this->last_value = $min;
+        }
+        
+        # has step been supplied
+        if($step !== null) {
+            $value = $min + ($step * $rows);
+        }
+            
+     
+        # test if we need to reset the value   
+        if($this->last_value > $max) {
+            $value = $min;
+        }
+        
+        # assign this pass to the last value
+        $this->last_value = $value;
         
         return $value;
     }
@@ -76,7 +94,7 @@ class Number extends Type
                     ->end()
                 ->end()
                 ->scalarNode('step')
-                    ->defaultValue(null)
+                    ->isRequired()
                     ->setExample('1 , 1.5 , 0.6')
                     ->setInfo('Stepping value applied on every increment, not supplied will use random')
                     ->validate()
