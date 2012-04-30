@@ -5,19 +5,24 @@ use Migration\Components\Faker\Exception as FakerException;
 use Migration\Components\Faker\Utilities;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
-use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
-class Guid extends Type
+class BooleanType extends Type
 {
 
-    /**
-     * A cache of previous generated GUIDs
-     * 
-     */
-    static $guids_generated;
+    //  -------------------------------------------------------------------------
 
+    /**
+     * Generate a value
+     * 
+     * @return string 
+     */
+    public function generate($rows,$values = array())
+    {
+        return $this->getOption('value');
+    }
+    
     
     //  -------------------------------------------------------------------------
 
@@ -41,9 +46,10 @@ class Guid extends Type
 
         $rootNode
             ->children()
-                ->scalarNode('format')
-                ->setDefault('HHHHHHHH-HHHH-HHHH-HHHH-HHHH-HHHHHHHH')
-                ->setInfo('GUID format to use')
+                ->booleanNode('value')
+                ->isRequired()
+                ->setInfo('true or false')
+                ->setExample('true | false')
                 ->end()
             ->end();
             
@@ -73,32 +79,6 @@ class Guid extends Type
         return true;
     }
     
-    //-------------------------------------------------------
-    /**
-     * Generates a unique GUID
-     * 
-     * @return string 
-     */
-     public function generate($rows, $values = array())
-     {
-        $guid   = null;
-        $ok     = false;
-        $format = $this->getOption('format');
-        
-        do  {
-            $guid = $this->utilities->generateRandomAlphanumeric($format);
-        
-            if(in_array($guid, self::$guids_generated) === false) {
-                $ok = true;
-            }    
-            
-        } while($ok === false);
-        
-        
-        return $guid;
-    }
-
-    //------------------------------------------------------------
+    //  -------------------------------------------------------------------------
 }
-
 /* End of file */

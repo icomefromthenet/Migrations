@@ -107,8 +107,8 @@ class Utilities
     /**
      * Converts the following characters in the string and returns it:
      *
-     *     C, c, A - any consonant (Upper case, lower case, any)
-     *     V, v, B - any vowel (Upper case, lower case, any)
+     *     C, c, E - any consonant (Upper case, lower case, any)
+     *     V, v, F - any vowel (Upper case, lower case, any)
      *     L, l, V - any letter (Upper case, lower case, any)
      *     X       - 1-9
      *     x       - 0-9

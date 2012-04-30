@@ -65,18 +65,29 @@ class Column implements CompositeInterface
         );
         
         # send the generate command to the type
+        $value = array();
         
         foreach($this->child_types as $type) {
-            $values[$this->getId()] = $value = $type->generate($rows,$values);
             
+            # if we have many types we concatinate
+            $value[] = $type->generate($rows,$values);
+        
             # dispatch the generate event
-            
             $this->event->dispatch(
                 FormatEvents::onColumnGenerate,
                 new GenerateEvent($this,array( $this->getId() => $value ),$this->getId())
             );
-                        
         }
+        
+        # assign the value to the struct, check if only one value
+        # if one value we want to keep the type the same
+        
+        if(count($value) > 1) {
+            $values[$this->getId()] = implode('',$value); # join as a string 
+        } else {
+            $values[$this->getId()] = $value[0]; 
+        }
+        
         
         # dispatch the stop event
         

@@ -9,15 +9,25 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
-class Guid extends Type
+class Numeric extends Type
 {
 
-    /**
-     * A cache of previous generated GUIDs
-     * 
-     */
-    static $guids_generated;
+    //  -------------------------------------------------------------------------
 
+    /**
+     * Generate a value
+     * 
+     * @return string 
+     */
+    public function generate($rows,$values = array())
+    {
+        $format = $this->getOption('format');
+        
+        # add 0 to fore type to be cast as number.
+        
+        return $this->utilities->generateRandomNumeric($format) + 0;
+    }
+    
     
     //  -------------------------------------------------------------------------
 
@@ -42,8 +52,9 @@ class Guid extends Type
         $rootNode
             ->children()
                 ->scalarNode('format')
-                ->setDefault('HHHHHHHH-HHHH-HHHH-HHHH-HHHH-HHHHHHHH')
-                ->setInfo('GUID format to use')
+                ->isRequired()
+                ->setInfo('Numeric format to use')
+                ->setExample('xxxx.xx | xxxxx.xxxxx | xxxxxx')
                 ->end()
             ->end();
             
@@ -73,32 +84,6 @@ class Guid extends Type
         return true;
     }
     
-    //-------------------------------------------------------
-    /**
-     * Generates a unique GUID
-     * 
-     * @return string 
-     */
-     public function generate($rows, $values = array())
-     {
-        $guid   = null;
-        $ok     = false;
-        $format = $this->getOption('format');
-        
-        do  {
-            $guid = $this->utilities->generateRandomAlphanumeric($format);
-        
-            if(in_array($guid, self::$guids_generated) === false) {
-                $ok = true;
-            }    
-            
-        } while($ok === false);
-        
-        
-        return $guid;
-    }
-
-    //------------------------------------------------------------
+    //  -------------------------------------------------------------------------
 }
-
 /* End of file */

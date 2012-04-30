@@ -66,7 +66,6 @@ class Sql implements FormatterInterface
         $this->setEventDispatcher($event);
         $this->setWriter($writer);
         $this->platform = $platform;
-       
     }
     
     

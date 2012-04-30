@@ -9,7 +9,7 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
-class Number extends Type
+class Range extends Type
 {
 
     
@@ -18,7 +18,8 @@ class Number extends Type
         $min = $this->getOption('min');
         $max = $this->getOption('max');
         $step = $this->getOption('step');
-        
+    
+                   
         
         
         $value = null;
