@@ -153,7 +153,7 @@ class Manager implements ManagerInterface
       */
     public function getTypeFactory()
     {
-        return new TypeFactory(new Utilities(),$this->project['event_dispatcher']);        
+        return new TypeFactory(new Utilities($this->project),$this->project['event_dispatcher']);        
     }
     
     //  -------------------------------------------------------------------------
