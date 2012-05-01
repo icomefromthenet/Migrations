@@ -34,7 +34,7 @@ class AnalyseCommand extends FakerCommand
            if(($out_file_name = $input->getArgument('out') ) === null) {
               $out_file_name = 'schema.xml';
            } else {
-              $out_file_name = $out_file_name.'.xml';
+              $out_file_name = rtrim($out_file_name,'.xml').'.xml';
            }
            
            
@@ -47,9 +47,11 @@ class AnalyseCommand extends FakerCommand
            # write the scheam file to the project folder
            $faker_io = $faker_manager->getIo();
            
+           $formatted_xml = $schema_analyser->format($schema->toXml());
+           
            # write the file to the hdd
-           if($faker_io->write($out_file_name,'',$schema->toXml(),$overrite = FALSE))
-           {
+           if($faker_io->write($out_file_name,'',$formatted_xml,$overrite = FALSE)) {
+           
               $output->writeLn('Writing Schema to file <info>dump/'. $out_file_name .'</info>');
            }
 

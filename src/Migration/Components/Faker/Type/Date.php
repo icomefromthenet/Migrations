@@ -35,8 +35,10 @@ class Date extends Type
             $this->current_date = clone $date;
         }
         else {
-            # on consecutive calls apply the modify value
-            $this->current_date->modify($modify);
+            if(empty($modify) === false) {
+                # on consecutive calls apply the modify value
+                $this->current_date->modify($modify);
+            }
         }
         
         # check if the origin has exceeded the max

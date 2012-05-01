@@ -50,7 +50,7 @@ class FakerTypeAutoIncrementTest extends AbstractProject
         $options = $type->merge($config);        
         
         $this->assertEquals($options['placeholder'],null);
-        $this->assertEquals($options['start'],0);
+        $this->assertEquals($options['start'],1);
         $this->assertEquals($options['increment'],1);
         
         
@@ -166,51 +166,56 @@ class FakerTypeAutoIncrementTest extends AbstractProject
         
         $type->validate(); 
          
-        $this->assertEquals(5,$type->generate(1,array()));
-        $this->assertEquals(9,$type->generate(2,array()));
-        $this->assertEquals(13,$type->generate(3,array()));
+        $this->assertEquals(1,$type->generate(1,array()));
+        $this->assertEquals(5,$type->generate(2,array()));
+        $this->assertEquals(9,$type->generate(3,array()));
+        
         
         # test with start at 0
+        $type = new AutoIncrement($id,$parent,$event,$utilities);
         $type->setOption('start',0);
         $type->setOption('increment',4);
         
         $type->validate(); 
          
-        $this->assertEquals(4,$type->generate(1,array()));
-        $this->assertEquals(8,$type->generate(2,array()));
-        $this->assertEquals(12,$type->generate(3,array()));
+        $this->assertEquals(0,$type->generate(1,array()));
+        $this->assertEquals(4,$type->generate(2,array()));
+        $this->assertEquals(8,$type->generate(3,array()));
  
  
         # test with placeholder
-        $type->setOption('start',0);
+        $type = new AutoIncrement($id,$parent,$event,$utilities);
+        $type->setOption('start',1);
         $type->setOption('increment',4);
         $type->setOption('placeholder','bob_{INCR}');      
         $type->validate(); 
          
-        $this->assertEquals('bob_4',$type->generate(1,array()));
-        $this->assertEquals('bob_8',$type->generate(2,array()));
-        $this->assertEquals('bob_12',$type->generate(3,array()));
+        $this->assertEquals('bob_1',$type->generate(1,array()));
+        $this->assertEquals('bob_5',$type->generate(2,array()));
+        $this->assertEquals('bob_9',$type->generate(3,array()));
  
  
         # test with non int increment
+        $type = new AutoIncrement($id,$parent,$event,$utilities);
         $type->setOption('start',0);
         $type->setOption('increment',0.5);
         $type->setOption('placeholder',null);
         $type->validate(); 
          
-        $this->assertEquals(0.5,$type->generate(1,array()));
-        $this->assertEquals(1,$type->generate(2,array()));
-        $this->assertEquals(1.5,$type->generate(3,array()));
+        $this->assertEquals(0,$type->generate(1,array()));
+        $this->assertEquals(0.5,$type->generate(2,array()));
+        $this->assertEquals(1,$type->generate(3,array()));
         
         # test with non int increment and a placeholder
+        $type = new AutoIncrement($id,$parent,$event,$utilities);
         $type->setOption('start',0);
         $type->setOption('increment',0.5);
         $type->setOption('placeholder','bob_{INCR}');      
         $type->validate(); 
          
-        $this->assertEquals('bob_0.5',$type->generate(1,array()));
-        $this->assertEquals('bob_1',$type->generate(2,array()));
-        $this->assertEquals('bob_1.5',$type->generate(3,array()));
+        $this->assertEquals('bob_0',$type->generate(1,array()));
+        $this->assertEquals('bob_0.5',$type->generate(2,array()));
+        $this->assertEquals('bob_1',$type->generate(3,array()));
  
     }
     

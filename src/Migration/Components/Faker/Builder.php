@@ -241,7 +241,7 @@ class Builder
                                 $name,
                                 $this->current_column,
                                 $this->event,
-                                $options['step']
+                                (int)$options['step']
                 );
                 
                 $this->current_column->addChild($this->current_selector);

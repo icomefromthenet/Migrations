@@ -20,9 +20,19 @@ class TypeFactory implements ExtensionInterface
       *  @var 'name' => 'class'
       */
     static $types = array(
-            'alphanumeric' => '\\Migration\\Components\\Faker\\Type\\AlphaNumeric',                 
-            'null' => '\\Migration\\Components\\Faker\\Type\\Null',                 
-    
+            'alphanumeric'  => '\\Migration\\Components\\Faker\\Type\\AlphaNumeric',                 
+            'null'          => '\\Migration\\Components\\Faker\\Type\\Null',                 
+            'autoincrement' => '\\Migration\\Components\\Faker\\Type\\AutoIncrement',                 
+            'range'         => '\\Migration\\Components\\Faker\\Type\\Range',
+            'boolean'       => '\\Migration\\Components\\Faker\\Type\\BooleanType',
+            'constant'      => '\\Migration\\Components\\Faker\\Type\\Constant',
+            'guid'          => '\\Migration\\Components\\Faker\\Type\\Guid',
+            'numeric'       => '\\Migration\\Components\\Faker\\Type\\Numeric',
+            'text'          => '\\Migration\\Components\\Faker\\Type\\Text',
+            'date'          => '\\Migration\\Components\\Faker\\Type\\Date',
+            'datetime'      => '\\Migration\\Components\\Faker\\Type\\Datetime',
+            'email'         => '\\Migration\\Components\\Faker\\Type\\Email',
+            'latlng'        => '\\Migration\\Components\\Faker\\Type\\LatLng',
     );
 
     /**

@@ -13,6 +13,8 @@ class AutoIncrement extends Type
 {
 
 
+    protected $last_value;
+
     //  -------------------------------------------------------------------------
     
     /**
@@ -27,12 +29,19 @@ class AutoIncrement extends Type
         $increment = $this->getOption('increment');
         $placeholder = $this->getOption('placeholder');
         
-        $val = (($rows * $increment) + $start);
+        if($this->last_value === null) {
+           $this->last_value = $start +0; //force as numeric   
+        } else {
+            $this->last_value = $this->last_value + $increment;
+        }
 
+        $val = $this->last_value;
+        
+        # when apply placeholder we return a string
         if ($placeholder !== null || empty($placeholder) === false) {
-            $val = preg_replace('/\{\INCR\}/', $val, $placeholder);
-        }    
-         
+            $val = (string) preg_replace('/\{\INCR\}/', $this->last_value, $placeholder);
+        }  
+          
         return $val;
     }
     
@@ -78,7 +87,7 @@ class AutoIncrement extends Type
                             throw new \Migration\Components\Faker\Exception('AutoIncrement::Start option must be numeric');
                         })
                     ->end()
-                ->defaultValue(0)
+                ->defaultValue(1)
                 ->setInfo('The Value to start with')
                 ->end()
             ->end();

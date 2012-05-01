@@ -304,5 +304,15 @@ $project['source_io'] = $project->share(function($project){
    return $io;
 });
 
+//---------------------------------------------------------------
+// Parser Manager
+//
+//---------------------------------------------------------------
 
+$project['parser'] = $project->share(function($project){
+   return new \Migration\Parser\Parser($project['event_dispatcher']);
+});
 
+$project['parser_options'] = function($project){
+   return new \Migration\Parser\ParseOptions($project['event_dispatcher']);
+};

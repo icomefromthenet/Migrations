@@ -12,31 +12,6 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 class Email extends Type
 {
 
-    /**
-     * Hold a list of names
-     * 
-     * @var propelArrayCollection 
-     */
-    static $gWords = NULL;
-
-    //-----------------------------------------------------
-    /**
-     * Class constructor
-     * 
-     * @param string $id
-     * @param dataTypeOptionAbstract $options
-     */
-    public function __construct($id, Data\Config\Abstract_Option $options = null) {
-        if (self::$gWords === NULL) {
-            //load the words from the db           
-        }
-
-        $this->set_id($id);
-
-        //set the parent class
-        parent::__construct($options);
-    }
-
     //---------------------------------------------------------------
     /**
      * Generate an Email address
@@ -72,16 +47,6 @@ class Email extends Type
         }
 
         
-        $event_data = new \Data\Config\Option_Event_Generate();
-        $event_data->set_id($this->get_id());
-        $event_data->set_row($this->row);
-        $event_data->set_value(email);
-
-        
-        Event::trigger('value_generated', $event_data);
-   
-        $this->row = $this->row + 1;
-
         return $email;
     }
     

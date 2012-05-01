@@ -183,14 +183,20 @@ class Utilities
                         $new_str .= $vowels[\rand(0, \strlen($vowels) - 1)];
                     else
                         $new_str .= \strtolower($vowels[rand(0, \strlen($vowels) - 1)]);
-                    break;
+                break;
+     
+                //space char
+                case "S":
+                case "s":
+                    $new_str .= " ";
+                break;    
                 default:
                     $new_str .= $str[$i];
                 break;
             }
         }
 
-        return \trim($new_str);
+        return $new_str;
     }
 
     
