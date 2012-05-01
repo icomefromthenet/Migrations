@@ -25,7 +25,7 @@ class Numeric extends Type
         
         # add 0 to fore type to be cast as number.
         
-        return $this->utilities->generateRandomNumeric($format) + 0;
+        return $this->utilities->generateRandomNum($format) + 0;
     }
     
     

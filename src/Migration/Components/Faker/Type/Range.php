@@ -12,36 +12,32 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 class Range extends Type
 {
 
-
+    /**
+      *  @var number the last generated value 
+      */
     protected $last_value;
+    
     
     public function generate($rows, $values = array())
     {
         $min = $this->getOption('min');
         $max = $this->getOption('max');
         $step = $this->getOption('step');
-        $value = null;
         
         # on first generate call set last value to min
         if($this->last_value === null) {
             $this->last_value = $min;
         }
-        
-        # has step been supplied
-        if($step !== null) {
-            $value = $min + ($step * $rows);
+        else {
+           $this->last_value = $this->last_value + $step;
         }
-            
-     
-        # test if we need to reset the value   
+
         if($this->last_value > $max) {
-            $value = $min;
+            
+            $this->last_value = $min;
         }
         
-        # assign this pass to the last value
-        $this->last_value = $value;
-        
-        return $value;
+        return $this->last_value;
     }
 
     
