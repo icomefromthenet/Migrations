@@ -45,7 +45,7 @@ class FakerCompositeTableTest extends AbstractProject
         $child_a->expects($this->once())
                 ->method('generate')
                 ->with($this->equalTo($rows_generate),$this->isType('array'))
-                ->will($this->returnValue('example'));
+                ->will($this->returnValue(array('example')));
        
               
         $table = new Table($id,$parent,$event,$rows_generate);
@@ -73,14 +73,14 @@ class FakerCompositeTableTest extends AbstractProject
         $child_a->expects($this->exactly(100))
                 ->method('generate')
                 ->with($this->isType('integer'),$this->isType('array'))
-                ->will($this->returnValue('example'));
+                ->will($this->returnValue(array('example')));
             
        
         $child_b = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')->getMock();
         $child_b->expects($this->exactly(100))
                 ->method('generate')
                 ->with($this->isType('integer'),$this->isType('array'))
-                ->will($this->returnValue('example'));
+                ->will($this->returnValue(array('example')));
         
        
         $table->addChild($child_a);        
@@ -141,6 +141,8 @@ class FakerCompositeTableTest extends AbstractProject
         $this->assertSame($table->getEventDispatcher(),$event);
         $this->assertEquals($parent,$table->getParent());
         $this->assertEquals($id,$table->getId());
+        $this->assertEquals($rows_generate,$table->getToGenerate());
+        
     }
  
  

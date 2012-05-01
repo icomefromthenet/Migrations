@@ -1,12 +1,11 @@
 <?php
-namespace Migration\Migration\Components\Faker;
+namespace Migration\Components\Faker;
 
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-
+use Migration\Components\Faker\Formatter\FormatEvents;
 use Migration\Components\Faker\Formatter\GenerateEvent;
 use Migration\Components\Faker\Exception as FakerException;
-
 
 class DebugOutputter implements EventSubscriberInterface
 {
@@ -65,7 +64,7 @@ class DebugOutputter implements EventSubscriberInterface
     {
         if ($memory < 1024) 
             $memory = $memory." bytes"; 
-        elseif ($mem_usage < 1048576) 
+        elseif ($memory < 1048576) 
             $memory = round($memory/1024,2)." kilobytes"; 
         else 
             $memory = round($memory/1048576,2)." megabytes"; 
@@ -119,7 +118,7 @@ class DebugOutputter implements EventSubscriberInterface
         $memory      = $this->formatMemory(memory_get_usage());
         $peak        = $this->formatMemory(memory_get_peak_usage());
         
-        $this->output->writeln(sprintf('Writing Table %s <info> memory_start= %s </info> <comment> memory_peak= %s</comment>',$schema_name,$memory,$peak));   
+        $this->output->writeln(sprintf('Writing Table %s <info> memory_start= %s </info> <comment> memory_peak= %s</comment>',$table_name,$memory,$peak));   
         $this->row = 0;
     }
     
@@ -135,7 +134,7 @@ class DebugOutputter implements EventSubscriberInterface
         $memory      = $this->formatMemory(memory_get_usage());
         $peak        = $this->formatMemory(memory_get_peak_usage());
         
-        $this->output->writeln(sprintf('Finished Writing Table %s <info> memory_start= %s </info> <comment> memory_peak= %s </comment>',$schema_name,$memory,$peak));   
+        $this->output->writeln(sprintf('Finished Writing Table %s <info> memory_start= %s </info> <comment> memory_peak= %s </comment>',$table_name,$memory,$peak));   
         $this->row = 0;
     }
     
@@ -147,7 +146,7 @@ class DebugOutputter implements EventSubscriberInterface
       */
     public function onRowStart(GenerateEvent $event)
     {
-        $row = $row +1;
+        $this->row = $this->row +1;
     }
     
     

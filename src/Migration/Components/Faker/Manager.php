@@ -114,7 +114,7 @@ class Manager implements ManagerInterface
       */    
     public function getSchemaParser()
     {
-        return new SchemaParser($this->project['event_dispatcher']);    
+        return new SchemaParser($this->getCompositeBuilder());    
     }
     
     /**

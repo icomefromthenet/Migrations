@@ -21,6 +21,8 @@ class TypeFactory implements ExtensionInterface
       */
     static $types = array(
             'alphanumeric' => '\\Migration\\Components\\Faker\\Type\\AlphaNumeric',                 
+            'null' => '\\Migration\\Components\\Faker\\Type\\Null',                 
+    
     );
 
     /**

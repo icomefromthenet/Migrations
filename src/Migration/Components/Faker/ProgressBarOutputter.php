@@ -3,12 +3,13 @@ namespace Migration\Components\Faker;
 
 use Migration\Components\Faker\Formatter\GenerateEvent;
 use Migration\Components\Faker\Exception as FakerException;
-
+use Migration\Components\Faker\Formatter\FormatEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Zend\ProgressBar\ProgressBar;
+use Zend\ProgressBar\Adapter\Console as ZendConsoleAdapter;
 
-class ProgressBar implements EventSubscriberInterface
+class ProgressBarOutputter implements EventSubscriberInterface
 {
     
     /**
@@ -57,6 +58,7 @@ class ProgressBar implements EventSubscriberInterface
     {
         $this->event = $event;
         $this->bar = $bar;
+        
     }
     
     //  -------------------------------------------------------------------------
@@ -70,7 +72,7 @@ class ProgressBar implements EventSubscriberInterface
       */
     public function onSchemaStart(GenerateEvent $event)
     {
-        $this->bar->
+
     }
     
     
@@ -81,7 +83,7 @@ class ProgressBar implements EventSubscriberInterface
       */
     public function onSchemaEnd(GenerateEvent $event)
     {
-
+        $this->bar->finish();
     }
     
     
@@ -92,7 +94,7 @@ class ProgressBar implements EventSubscriberInterface
       */
     public function onTableStart(GenerateEvent $event)
     {
-
+    
     }
     
     
@@ -125,7 +127,7 @@ class ProgressBar implements EventSubscriberInterface
       */
     public function onRowEnd(GenerateEvent $event)
     {
-        
+        $this->bar->next(1,'Table '. $event->getType()->getParent()->getId());
     }
     
     

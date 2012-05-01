@@ -2,7 +2,7 @@
 <?php
 use Migration\Project;
 use Migration\Command\Application;
-use Migration\Command\BuildFaker;
+use Migration\Command\GenerateCommand;
 use Migration\Command\AnalyseCommand;
 
 
@@ -34,7 +34,7 @@ else {
 //
 //--------------------------------------------------------------------
 
-$project->getConsole()->add(new BuildFaker('generate'));
+$project->getConsole()->add(new GenerateCommand('generate'));
 $project->getConsole()->add(new AnalyseCommand('analyse'));
 
 

@@ -300,7 +300,7 @@ $project['console_output'] = $project->share(function($project){
 
 $project['source_io'] = $project->share(function($project){
    $io = new \Migration\Io\Io($project->getPath()->get());
-   $io->setProjectPath('source'); 
+   $io->setProjectFolder('sources'); 
    return $io;
 });
 

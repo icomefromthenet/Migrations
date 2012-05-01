@@ -156,6 +156,8 @@ class SchemaParser extends BaseXMLParser
         } catch(ParserException $e) {
             throw new FakerException($e->getMessage());
         }
+        
+        return $this->builder;
     }    
     
 }

@@ -92,9 +92,10 @@ class Table implements CompositeInterface
                 # send the generate event to the columns
        
                 foreach($this->child_types as $type) {
-                    $type->generate($rows,$values);            
+                    $values = $type->generate($rows,$values);            
                 }
         
+                
                 # dispatch the row stop event
                 
                 $this->event->dispatch(
@@ -205,6 +206,19 @@ class Table implements CompositeInterface
         }
 
         return true;  
+    }
+    
+    //  -------------------------------------------------------------------------
+    
+    /**
+      *  Return the number of rows this table will generate
+      *
+      *  @access public
+      *  @return integer the rows to generate
+      */
+    public function getToGenerate()
+    {
+        return $this->rows;
     }
     
     //  -------------------------------------------------------------------------

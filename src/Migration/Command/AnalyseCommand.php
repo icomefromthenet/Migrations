@@ -5,9 +5,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Helper\DialogHelper;
 use Symfony\Component\Console\Output\OutputInterface;
-use Migration\Command\Base\Command;
+use Migration\Command\Base\FakerCommand;
 
-class AnalyseCommand extends Command
+class AnalyseCommand extends FakerCommand
 {
 
 
