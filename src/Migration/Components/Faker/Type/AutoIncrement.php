@@ -27,7 +27,6 @@ class AutoIncrement extends Type
         
         $start = $this->getOption('start');
         $increment = $this->getOption('increment');
-        $placeholder = $this->getOption('placeholder');
         
         if($this->last_value === null) {
            $this->last_value = $start +0; //force as numeric   
@@ -36,11 +35,6 @@ class AutoIncrement extends Type
         }
 
         $val = $this->last_value;
-        
-        # when apply placeholder we return a string
-        if ($placeholder !== null || empty($placeholder) === false) {
-            $val = (string) preg_replace('/\{\INCR\}/', $this->last_value, $placeholder);
-        }  
           
         return $val;
     }
@@ -66,10 +60,6 @@ class AutoIncrement extends Type
 
         $rootNode
             ->children()
-                ->scalarNode('placeholder')
-                    ->defaultValue(null)
-                    ->setInfo('Text block to place constant in use {INCR} to denote value')
-                ->end()
                 ->scalarNode('increment')
                     ->defaultValue(1)
                     ->setInfo('The increment to add on every loop')

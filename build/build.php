@@ -41,10 +41,11 @@ $database_task->setCode(function(InputInterface $input, ConsoleOutputInterface $
     # get queries to apply
     $create_schema = $schema->toSql($connection->getDatabasePlatform()); // get queries to create this schema.
     $drop_schema = $schema->toDropSql($connection->getDatabasePlatform()); // get queries to safely delete this schema.
-    
+
     $connection->executeQuery($drop_schema[0]);
     $connection->executeQuery($create_schema[0]);
     
+    $output->writeLn('Finished Running <info>Database Setup</info>');    
 });
 
 //---------------------------------------------------------------------
@@ -148,7 +149,8 @@ $pear_task->setCode(function(InputInterface $input, ConsoleOutputInterface $outp
     
     $pack->writePackageFile();
     
-    echo 'Package file created: ' . $outputDir . 'package.xml' . "\n";
+    $output->writeLn('Package file created: <info>' . $outputDir . 'package.xml</info>');
+    
 
 });
 
@@ -160,34 +162,68 @@ $pear_task->setCode(function(InputInterface $input, ConsoleOutputInterface $outp
 $parse_names = new Command('names');
 $parse_names->setDescription('Parse Csv of names into the local sqlite db');
 $parse_names->setCode(function(InputInterface $input, ConsoleOutputInterface $output) use ($project){
+
+    $output->writeLn('Starting Parse of Names this may <info>take a while</info>');
+
     
     # create a csv parser
     $parser = $project['parser'];
     $parser_options = $project['parser_options'];
     $parser_options->setParser('csv');
     $parser_options->setHasHeaderRow(true);
-    $parser_options->setFieldSeperator(',');
-    $parser_options->setDeliminator('\n');
+    $parser_options->setFieldSeperator(ord(','));
     
        
     # register for the generate event
-    
     $event = $project['event_dispatcher'];
+    $connection =  $project['faker_database']; 
     
-    $event->addListener('row_parsed', function (Migration\Parser\Event\RowParsed $event) use ($connection,$output) {
+    $event->addListener('row_parsed', function (Migration\Parser\Event\RowParsed $event) use ($connection,$output,$input) {
         
-        $row = $event->getRow();
+        /* Example of data from names file
+        Array
+        (
+            [firstName] => Kimberly
+            [lastName] => Currie
+            [middleInitial] => U
+            [firstNameFirst] => Kimberly U. Currie
+            [lastNameFirst] => "Currie
+        )
+        */    
         $data = $event->getData();
         
-        $output->writeLn(print_r($data,true));
+        //$output->writeLn(print_r($data,true));
+        
+        $connection->transactional(function($conn) use ($output,$data,$input) {
+           
+            $conn->insert('person_names',array('fname' => $data['firstName'],
+                                                 'lname' => $data['lastName'],
+                                                 'middle_initial' => $data['middleInitial'],
+            ));
+            
+            if ($input->getOption('verbose')) {
+                $output->writeLn(sprintf('Parsed name %s %s %s',$data['firstName'],$data['middleInitial'],$data['lastName']));
+            } else {
+                $output->write('.');
+            }
+           
+        }); 
+        
     });
-    
     
     # parse data and load into table
     $parser->parse(__DIR__.'/random_names.csv',$parser_options);
     
+    $output->writeLn('Finished <info>parsing names</info> into database');
     
 });
+
+//---------------------------------------------------------------------
+// Combine and insert Locale Data
+//
+//--------------------------------------------------------------------
+
+
 
 
 //---------------------------------------------------------------------
@@ -196,6 +232,8 @@ $parse_names->setCode(function(InputInterface $input, ConsoleOutputInterface $ou
 //--------------------------------------------------------------------
 
 $project->getConsole()->add($parse_names);
+$project->getConsole()->add($database_task);
+$project->getConsole()->add($pear_task);
 
 //--------------------------------------------------------------------
 // Run the App

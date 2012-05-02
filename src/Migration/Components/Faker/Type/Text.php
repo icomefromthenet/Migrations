@@ -3,6 +3,7 @@ namespace Migration\Components\Faker\Type;
 
 use Migration\Components\Faker\Exception as FakerException;
 use Migration\Components\Faker\Utilities;
+
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -182,7 +183,7 @@ class Text extends Type
                         'in consectetuer ipsum nunc id enim. Curabitur massa.',
                         'Vestibulum accumsan neque et nunc. Quisque ornare tortor at risus.',
                         'Nunc ac sem ut dolor dapibus gravida. Aliquam tincidunt,',
-                        'nunc ac mattis ornare, lectus ante dictum mi, ac mattis velit justo'
+                        'nunc ac mattis ornare, lectus ante dictum mi, ac mattis velit justo',
                         'nec ante. Maecenas mi felis, adipiscing fringilla, porttitor',
                         'vulputate, posuere vulputate, lacus. Cras interdum. Nunc',
                         'sollicitudin commodo ipsum. Suspendisse non leo. Vivamus',
@@ -206,16 +207,16 @@ class Text extends Type
      * 
      * @return string 
      */
-    public function generate($rows,$values = array())
+    public function generate($rows, $values = array())
     {
         $parag      = $this->getOption('paragraphs');
-        $min_lines  = $this->getOption('maxlines');
-        $max_lines  = $this->getOption('minlines');
+        $min_lines  = $this->getOption('minlines');
+        $max_lines  = $this->getOption('maxlines');
         $return     = '';
         
         # generate the text
-        for($i = $parag; $i => 0; $i--) {
-            $return .=  $this->utilities->generateRandomText(self::$words,true,'range',$min_lines,$max_lines).PHP_EOL;
+        for($i = $parag; $i > 0; $i--) {
+            $return .=  $this->utilities->generateRandomText(self::$words,true,$min_lines,$max_lines).PHP_EOL;
         }
         
         return $return;
@@ -245,11 +246,11 @@ class Text extends Type
         $rootNode
             ->children()
                 ->scalarNode('paragraphs')
-                    ->setDefault(4)
+                    ->defaultValue(4)
                     ->setInfo('Text format to use')
                     ->validate()
-                        ->ifThen(function($v){
-                            return !is_integer($v) && $v > 0;
+                        ->ifTrue(function($v){
+                            return !is_int($v);
                         })
                         ->then(function($v){
                             throw new \Migration\Components\Faker\Exception('Numeric::Paragraphs must be and integer');
@@ -257,12 +258,12 @@ class Text extends Type
                     ->end()
                 ->end()
                 ->scalarNode('maxlines')
-                    ->setDefault(200)
+                    ->defaultValue(200)
                     ->setInfo('Maxium number of line per paragraph')
                     ->setExample('5 | 10 | ...')
                     ->validate()
-                        ->ifThen(function($v){
-                            return !is_integer($v) && $v > 0;
+                        ->ifTrue(function($v){
+                            return !is_integer($v);
                         })
                         ->then(function($v){
                             throw new \Migration\Components\Faker\Exception('Numeric::maxlines must be and integer');
@@ -270,12 +271,12 @@ class Text extends Type
                     ->end()
                 ->end()
                 ->scalarNode('minlines')
-                    ->setDefault(5)
+                    ->defaultValue(5)
                     ->setInfo('Minimum number of lines per paragraph')
                     ->setExample('20 | 100 | ..')
                     ->validate()
-                        ->ifThen(function($v){
-                            return !is_integer($v) && $v > 0;
+                        ->ifTrue(function($v){
+                            return !is_integer($v);
                         })
                         ->then(function($v){
                             throw new \Migration\Components\Faker\Exception('Numeric::minlines must be and integer');

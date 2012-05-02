@@ -9,14 +9,14 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
-class Guid extends Type
+class UniqueNumber extends Type
 {
 
     /**
      * A cache of previous generated GUIDs
      * 
      */
-    static $guids_generated;
+    static $generated = array();
 
     
     //  -------------------------------------------------------------------------
@@ -42,8 +42,8 @@ class Guid extends Type
         $rootNode
             ->children()
                 ->scalarNode('format')
-                ->setDefault('HHHHHHHH-HHHH-HHHH-HHHH-HHHH-HHHHHHHH')
-                ->setInfo('GUID format to use')
+                ->defaultValue('XXXXXXXX')
+                ->setInfo('unique format to use')
                 ->end()
             ->end();
             
@@ -75,7 +75,7 @@ class Guid extends Type
     
     //-------------------------------------------------------
     /**
-     * Generates a unique GUID
+     * Generates a unique number
      * 
      * @return string 
      */
@@ -86,16 +86,16 @@ class Guid extends Type
         $format = $this->getOption('format');
         
         do  {
-            $guid = $this->utilities->generateRandomAlphanumeric($format);
+            $guid = $this->utilities->generateRandomNumeric($format);
         
-            if(in_array($guid, self::$guids_generated) === false) {
+            if(in_array($guid, self::$generated) === false) {
                 $ok = true;
             }    
             
         } while($ok === false);
         
         
-        return $guid;
+        return $guid + 0;
     }
 
     //------------------------------------------------------------

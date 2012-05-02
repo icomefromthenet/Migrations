@@ -48,6 +48,14 @@ class BooleanType extends Type
             ->children()
                 ->booleanNode('value')
                 ->isRequired()
+                ->validate()
+                    ->ifTrue(function($v){
+                        return !empty($v);    
+                    })
+                    ->then(function($v){
+                       return (boolean) $v; 
+                    })
+                ->end()    
                 ->setInfo('true or false')
                 ->setExample('true | false')
                 ->end()

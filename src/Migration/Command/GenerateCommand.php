@@ -49,7 +49,7 @@ class GenerateCommand extends FakerCommand
         $composite = $builder->build();
         
         # check if we use the debug or normal notifier
-        if($input->getArgument('debug') === null) {
+        if($input->getOption('verbose') === null) {
             # use the composite to calculate number of rows
             $rows = 0;
             
@@ -76,7 +76,6 @@ class GenerateCommand extends FakerCommand
 
         # start execution of the generate
         $composite->generate(1,array());
-    
         
         parent::execute($input,$output);
     }
@@ -100,8 +99,7 @@ EOF
         );
 
         $this->addArgument('schema',InputArgument::OPTIONAL, 'The name of the schema file','schema.xml');
-        $this->addArgument('debug' ,InputArgument::OPTIONAL, 'Use the debug display',null);
-    
+        
         parent::configure();
     }
 

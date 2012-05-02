@@ -1,11 +1,9 @@
 <?php
 require_once __DIR__ .'/../base/AbstractProject.php';
 
-use \Migration\Components\Faker\Type\ConstantNumber;
-use \Migration\Components\Faker\Type\ConstantString;
+use \Migration\Components\Faker\Type\Text;
 
-
-class FakerTypeConstantTest extends AbstractProject
+class FakerTypeTextTest extends AbstractProject
 {
     
     public function testTypeExists()
@@ -24,11 +22,7 @@ class FakerTypeConstantTest extends AbstractProject
                       ->getMock();
       
             
-        $type = new ConstantNumber($id,$parent,$event,$utilities);
-        
-        $this->assertInstanceOf('\\Migration\\Components\\Faker\\TypeInterface',$type);
-        
-        $type = new ConstantString($id,$parent,$event,$utilities);
+        $type = new Text($id,$parent,$event,$utilities);
         
         $this->assertInstanceOf('\\Migration\\Components\\Faker\\TypeInterface',$type);
     
@@ -50,30 +44,24 @@ class FakerTypeConstantTest extends AbstractProject
         $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')
                       ->getMock();
             
-        $type = new ConstantString($id,$parent,$event,$utilities);
-        $config = array('value' =>'xxxx'); 
+        $type = new Text($id,$parent,$event,$utilities);
+        $config = array('paragraphs' => 5, 'maxlines' => 5 , 'minlines' => 1);
+        
         
         $options = $type->merge($config);        
         
-        $this->assertEquals($options['value'],'xxxx');
-        
-        $type = new ConstantNumber($id,$parent,$event,$utilities);
-        $config = array('value' =>'xxxx'); 
-        
-        $options = $type->merge($config);        
-        
-        $this->assertEquals($options['value'],'xxxx');
-        
-        
+        $this->assertSame($options['paragraphs'],$config['paragraphs']);
+        $this->assertSame($options['maxlines'],$config['maxlines']);
+        $this->assertSame($options['minlines'],$config['minlines']);
     }
     
     //  -------------------------------------------------------------------------
     
     /**
       *  @expectedException \Migration\Components\Faker\Exception
-      *  @expectedExceptionMessage The child node "value" at path "config" must be configured
+      *  @expectedExceptionMessage Numeric::Paragraphs must be and integer
       */
-    public function testConfigMissingValue()
+    public function testConfigParagraphsNotInteger()
     {
         $id = 'table_two';
         
@@ -87,21 +75,19 @@ class FakerTypeConstantTest extends AbstractProject
         $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')
                       ->getMock();
             
-        $type = new ConstantString($id,$parent,$event,$utilities);
-        $config = array(); 
+        $type = new Text($id,$parent,$event,$utilities);
+        $config = array('paragraphs' => 'aaaa', 'maxlines' => 5 , 'minlines' => 1);
         
         $options = $type->merge($config);        
         
         
     }
    
-    //  -------------------------------------------------------------------------
-    
     /**
       *  @expectedException \Migration\Components\Faker\Exception
-      *  @expectedExceptionMessage Constant::Type Option not in valid list
+      *  @expectedExceptionMessage Numeric::minlines must be and integer
       */
-    public function testConfigBadTypeOption()
+    public function testConfigMinLinesNotInteger()
     {
         $id = 'table_two';
         
@@ -115,13 +101,40 @@ class FakerTypeConstantTest extends AbstractProject
         $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')
                       ->getMock();
             
-        $type = new ConstantString($id,$parent,$event,$utilities);
-        $config = array('value' => '1','type' => 'none');
+        $type = new Text($id,$parent,$event,$utilities);
+        $config = array('paragraphs' => 1, 'maxlines' => 5 , 'minlines' => 'aa');
         
         $options = $type->merge($config);        
+        
+        
     }
-   
     
+    /**
+      *  @expectedException \Migration\Components\Faker\Exception
+      *  @expectedExceptionMessage Numeric::maxlines must be and integer
+      */
+    public function testConfigMaxLinesNotInteger()
+    {
+        $id = 'table_two';
+        
+        $utilities = $this->getMockBuilder('Migration\Components\Faker\Utilities')
+                          ->disableOriginalConstructor()
+                          ->getMock(); 
+        
+        $parent = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')
+                        ->getMock();
+                        
+        $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')
+                      ->getMock();
+            
+        $type = new Text($id,$parent,$event,$utilities);
+        $config = array('paragraphs' => 1, 'maxlines' => 'aaa' , 'minlines' => 1);
+        
+        $options = $type->merge($config);        
+        
+        
+    }
+     
     //  -------------------------------------------------------------------------
     
     
@@ -132,6 +145,11 @@ class FakerTypeConstantTest extends AbstractProject
         $utilities = $this->getMockBuilder('Migration\Components\Faker\Utilities')
                           ->disableOriginalConstructor()
                           ->getMock();
+                          
+        $utilities->expects($this->exactly(5))
+                   ->method('generateRandomText')
+                   ->with($this->isType('array'),$this->equalTo(true),$this->equalTo(5),$this->equalTo(30))
+                   ->will($this->returnValue('dgHJ'));
         
         $parent = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')
                         ->getMock();
@@ -139,26 +157,13 @@ class FakerTypeConstantTest extends AbstractProject
         $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')
                       ->getMock();
             
-        $type = new ConstantString($id,$parent,$event,$utilities);
-        $type->setOption('value','ccCC');
+        $type = new Text($id,$parent,$event,$utilities);
+        $type->setOption('paragraphs',5);
+        $type->setOption('maxlines',30);
+        $type->setOption('minlines',5);
         $type->validate(); 
          
-        $this->assertEquals('ccCC',$type->generate(1,array()));
-        $this->assertEquals('ccCC',$type->generate(2,array()));
-        $this->assertEquals('ccCC',$type->generate(3,array()));
-    
-    
-        $type = new ConstantNumber($id,$parent,$event,$utilities);
-        $type->setOption('value','123');
-        $type->validate(); 
-        $this->assertEquals(123,$type->generate(1,array()));
-        
-        $type = new ConstantString($id,$parent,$event,$utilities);
-        $type->setOption('value','1');
-        $type->validate(); 
-        $this->assertSame('1',$type->generate(1,array()));
-       
-       
+        $type->generate(1,array());
     }
     
 }

@@ -6,7 +6,6 @@ use Migration\Parser\FileInterface;
 use Migration\Parser\ParseOptions;
 use Migration\Parser\Event\HeaderParsed;
 use Migration\Parser\Event\RowParsed;
-
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CSV implements ParserInterface
