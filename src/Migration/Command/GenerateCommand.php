@@ -49,8 +49,12 @@ class GenerateCommand extends FakerCommand
         $composite = $builder->build();
         
         # check if we use the debug or normal notifier
-        if($input->getOption('verbose') === null) {
-            # use the composite to calculate number of rows
+        if($input->getOption('verbose')) {
+            
+            $event->addSubscriber(new DebugOutputter($output));
+                
+        } else {
+                 # use the composite to calculate number of rows
             $rows = 0;
             
             foreach($composite->getChildren() as $table) {
@@ -68,10 +72,7 @@ class GenerateCommand extends FakerCommand
             
             # instance the default notifier
             $event->addSubscriber(new ProgressBarOutputter($event,$progress_bar));
-                
-        } else {
     
-            $event->addSubscriber(new DebugOutputter($output));
         }
 
         # start execution of the generate

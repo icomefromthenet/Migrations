@@ -2,6 +2,8 @@
 
 namespace Migration\Components\Writer;
 
+use Migration\Components\Writer\Exception as WriterException;
+
 class Limit
 {
 
@@ -26,7 +28,8 @@ class Limit
      * @param integer $limit the write limit
      * @return void
      */
-    public function __construct($limit) {
+    public function __construct($limit)
+    {
 
         if (is_null($limit) === TRUE) {
             return $this; //no restrictions , default setting
@@ -53,7 +56,8 @@ class Limit
      *
      * @return boolean
      */
-    public function increment() {
+    public function increment()
+    {
         if($this->write_limit !== NULL) {
             $this->current_at = $this->current_at + 1;
         }
@@ -69,7 +73,8 @@ class Limit
      *
      * @return boolean
      */
-    public function deincrement() {
+    public function deincrement()
+    {
         if($this->write_limit !== NULL) {
 
             if($this->current_at > 0){
@@ -92,7 +97,8 @@ class Limit
      *
      * @return void
      */
-    public function reset() {
+    public function reset()
+    {
         $this->current_at = 0;
     }
 
@@ -104,7 +110,8 @@ class Limit
      *
      * @return boolean
      */
-    public function atLimit() {
+    public function atLimit()
+    {
 
         if($this->write_limit !== NULL) {
             return ($this->current_at >= $this->write_limit )? TRUE : FALSE;
@@ -114,5 +121,20 @@ class Limit
     }
 
     //---------------------------------------------------------------
+    
+    /**
+      *  Change the limit
+      *
+      *  @param integer $limit
+      */
+    public function changeLimit($limit)
+    {
+        if(is_integer($limit) === false){
+            throw new WriterException('Limit must be an integer');            
+        }
+        $this->write_limit = $limit;
+        $this->reset();
+    }
+
 }
 /* End of File */

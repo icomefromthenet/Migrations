@@ -43,7 +43,7 @@ class FakerFormatterFactoryTest extends AbstractProject
         
         $writer_manager->expects($this->once())
                ->method('getWriter')
-               ->with($this->equalTo('mysql'))
+               ->with($this->equalTo('mysql'),$this->equalTo('sql'))
                ->will($this->returnValue($writer_instance));
                    
                         
@@ -80,7 +80,7 @@ class FakerFormatterFactoryTest extends AbstractProject
         
         $writer_manager->expects($this->once())
                ->method('getWriter')
-               ->with($this->equalTo('mysql'))
+               ->with($this->equalTo('mysql'),$this->equalTo('phpunit'))
                ->will($this->returnValue($writer_instance));
        
     
@@ -118,7 +118,7 @@ class FakerFormatterFactoryTest extends AbstractProject
         
         $writer_manager->expects($this->once())
                ->method('getWriter')
-               ->with($this->equalTo('mysql'))
+               ->with($this->equalTo('mysql'),$this->equalTo('phpunit'))
                ->will($this->returnValue($writer_instance));
        
         

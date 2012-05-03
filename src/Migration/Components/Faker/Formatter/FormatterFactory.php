@@ -52,9 +52,9 @@ class FormatterFactory implements ExtensionInterface
         }
        
         $class = new self::$formatters[$formatter]($this->event,
-                                                   $this->writer->getWriter($platform->getName()),
+                                                   $this->writer->getWriter($platform->getName(),$formatter),
                                                    $platform);
-        
+       
         # register this formatter as a subscriber 
         $this->event->addSubscriber($class); 
         

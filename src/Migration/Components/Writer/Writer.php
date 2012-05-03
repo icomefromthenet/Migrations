@@ -49,6 +49,8 @@ class Writer implements WriterInterface
                 foreach($this->cache as $line) {
                     $this->stream->write($line);            
                 }
+                
+                # remove lines from cache
                 $this->cache->flush();   
             }
             
@@ -76,6 +78,7 @@ class Writer implements WriterInterface
             foreach($this->cache as $line) {
                 $this->stream->write($line);            
             }
+            # remove all lines from cache
             $this->cache->flush();
             
             # tell the stream to close and write footers

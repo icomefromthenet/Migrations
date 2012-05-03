@@ -10,10 +10,6 @@ use Symfony\Component\Finder\Finder as Finder;
 
 class Io implements IoInterface
 {
-
-
-
-
     /*
      * __construct()
      *
@@ -77,7 +73,7 @@ class Io implements IoInterface
         $path = $this->path($folders);
 
         if(is_file($path . $name) === FALSE){
-            throw new FileNotExistException('Can not find fine named: '.$path . $name);
+            throw new FileNotExistException('Can not find file named: '.$path . $name);
         }
 
         return file_get_contents($path . $name);
@@ -100,7 +96,7 @@ class Io implements IoInterface
         $path = $this->path($folders);
 
         if(is_file($path . $name) === FALSE){
-            throw new FileNotExistException('Can not find fine named: '.$path . $name);
+            throw new FileNotExistException('Can not find file named: '.$path . $name);
         }
 
         if($object === true) {

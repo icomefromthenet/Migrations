@@ -142,14 +142,21 @@ class Sql implements FormatterInterface
 
         # set the schema prefix on writter
         $this->writer->getStream()->getSequence()->setPrefix(strtolower($event->getId()));
-        $this->writer->getStream()->getSequence()->setSuffix('sql');
+        $this->writer->getStream()->getSequence()->setSuffix($this->platform->getName());
         $this->writer->getStream()->getSequence()->setExtension('sql');
         
-        # return the schema name as a comment
-        $out = sprintf('### Creating Data for Schema %s'.PHP_EOL,$event->getId());
-        $this->writer->write($out);
+        $now = new \DateTime();
         
-        return  $out;
+        $server_name = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost'; 
+        
+        $this->writer->getStream()->getHeaderTemplate()->setData(array(
+                                        'faker_version' => FAKER_VERSION,
+                                        'host'          => $server_name,
+                                        'datetime'      => $now->format(DATE_W3C),
+                                        'phpversion'    => PHP_VERSION,
+                                        'schema'        => $event->getId(),
+                                        'platform'      => $this->platform->getName(),
+                                        ));
     }
     
     
@@ -160,14 +167,7 @@ class Sql implements FormatterInterface
       */
     public function onSchemaEnd(GenerateEvent $event)
     {
-       # flush the writer for next table
-       $this->writer->flush();
-      
-       $out = sprintf('### Finished Creating Data for Schema %s'.PHP_EOL,$event->getId());
-       $this->writer->write($out);
-       
-       # return the schema name as a comment
-       return $out;
+        $this->writer->flush();
     }
     
     
@@ -191,9 +191,14 @@ class Sql implements FormatterInterface
        
        $this->column_map = $map;
        
-       $out = sprintf('### Creating Data for Table %s'.PHP_EOL,$event->getId());
-       $this->writer->write($out);
-       return  $out;
+       $this->writer->write(PHP_EOL);
+       $this->writer->write(PHP_EOL);
+       $this->writer->write('--'.PHP_EOL);
+       $this->writer->write('-- Table: '.$event->getId().PHP_EOL);
+       $this->writer->write('--'.PHP_EOL);
+       $this->writer->write(PHP_EOL);
+       $this->writer->write(PHP_EOL);
+
     }
     
     
@@ -205,16 +210,20 @@ class Sql implements FormatterInterface
     public function onTableEnd(GenerateEvent $event)
     {
        
-       # flush the writer for next table
-       $this->writer->flush();
-       
        # unset the column map for next table
        $this->column_map = null;
        
-       $out = sprintf('### Finished Creating Data for Table %s'. PHP_EOL ,$event->getId());
-       $this->writer->write($out);
+       $this->writer->write(PHP_EOL);
+       $this->writer->write(PHP_EOL);
+       $this->writer->write('--'.PHP_EOL);
+       $this->writer->write('-- Finished Table: '.$event->getId().PHP_EOL);
+       $this->writer->write('--'.PHP_EOL);
+       $this->writer->write(PHP_EOL);
+       $this->writer->write(PHP_EOL);
        
-       return $out;
+       # flush the writer for next table
+       $this->writer->flush();
+       
     }
     
     

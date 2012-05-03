@@ -6,17 +6,34 @@ use \Twig_Template;
 
 class Template
 {
+    
+    //  -------------------------------------------------------------------------
 
+    /**
+      *  @var Twig_Template $template 
+      */
     protected $template;
-
+    
+    /**
+      *  @var arrays $vars
+      */
     protected $vars;
     
-
+    //  -------------------------------------------------------------------------
+    
+    /**
+      *  Public Constructor
+      *
+      *  @param Twig_Template $template
+      *  @param array $vars
+      */
     public function __construct(Twig_Template $template,array $vars)
     {
         $this->vars = $vars;
         $this->template = $template;
     }
+
+    //  -------------------------------------------------------------------------
     
     /**
       *  Render a template
@@ -38,18 +55,28 @@ class Template
     
     //  -------------------------------------------------------------------------
     # Properties
-
-
+    
+    /**
+      *  Get Data
+      *
+      *  @return array
+      */
     public function getData()
     {
         return $this->vars;
     }
     
+    /**
+      *  Set Data
+      *
+      *  @param array $data
+      */
     public function setData(array $data)
     {
         $this->vars = $data;
     }
     
+    //  -------------------------------------------------------------------------
     
     /**
       *  Returns the twig template
@@ -62,7 +89,6 @@ class Template
         return $this->template;
     }
     
+    //  -------------------------------------------------------------------------
 }
-
-
 /* End of File */

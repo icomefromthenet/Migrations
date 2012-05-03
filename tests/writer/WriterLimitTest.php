@@ -115,4 +115,29 @@ class WriterLimitTest extends AbstractProject
     }
 
     
+    public function testLimitChange()
+    {
+        $file = new Limit(5);
+
+        $file->increment();
+        $file->increment();
+        $file->increment();
+        $file->increment();
+        $file->increment();
+  
+        $this->assertTrue($file->atLimit(),'Limit should have been reached');
+      
+        $file->reset();
+        $file->changeLimit(6);
+        
+        $file->increment();
+        $file->increment();
+        $file->increment();
+        $file->increment();
+        $file->increment();
+  
+        $this->assertFalse($file->atLimit(),'Limit should not have been reached');
+      
+    }
+    
 }

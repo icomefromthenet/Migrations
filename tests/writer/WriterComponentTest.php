@@ -37,9 +37,10 @@ class WriterComponentTest extends AbstractProject
     {
         $project = $this->getProject();
         $manager = $project['writer_manager'];
-        $platform = 'mysql';    
+        $platform = 'mysql';
+        $formatter = 'sql';
         
-        $writer = $manager->getWriter($platform);
+        $writer = $manager->getWriter($platform,$formatter);
 
         $this->assertInstanceOf('Migration\Components\Writer\Writer',$writer);
         
@@ -72,23 +73,21 @@ class WriterComponentTest extends AbstractProject
         */
       public function testWriterWrite()
       {
-            $project = $this->getProject();
-            $manager = $project['writer_manager'];
-            $platform = 'mysql';    
-            $writer = $manager->getWriter($platform);
-    
-            
-            $writer->write('line');
-             $writer->write('line');
-            $writer->write('line');
-            $writer->write('line');
-            $writer->write('line');
-            $writer->write('line');
-           
-            $writer->flush();
+        $project = $this->getProject();
+        $manager = $project['writer_manager'];
+        $platform = 'mysql';
+        $formatter = 'sql';
+        $writer = $manager->getWriter($platform,$formatter);
+        
+        $writer->write('line');
+        $writer->write('line');
+        $writer->write('line');
+        $writer->write('line');
+        $writer->write('line');
+        $writer->write('line');
+        
+        $writer->flush();
             
       }
-
-
 }
 /* End of File */

@@ -60,6 +60,14 @@ $project = new Project(new Path());
 
 
 //------------------------------------------------------------------------------
+// FAKER Version 
+//
+//------------------------------------------------------------------------------
+
+define('FAKER_VERSION','1.0'); 
+
+
+//------------------------------------------------------------------------------
 // Setup the project extension directories.
 //
 // If project folder is set by cmd this path below is overriden in Command.php

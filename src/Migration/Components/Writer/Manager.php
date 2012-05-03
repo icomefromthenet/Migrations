@@ -11,6 +11,7 @@ use Migration\Components\Writer\Limit;
 use Migration\Components\Writer\Stream;
 use Migration\Components\Writer\Sequence;
 use Migration\Components\Writer\Writer;
+use Migration\Io\FileNotExistException;
 
 /*
  * class Manager
@@ -66,9 +67,9 @@ class Manager
       * @access public
       * @return \Migration\Components\Config\Writer
       */
-    public function getWriter($platform)
+    public function getWriter($platform,$formatter)
     {
-       return new Writer($this->getStream($platform),$this->getCache(),$this->getCacheMax());
+       return new Writer($this->getStream($platform,$formatter),$this->getCache(),$this->getCacheMax());
     }
 
     //  -------------------------------------------------------------------------
@@ -84,9 +85,13 @@ class Manager
       return new Limit($this->getLinesInFile());
     }
 
-    public function getStream($platform)
+    public function getStream($platform,$formatter)
     {
-        return new Stream($this->getHeaderTemplate($platform),$this->getFooterTemplate($platform),$this->getSequence($platform, 'schema', 'table', 'sql'),$this->getLimit(),$this->io);
+        return new Stream($this->getHeaderTemplate($platform,$formatter),
+                          $this->getFooterTemplate($platform,$formatter),
+                          $this->getSequence($platform, 'schema', 'table', 'sql'),
+                          $this->getLimit(),$this->io
+                        );
     }
     
     public function getSequence($prefix, $body, $suffix, $extension,$format = '{prefix}_{body}_{suffix}_{seq}.{ext}')
@@ -129,11 +134,26 @@ class Manager
     protected $header_template ='header_template.twig';
 
     
-    public function getHeaderTemplate($platform)
+    public function getHeaderTemplate($platform,$formatter)
     {
-        return $this->project['template_manager']
+        
+        try {
+            # try and load the file
+               
+            $template = $this->project['template_manager']
                     ->getLoader()
-                    ->load( $platform . DIRECTORY_SEPARATOR .$this->header_template);
+                    ->load($formatter. DIRECTORY_SEPARATOR .$platform. DIRECTORY_SEPARATOR .$this->header_template); 
+       
+        } catch (FileNotExistException $e) {
+            #try and load the fallback
+            
+            $template = $this->project['template_manager']
+                    ->getLoader()
+                    ->load($formatter. DIRECTORY_SEPARATOR .$this->header_template); 
+        
+        }
+        
+        return  $template;
     }
     
     public function setHeaderTemplate($template)
@@ -152,11 +172,26 @@ class Manager
         $this->footer_template = $template;
     }
     
-    public function getFooterTemplate($platform)
+    public function getFooterTemplate($platform,$formatter)
     {
-        return $this->project['template_manager']
+        
+        try {
+            # try and load the file
+            
+            $template = $this->project['template_manager']
                     ->getLoader()
-                    ->load($platform . DIRECTORY_SEPARATOR .$this->footer_template);    
+                    ->load($formatter. DIRECTORY_SEPARATOR .$platform. DIRECTORY_SEPARATOR .$this->footer_template);
+            
+        } catch (FileNotExistException $e) {
+             # try fall back 
+                
+            $template = $this->project['template_manager']
+                    ->getLoader()
+                    ->load($formatter. DIRECTORY_SEPARATOR .$this->footer_template);
+        }
+        
+        return $template;
+            
     }
     
     //  -------------------------------------------------------------------------
