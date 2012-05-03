@@ -10,26 +10,20 @@ use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use \PDO;
 
-class Email extends Type
+class Names extends Type
 {
-    protected $valid_suffixes;
-    
-    
 
+    //  -------------------------------------------------------------------------
 
-    //---------------------------------------------------------------
     /**
-     * Generate an Email address
+     * Generate a value
      * 
      * @return string 
      */
-    public function generate($rows, $values = array())
+    public function generate($rows,$values = array())
     {
-        $format = $this->getOption('format');
-        
-        # fetch names values from database
-        
         $conn = $this->utilities->getGeneratorDatabase();
+        
         $sql = "SELECT * FROM person_names ORDER BY RANDOM() LIMIT 1";
         $stmt = $conn->prepare($sql);
         $stmt->execute();    
@@ -42,25 +36,18 @@ class Email extends Type
         $inital = $result['middle_initial'];
         
         
-        # parse name data into format
+        # parse data into format
+        
+        $format = $this->getOption('format');
+    
         $format = preg_replace('/{fname}/', $fname,$format);
         $format = preg_replace('/{lname}/', $lname,$format);
         $format = preg_replace('/{inital}/',$inital,$format);
        
-        # parse the domain data into format 
-        $domains = $this->getOption('domains');
-        $rand_key = array_rand($domains,1); 
-        $format = preg_replace('/{domain}/',$domains[$rand_key],$format);
-        
-        # parse names param
-        $params = $this->getNameParams();
-        
-        foreach($params as $param => $value) {
-            $format = preg_replace('/{'.$param.'}/',$this->utilities->generateRandomAlphanumeric($value),$format);
-        }
-        
+         
         return $format;
     }
+    
     
     //  -------------------------------------------------------------------------
 
@@ -84,31 +71,11 @@ class Email extends Type
 
         $rootNode
             ->children()
-                ->scalarNode('domains')
-                    ->defaultValue(array('edu','com','org','ca','net','co.uk','com.au','biz','info'))
-                    ->setInfo('a list of domains to use')
-                    ->setExample('edu,com,org,ca,net,co.uk,com.au,biz,info')
-                    ->validate()
-                        ->ifString()
-                        ->then(function($v){
-                            # parse the values into an array
-                            $tokens = new \Migration\Components\Faker\TokenIterator($v,',');
-                            $domains = array();
-                            foreach($tokens as $domain) {
-                                $domains[] = $domain;
-                            }
-                            unset($tokens);
-
-                            return $domains;
-                        })
-                    ->end()
-                ->end()
                 ->scalarNode('format')
-                    ->isRequired()
-                    ->setInfo('Format to use to generate addresses')
-                    ->setExample('{fname}{lname}{alpha}@{alpha}.{domain}')
+                ->isRequired()
+                ->setInfo('Names Format to use')
+                ->setExample('{fname} {inital} {lname}')
                 ->end()
-                
             ->end();
             
         return $treeBuilder;
@@ -135,35 +102,6 @@ class Email extends Type
     {
         $this->options = $this->merge($this->options);
         return true;
-    }
-    
-    //  -------------------------------------------------------------------------
-
-    
-    
-    public function setOption($name,$option)
-    {
-	if(in_array($name,array('format','domains')) === false) {
-            $this->addNameParam($name,$option);
-            
-        }else {
-            $this->options[$name] = $option;    
-        }
-        
-    }
-    
-    //  -------------------------------------------------------------------------
-    
-    protected $name_params = array();
-        
-    public function getNameParams()
-    {
-        return $this->name_params;
-    }
-    
-    public function addNameParam($param,$value)
-    {
-        $this->name_params[$param] = $value;
     }
     
     //  -------------------------------------------------------------------------

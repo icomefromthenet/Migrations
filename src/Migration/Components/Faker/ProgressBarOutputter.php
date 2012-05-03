@@ -127,7 +127,7 @@ class ProgressBarOutputter implements EventSubscriberInterface
       */
     public function onRowEnd(GenerateEvent $event)
     {
-        $this->bar->next(1,'Table '. $event->getType()->getParent()->getId());
+        $this->bar->next(1,'Table '. $event->getType()->getId());
     }
     
     
