@@ -19,8 +19,8 @@
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
+use Doctrine\DBAL\Events;
 
 /**
  * SQL Server Schema Manager

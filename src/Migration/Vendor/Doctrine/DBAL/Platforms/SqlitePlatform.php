@@ -464,6 +464,7 @@ class SqlitePlatform extends AbstractPlatform
             'longtext'         => 'text',
             'text'             => 'text',
             'varchar'          => 'string',
+            'longvarchar'      => 'string',
             'varchar2'         => 'string',
             'nvarchar'         => 'string',
             'image'            => 'string',
@@ -500,5 +501,19 @@ class SqlitePlatform extends AbstractPlatform
     {
         $tableName = str_replace(".", "__", $tableName);
         return $tableName;
+    }
+
+    /**
+     * Sqlite Platform emulates schema by underscoring each dot and generating tables
+     * into the default database.
+     *
+     * This hack is implemented to be able to use SQLite as testdriver when
+     * using schema supporting databases.
+     *
+     * @return bool
+     */
+    public function canEmulateSchemas()
+    {
+        return true;
     }
 }

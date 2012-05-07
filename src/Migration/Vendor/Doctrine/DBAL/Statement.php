@@ -59,7 +59,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      * Creates a new <tt>Statement</tt> for the given SQL and <tt>Connection</tt>.
      *
      * @param string $sql The SQL of the statement.
-     * @param \Doctrine\DBAL\Connection The connection on which the statement should be executed.
+     * @param Doctrine\DBAL\Connection The connection on which the statement should be executed.
      */
     public function __construct($sql, Connection $conn)
     {
@@ -203,13 +203,13 @@ class Statement implements \IteratorAggregate, DriverStatement
      * Returns an array containing all of the result set rows.
      *
      * @param integer $fetchStyle
-     * @param integer $columnIndex
+     * @param mixed $fetchArgument
      * @return array An array containing all of the remaining rows in the result set.
      */
-    public function fetchAll($fetchStyle = PDO::FETCH_BOTH, $columnIndex = 0)
+    public function fetchAll($fetchStyle = PDO::FETCH_BOTH, $fetchArgument = 0)
     {
-        if ($columnIndex != 0) {
-            return $this->stmt->fetchAll($fetchStyle, $columnIndex);
+        if ($fetchArgument !== 0) {
+            return $this->stmt->fetchAll($fetchStyle, $fetchArgument);
         }
         return $this->stmt->fetchAll($fetchStyle);
     }
@@ -238,7 +238,7 @@ class Statement implements \IteratorAggregate, DriverStatement
     /**
      * Gets the wrapped driver statement.
      *
-     * @return \Doctrine\DBAL\Driver\Statement
+     * @return Doctrine\DBAL\Driver\Statement
      */
     public function getWrappedStatement()
     {
