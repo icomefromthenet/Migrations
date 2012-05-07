@@ -12,7 +12,7 @@ The range returns numeric values i.e. not return a string.
 
 Please be aware of perision issues with [floating point numbers](http://php.net/manual/en/language.types.float.php).
 
-*To declare a range use the following format:**
+**To declare a range use the following format:**
 
 ```xml
 

@@ -57,7 +57,7 @@ $database_task->setCode(function(InputInterface $input, ConsoleOutputInterface $
 
     $connection->executeQuery($drop_schema[0]);
     $connection->executeQuery($drop_schema[1]);
-    $connection->executeQuery($create_schema[2]);
+    $connection->executeQuery($drop_schema[2]);
     
     $connection->executeQuery($create_schema[0]);
     $connection->executeQuery($create_schema[1]);
@@ -360,7 +360,7 @@ $parse_countries->setCode(function(InputInterface $input, ConsoleOutputInterface
            
             $conn->insert('countries',array(
                                               'code'    => $data['FIELD2'],
-                                              'name'    => $data['FIELD1'],
+                                              'name'    => ucwords(strtolower($data['FIELD1'])),
             ));
             
             if ($input->getOption('verbose')) {
@@ -390,11 +390,8 @@ $build_command->setCode(function(InputInterface $input, ConsoleOutputInterface $
     $project->getConsole()->find('database')->run($input,$output);
     
     $project->getConsole()->find('cities')->run($input,$output);
-    
     $project->getConsole()->find('names')->run($input,$output);
-   
     $project->getConsole()->find('countries')->run($input,$output);
-   
     
     //$project->getConsole()->find('pear')->run($input,$output);
 });

@@ -4,6 +4,8 @@ The people type will select from 16,000 unique names one random set per loop ite
 
 **The type has the following options:**
 
+1. format - the order to print the names example '{fname} {inital} {lname}'
+
 
 **The type may be declared as follows:**
 

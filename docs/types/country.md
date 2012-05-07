@@ -4,6 +4,7 @@ The country type will return a random country, an optional list of The country c
 
 
 **The country type has the following options:**
+
 1. countries - a comma seperated list of ISO_3166-1 country codes.
 
 ** The type may be declared as follows:**

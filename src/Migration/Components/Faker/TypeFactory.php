@@ -35,8 +35,9 @@ class TypeFactory implements ExtensionInterface
             'latlng'          => '\\Migration\\Components\\Faker\\Type\\LatLng',
             'unique_number'   => '\\Migration\\Components\\Faker\\Type\\UniqueNumber',
             'unique_string'   => '\\Migration\\Components\\Faker\\Type\\UniqueString',
-            'people'           => '\\Migration\\Components\\Faker\\Type\\Names',
+            'people'          => '\\Migration\\Components\\Faker\\Type\\Names',
             'city'            => '\\Migration\\Components\\Faker\\Type\\Cities',
+            'country'         => '\\Migration\\Components\\Faker\\Type\\Country',
         
     );
 
