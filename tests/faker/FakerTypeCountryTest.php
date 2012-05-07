@@ -1,9 +1,9 @@
 <?php
 require_once __DIR__ .'/../base/AbstractProject.php';
 
-use \Migration\Components\Faker\Type\Email;
+use \Migration\Components\Faker\Type\Country;
 
-class FakerTypeEmailTest extends AbstractProject
+class FakerTypeCountryTest extends AbstractProject
 {
     
     public function testTypeExists()
@@ -22,7 +22,7 @@ class FakerTypeEmailTest extends AbstractProject
                       ->getMock();
       
             
-        $type = new Email($id,$parent,$event,$utilities);
+        $type = new Country($id,$parent,$event,$utilities);
         
         $this->assertInstanceOf('\\Migration\\Components\\Faker\\TypeInterface',$type);
     
@@ -44,47 +44,19 @@ class FakerTypeEmailTest extends AbstractProject
         $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')
                       ->getMock();
             
-        $type = new Email($id,$parent,$event,$utilities);
-        $config = array('format' =>'xxxx','domains' => 'au,com.au');
-        
-        
+        $type = new Country($id,$parent,$event,$utilities);
+        $config = array('countries' =>'AU,US,UK');
         $options = $type->merge($config);        
+        $this->assertSame($options['countries'],array('AU','US','UK'));
         
-        $this->assertEquals($options['format'],$config['format']);
-        $this->assertSame($options['domains'],array('au','com.au'));
+        # test with no options
+        $type = new Country($id,$parent,$event,$utilities);
+        $options = $type->merge(array());        
+        $this->assertSame($options['countries'],null);
+   
     }
     
     //  -------------------------------------------------------------------------
-    
-    /**
-      *  @expectedException \Migration\Components\Faker\Exception
-      *  @expectedExceptionMessage The child node "format" at path "config" must be configured
-      */
-    public function testConfigMissingFormat()
-    {
-        $id = 'table_two';
-        
-        $utilities = $this->getMockBuilder('Migration\Components\Faker\Utilities')
-                          ->disableOriginalConstructor()
-                          ->getMock();
-        
-        
-        $parent = $this->getMockBuilder('Migration\Components\Faker\Composite\CompositeInterface')
-                        ->getMock();
-                        
-        $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')
-                      ->getMock();
-            
-        $type = new Email($id,$parent,$event,$utilities);
-        $config = array(); 
-        
-        $options = $type->merge($config);        
-        
-        
-    }
-    
-    //  -------------------------------------------------------------------------
-    
     
     public function testGenerate()
     {
@@ -100,15 +72,30 @@ class FakerTypeEmailTest extends AbstractProject
         $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')
                       ->getMock();
             
-        $type = new Email($id,$parent,$event,$utilities);
-        $type->setOption('format','{fname}\'{lname}{alpha1}@{alpha2}.{domain}');
-        $type->setOption('alpha1','ccCCC');
-        $type->setOption('alpha2','xxxx');
-      
-               
+        $type = new Country($id,$parent,$event,$utilities);
+        $type->setOption('countries','AU,UK,US');
         $type->validate(); 
          
         $value = $type->generate(1,array());
+        $this->assertStringMatchesFormat('%s',$value);
+        $value = $type->generate(1,array());
+        $this->assertStringMatchesFormat('%s',$value);
+        $value = $type->generate(1,array());
+        $this->assertStringMatchesFormat('%s',$value);
+        
+        # test with no options        
+        $type = new Country($id,$parent,$event,$utilities);
+        $type->validate(); 
+                
+        $value = $type->generate(1,array());
+        $this->assertStringMatchesFormat('%s',$value);
+        $value = $type->generate(1,array());
+        $this->assertStringMatchesFormat('%s',$value);
+        $value = $type->generate(1,array());
+        $this->assertStringMatchesFormat('%s',$value);
+        $value = $type->generate(1,array());
+        $this->assertStringMatchesFormat('%s',$value);
+   
     }
     
     

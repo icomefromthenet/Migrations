@@ -1,13 +1,13 @@
-## Boolean
+##Boolean Type
 
 The boolean type returns true for false, the doctine datbase platform will convert the value into correct database representation.
 
-The type has the following options:
+**The type has the following options:**
 
 1. value - true or false.
 
 
-To Declare the boolean type use the following format:
+**To Declare the boolean type use the following format:**
 
 ```xml
 <datatype name="boolean">

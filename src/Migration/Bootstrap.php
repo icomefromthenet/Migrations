@@ -317,9 +317,9 @@ $project['source_io'] = $project->share(function($project){
 //
 //---------------------------------------------------------------
 
-$project['parser'] = $project->share(function($project){
+$project['parser'] = function($project){
    return new \Migration\Parser\Parser($project['event_dispatcher']);
-});
+};
 
 $project['parser_options'] = function($project){
    return new \Migration\Parser\ParseOptions($project['event_dispatcher']);

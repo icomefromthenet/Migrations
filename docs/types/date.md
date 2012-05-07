@@ -1,16 +1,16 @@
-## Date and DateTime
+##Date and DateTime Type
 
 This type will enables the definition of a date, with each loop having an optional modify applied with a test to an optional max causing a reset (date-range). The doctine database platform will format the DateTime for your database.  A date column will receive a date and time column the time.
 
 Do not use this type for a timestamp, use timestamp type instead.
 
-This type has the following options:
+**This type has the following options:**
 
 1. start  - The strtotime starting date.
 2. max    - Optional strtotime max date.
 3. modify - Optional strtotime modify string.
 
-The type may be declared as follows:
+**The type may be declared as follows:**
 
 today = date and time that the generate command was run.
 

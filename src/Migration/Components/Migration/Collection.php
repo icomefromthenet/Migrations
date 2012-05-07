@@ -59,11 +59,11 @@ class Collection implements \Countable, \IteratorAggregate
 
     public function __construct(Output $output, Logger $log, Io $io, EventDispatcherInterface $event, $latest)
     {
-      $this->output = $output;
-      $this->io = $io;
+      $this->output           = $output;
+      $this->io               = $io;
       $this->latest_migration = $latest;
-      $this->event = $event;
-      $this->log = $log;
+      $this->event            = $event;
+      $this->log              = $log;
     }
 
     //  -------------------------------------------------------------------------
@@ -85,11 +85,9 @@ class Collection implements \Countable, \IteratorAggregate
     # IteratorAggregate Interface
 
     /**
-      *  Return an a cloned the inner queue
-      * if the innerqueue is not cloned iterating over it will
-      * remove the queued items
-      *
-      * @return \SplPriorityQueue
+      * Return an iterator
+      * 
+      * @return ArrayIterator
       * @access public
       */
     public function getIterator()
@@ -107,7 +105,7 @@ class Collection implements \Countable, \IteratorAggregate
      * version control is involved
      *
      * Store the value seperatly from the collection current index to avoid
-     * outOfBounds Exceptions.
+     * Exceptions.
      *
      * @var integer
      */
@@ -171,12 +169,12 @@ class Collection implements \Countable, \IteratorAggregate
   
          //check if migration exists
         if($this->exists($stamp) !== false) {
-          throw new MigrationMissingException(sprintf('Migration with %s can not be found'));
+            throw new MigrationMissingException(sprintf('Migration with %s can not be found'));
         }
   
         # test if migration has NOT been applied and force = false
         if($this->inner_queue[$stamp]->getApplied() === false && $force === false) {
-          throw new MigrationAppliedException(sprintf('Migration %s NOT been applied to database cant runt down',$stamp));
+            throw new MigrationAppliedException(sprintf('Migration %s NOT been applied to database cant runt down',$stamp));
         }
   
         # run down operation

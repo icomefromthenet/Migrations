@@ -1,29 +1,36 @@
+##Numeric Type
+
 The numeric type can be used to represet numbers in specify formats. It will generate a random integer for each placeholder. Please be mindful of formats that are not valid PHP int, floats, doubles. Values that exceed the rangae offered by php should be generated with the alphanumeric which will cast value as string.
 
-The numeric type has the following option.
+**The numeric type has the following option.**
 
 1. format - the placeholder to replace for example xxxxxxxxxx.xxx.
 
-To declare this type use the following format:
+**To declare this type use the following format:**
 
 ```xml
+
 <datatype>
     <option name="format" value="xxxx" />
 </datatype>
+
 ```
 
-A decimal my also be included:
+**A decimal my also be included:**
 
 ```xml
+
 <datatype>
     <option name="format" value="xxxx.xx" />
 </datatype>
+
 ```
 
 To Represent a block of formats all values up to a million using the random selector is recommended.
 
 
 ```xml
+
 <random>
     <!-- 0 - 10 cents --> 
     <datatype>
@@ -69,6 +76,7 @@ To Represent a block of formats all values up to a million using the random sele
         <option name="format" value="xxxxxxx.xx" />
     </datatype>
 </random>
+
 ```
 
 
