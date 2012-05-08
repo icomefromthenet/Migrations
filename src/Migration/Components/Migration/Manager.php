@@ -3,8 +3,6 @@ namespace Migration\Components\Migration;
 
 use Migration\Project;
 
-use Migration\Components\Migration\Driver\SchemaInterface;
-use Migration\Components\Migration\Driver\TableInterface;
 use Migration\Components\Migration\Driver\SchemaManagerFactory;
 use Migration\Components\Migration\Driver\TableManagerFactory;
 use Migration\Components\Migration\Exception as MigrationException;
@@ -21,7 +19,7 @@ use Migration\Components\Migration\Diff as SanityCheck;
  * class Manager
  */
 
-class Manager
+class Manager implements ManagerInterface
 {
 
     /**
@@ -57,7 +55,7 @@ class Manager
     /**
       *  @var Migration\Components\Migration\Collection 
       */
-    protected $migration_collection
+    protected $migration_collection;
     
     /*
      * __construct()
@@ -82,10 +80,16 @@ class Manager
     public function getEventHandler()
     {
         if($this->handler === null) {
+          
           # load the event handler
-            $this->handler = new MigrationHandler($this->project['event_dispatcher'],
-                                                  $this->getTableManager(),
-                                                  $this->project['database']);   
+          $this->handler = new MigrationHandler($this->getTableManager(),
+                                                $this->project['database']);   
+        
+           # bind event handlers
+           $event = $this->project['event_dispatcher'];
+           $event->addListener('upEvent',  array($this->handler,'handleUp'));
+           $event->addListener('downEvent',array($this->handler,'handleDown'));
+     
         }
          
         return $this->handler;        
@@ -109,7 +113,7 @@ class Manager
                                                                    $this->io);
         }
         
-        return $this->migration_collection
+        return $this->migration_collection;
     }
     
     
@@ -196,7 +200,7 @@ class Manager
     public function getWriter()
     {
         if($this->writer === NULL) {
-            $this->writer = new Writer($this->io);
+            $this->writer = new Writer($this->io,$this->getFileNameParser());
         }
 
         return $this->writer;

@@ -105,7 +105,7 @@ class MigrationFile implements MigrationFileInterface
       *  @access public
       *  @return EntityInterface
       */
-    public function getClass()
+    public function getEntity()
     {
        $class_name = basename($this->getFilename());
 

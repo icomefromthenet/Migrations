@@ -4,18 +4,12 @@ namespace Migration\Components\Migration\Event;
 
 use Migration\Components\Migration\Driver\TableInterface;
 use Migration\Components\Migration\Exception as MigrationException;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface as Event;
-use Doctrine\DBAL\Connection;
-use Doctine\DBAL\DBALException;
 use Migration\Components\Migration\Event\Base as MigrationEvent;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Schema\Schema;
 
 class Handler
 {
-    /**
-      * @var Symfony\Component\EventDispatcher\EventDispatcherInterface   
-      */
-    protected $event;
-    
     /**
       * @var Migration\Components\Migration\Driver\TableInterface 
       */
@@ -28,16 +22,10 @@ class Handler
     
     
         
-    public function __construct(Event $event, TableInterface $migration, Connection $conn )
+    public function __construct(TableInterface $migration, Connection $conn )
     {
-        $this->event = $event;
         $this->migration = $migration;
         $this->conn = $conn;
-        
-        # bind event handlers
-        $event->addListener('upEvent',  array($this,'handleUp'));
-        $event->addListener('downEvent',array($this,'handleDown'));
-        
     }
     
     
@@ -46,7 +34,7 @@ class Handler
       *
       *  @param MigrationEvent $event
       */
-    public function handleUp(MigrationEvent $event)
+    public function handleUp(MigrationEvent $event, Schema $schema)
     {
         $migration = $event->getMigration();
         
@@ -56,7 +44,7 @@ class Handler
             
             # Apply the migration
             
-            $migration->getClass()->up($this->conn);
+            $migration->getEntity()->up($this->conn, $schema);
             
             # Add to the state table
            
@@ -69,7 +57,7 @@ class Handler
             
             
             $this->conn->commit();
-        } catch (DBALException $e) {
+        } catch (MigrationException $e) {
             
             $this->conn->rollback();
             
@@ -84,7 +72,7 @@ class Handler
       *
       *  @param MigrationEvent $event
       */    
-    public function handleDown(MigrationEvent $event)
+    public function handleDown(MigrationEvent $event, Schema $schema)
     {
         $migration = $event->getMigration();
         
@@ -94,7 +82,7 @@ class Handler
             
             # call the migration
             
-            $migration->getClass()->down($this->conn);
+            $migration->getEntity()->down($this->conn,$schema);
             
             # remove from the state table
             
@@ -106,7 +94,7 @@ class Handler
             
             
             $this->conn->commit();
-        } catch (DBALException $e) {
+        } catch (MigrationException $e) {
             
             $this->conn->rollback();
             

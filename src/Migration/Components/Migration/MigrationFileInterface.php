@@ -33,7 +33,7 @@ interface MigrationFileInterface
       *  @access public
       *  @return EntityInterface
       */
-    public function getClass();
+    public function getEntity();
 
 
 }

@@ -1,299 +1,274 @@
 <?php
-
-use \Migration\Components\Migration\MigrationFileInterface;
 use \Migration\Components\Migration\Event\Handler;
-use \Migration\Components\Migration\Driver\TableInterface;
-use \Migration\Components\Migration\Event\UpEvent;
-use \Migration\Components\Migration\Event\DownEvent;
-use \Migration\Components\Migration\EntityInterface;
-use \Doctrine\DBAL\Connection;
 
-require_once __DIR__ .'/../base/AbstractProjectWithDb.php';
+require_once __DIR__ .'/../base/AbstractProject.php';
 
-class MockMigration1 implements MigrationFileInterface
+class MigrationEventHandlerTest extends AbstractProject
 {
-    public function getTimestamp()
+    
+    protected $doctrine_connection;
+    
+    protected $table_interface;
+    
+    
+    public function setUp()
     {
-        return new DateTime(date(DATE_ATOM,1333170200));
-    }
-
-    public function getRealPath()
-    {
+        $conn = $this->getMockBuilder('\Doctrine\DBAL\Connection')
+                     ->disableOriginalConstructor()
+                     ->getMock();
         
+        $table = $this->getMockBuilder('\Migration\Components\Migration\Driver\TableInterface')
+                      ->disableOriginalConstructor()
+                      ->getMock();
+                      
+        $this->doctrine_connection = $conn;
+        $this->table_interface     = $table;
     }
-
-    public function getBasename ($suffix_omit)
+    
+    
+    public function tearDown()
     {
-        
+        $this->doctrine_connection = null;
+        $this->table_interface     = null;
     }
-
-    public function getExtension()
-    {
-        
-    }
-
-    public function getFilename()
-    {
-        
-    }
-
-    public function getPath()
-    {
-        
-    }
-
-    public function getPathname()
-    {
-        
-    }
-
-    public function openFile ($open_mode = 'r', $use_include_path = false , $context = NULL)
-    {
-        
-    }
-
-    public function __toString()
-    {
-        
-    }
-
-    public function getApplied()
-    {
-        
-    }
-
-    public function setApplied($applied)
-    {
-        
-    }
-
+    
     /**
-      *  Require the class and return an instance
-      *
-      *  @access public
-      *  @return EntityInterface
-      */
-    public function getClass()
-    {
-        return new MockMigrationInstance1();        
-    }
-    
-}
-
-
-
-
-
-
-class MockMigration2 implements MigrationFileInterface
-{
-    public function getTimestamp()
-    {
-        $dte = new DateTime();
-        $dte->modify('+2 minute');
-        return $dte;
-   
-    }
-
-    public function getRealPath()
-    {
-        
-    }
-
-    public function getBasename ($suffix_omit)
-    {
-        
-    }
-
-    public function getExtension()
-    {
-        
-    }
-
-    public function getFilename()
-    {
-        
-    }
-
-    public function getPath()
-    {
-        
-    }
-
-    public function getPathname()
-    {
-        
-    }
-
-    public function openFile ($open_mode = 'r', $use_include_path = false , $context = NULL)
-    {
-        
-    }
-
-    public function __toString()
-    {
-        
-    }
-
-    public function getApplied()
-    {
-        
-    }
-
-    public function setApplied($applied)
-    {
-        
-    }
-
-    /**
-      *  Require the class and return an instance
-      *
-      *  @access public
-      *  @return EntityInterface
-      */
-    public function getClass()
-    {
-        return new MockMigrationInstance2();   
-        
-    }
-    
-}
-
-
-
-
-
-
-//  -------------------------------------------------------------------------
-
-class MockMigrationInstance1 implements EntityInterface
-{
-    
-    public function up(Connection $pdo)
-    {
-        
-        
-        
-    }
-
-    public function down(Connection $pdo)
-    {
-        
-        
-        
-    }
-   
-    
-}
-
-
-class MockMigrationInstance2 implements EntityInterface
-{
-    
-    public function up(Connection $pdo)
-    {
-        
-        
-        
-    }
-
-    public function down(Connection $pdo)
-    {
-        
-        
-        
-    }
-   
-    
-}
-
-
-
-//  -------------------------------------------------------------------------
-
-class MigrationEventHandlerTest extends AbstractProjectWithDb
-{
-    
-    public function __construct()
-    {
-        
-        # build out test database
-        
-        $this->buildDb();
-        
-        # fetch the object where going to test
-        
-        $this->table = $this->getTable();
-        
-        $this->table->build();
-        
-        parent::__construct();
-    }
-
-    
-    
+      *   
+      */  
     public function testEventHandler()
     {
-
-        $project = $this->getProject();
-        $event = $project['event_dispatcher'];
-        $table = $this->getTable();
-        $connection = $this->getDoctrineConnection();
+        $table = $this->table_interface;
+        $connection = $this->doctrine_connection;
     
-        $handler = new Handler($event,$table,$connection);   
-   
-        $upEvent = $this->getUpEvent();
-        $downEvent = $this->getDownEvent();
+        $handler = new Handler($table,$connection);   
         
-        $upEvent->setMigration(new MockMigration1());
-        $downEvent->setMigration(new MockMigration1());
-   
-        $resultUp = $handler->handleUp($upEvent);
-        $resultDown = $handler->handleDown($downEvent);
+        $this->assertInstanceOf('Migration\Components\Migration\Event\Handler',$handler);
         
-        $this->assertTrue($resultUp);
-        $this->assertTrue($resultDown);
+      
     }
     
     
-    public function testEventHandlerFire()
+    /**
+      *   
+      */
+    public function testUpEventHandler()
     {
-        $project = $this->getProject();
-        $event = $project['event_dispatcher'];
-        $table = $this->getTable();
-        $connection = $this->getDoctrineConnection();
+        $table = $this->table_interface;
+        $connection = $this->doctrine_connection;
+        $timestamp = new DateTime();
+       
+        $mock_schema = $this->getMockBuilder('\Doctrine\DBAL\Schema\Schema')
+                            ->getMock(); 
+       
+        $mock_entity = $this->getMockBuilder('\Migration\Components\Migration\EntityInterface')
+                            ->getMock(); 
+       
+        $mock_entity->expects($this->once())
+                   ->method('up')
+                   ->with($this->equalTo($connection),$this->equalTo($mock_schema));
+       
+        $mock_migration = $this->getMockBuilder('\Migration\Components\Migration\MigrationFileInterface')
+                               ->getMock(); 
+       
+        $mock_migration->expects($this->once())
+                       ->method('getEntity')
+                       ->will($this->returnValue($mock_entity));
+        
+        $mock_migration->expects($this->once())
+                       ->method('setApplied')
+                       ->with($this->equalTo(true));
+        
+        $mock_migration->expects($this->once())
+                       ->method('getTimestamp')
+                       ->will($this->returnValue($timestamp));
+        
+        
+        $up_event = $this->getMockBuilder('\Migration\Components\Migration\Event\UpEvent')
+                         ->getMock();
+        
+        $up_event->expects($this->once())
+                  ->method('getMigration')
+                  ->will($this->returnValue($mock_migration));
+        
+        $connection->expects($this->once())
+                   ->method('beginTransaction');
+        
+        $connection->expects($this->once())
+                   ->method('commit'); 
+        
+        $table->expects($this->once())
+               ->method('push')
+               ->with($this->equalTo($timestamp));
+                         
+        $handler = new Handler($table,$connection);   
+        
+        $handler->handleUp($up_event,$mock_schema);        
+    }
     
-        $handler = new Handler($event,$table,$connection);   
+    /**
+      *
+      *  @expectedException \Migration\Components\Migration\Exception
+      *  @expectedExceptionMessage anexception
+      */   
+    public function testUpEventRollBackOnException()
+    {
+        $table = $this->table_interface;
+        $connection = $this->doctrine_connection;
+        $timestamp = new DateTime();
+       
+        $mock_schema = $this->getMockBuilder('\Doctrine\DBAL\Schema\Schema')
+                            ->getMock(); 
+       
+        $mock_entity = $this->getMockBuilder('\Migration\Components\Migration\EntityInterface')
+                            ->getMock(); 
+       
+        $mock_entity->expects($this->once())
+                   ->method('up')
+                   ->with($this->equalTo($connection),$this->equalTo($mock_schema));
+       
+        $mock_migration = $this->getMockBuilder('\Migration\Components\Migration\MigrationFileInterface')
+                               ->getMock(); 
+       
+        $mock_migration->expects($this->once())
+                       ->method('getEntity')
+                       ->will($this->returnValue($mock_entity));
+        
+        $mock_migration->expects($this->once())
+                       ->method('getTimestamp')
+                       ->will($this->returnValue($timestamp));
         
         
-        $up = $this->getUpEvent();
-        $up->setMigration(new MockMigration1());
-        $event->dispatch('upEvent',$up);
+        $up_event = $this->getMockBuilder('\Migration\Components\Migration\Event\UpEvent')
+                         ->getMock();
         
+        $up_event->expects($this->once())
+                  ->method('getMigration')
+                  ->will($this->returnValue($mock_migration));
         
-        $up = $this->getDownEvent();
-        $up->setMigration(new MockMigration1());
-        $event->dispatch('downEvent',$down);
+        $connection->expects($this->once())
+                   ->method('beginTransaction');
         
-        $this->assertTrue(true);        
+        $connection->expects($this->once())
+                   ->method('rollback'); 
+        
+        $table->expects($this->once())
+               ->method('push')
+               ->with($this->equalTo($timestamp))
+               ->will($this->throwException( new \Migration\Components\Migration\Exception('anexception'))); 
+                         
+        $handler = new Handler($table,$connection);   
+        
+       $handler->handleUp($up_event,$mock_schema);        
+        
     }
     
     
-    
-    
-    //  -------------------------------------------------------------------------
-    # Events Builders    
-    
-    public function getUpEvent()
+    /**
+      *   
+      */
+    public function testDownHandler()
     {
-        $event = new UpEvent();
-        return $event;
+     
+        $table = $this->table_interface;
+        $connection = $this->doctrine_connection;
+        $timestamp = new DateTime();
+       
+        $mock_schema = $this->getMockBuilder('\Doctrine\DBAL\Schema\Schema')
+                            ->getMock(); 
+       
+        $mock_entity = $this->getMockBuilder('\Migration\Components\Migration\EntityInterface')
+                            ->getMock(); 
+       
+        $mock_entity->expects($this->once())
+                   ->method('down')
+                   ->with($this->equalTo($connection),$this->equalTo($mock_schema));
+       
+        $mock_migration = $this->getMockBuilder('\Migration\Components\Migration\MigrationFileInterface')
+                               ->getMock(); 
+       
+        $mock_migration->expects($this->once())
+                       ->method('getEntity')
+                       ->will($this->returnValue($mock_entity));
+        
+        $mock_migration->expects($this->once())
+                       ->method('setApplied')
+                       ->with($this->equalTo(false));
+        
+        $up_event = $this->getMockBuilder('\Migration\Components\Migration\Event\UpEvent')
+                         ->getMock();
+        
+        $up_event->expects($this->once())
+                  ->method('getMigration')
+                  ->will($this->returnValue($mock_migration));
+        
+        $connection->expects($this->once())
+                   ->method('beginTransaction');
+        
+        $connection->expects($this->once())
+                   ->method('commit'); 
+        
+        $table->expects($this->once())
+               ->method('pop');
+               
+               
+        $handler = new Handler($table,$connection);   
+        
+        $handler->handleDown($up_event,$mock_schema);     
+        
     }
     
-    public function getDownEvent()
+    
+    /**
+      *  @expectedException \Migration\Components\Migration\Exception
+      *  @expectedExceptionMessage anexception  
+      */
+    public function testDownHandlerRollbackOnException()
     {
-        $event = new DownEvent();
-        return $event;
+        
+        $table = $this->table_interface;
+        $connection = $this->doctrine_connection;
+        $timestamp = new DateTime();
+       
+        $mock_schema = $this->getMockBuilder('\Doctrine\DBAL\Schema\Schema')
+                            ->getMock(); 
+       
+        $mock_entity = $this->getMockBuilder('\Migration\Components\Migration\EntityInterface')
+                            ->getMock(); 
+       
+        $mock_entity->expects($this->once())
+                   ->method('down')
+                   ->with($this->equalTo($connection),$this->equalTo($mock_schema));
+       
+        $mock_migration = $this->getMockBuilder('\Migration\Components\Migration\MigrationFileInterface')
+                               ->getMock(); 
+       
+        $mock_migration->expects($this->once())
+                       ->method('getEntity')
+                       ->will($this->returnValue($mock_entity));
+        
+        $up_event = $this->getMockBuilder('\Migration\Components\Migration\Event\UpEvent')
+                         ->getMock();
+        
+        $up_event->expects($this->once())
+                  ->method('getMigration')
+                  ->will($this->returnValue($mock_migration));
+        
+        $connection->expects($this->once())
+                   ->method('beginTransaction');
+        
+        $connection->expects($this->once())
+                   ->method('rollback'); 
+        
+        $table->expects($this->once())
+               ->method('pop')
+                ->will($this->throwException( new \Migration\Components\Migration\Exception('anexception'))); 
+               
+        $handler = new Handler($table,$connection);   
+        
+        $handler->handleDown($up_event,$mock_schema);     
+        
+        
+        
     }
     
 }

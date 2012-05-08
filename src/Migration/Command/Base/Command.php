@@ -6,6 +6,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Migration\Project;
+use Migration\Exception as MigrationException;
 
 class Command extends BaseCommand
 {
@@ -99,12 +100,12 @@ EOF;
         #try and detect if path exits
         $path = $project->getPath()->get();
         if($path === false) {
-            throw new \RuntimeException('Project Folder does not exist');
+            throw new MigrationException('Project Folder does not exist');
         }
 
         # path exists does it have a project
         if(Project::detect((string)$path) === false && $this->getName() !== 'project') {
-            throw new \RuntimeException('Project Folder does not contain the correct folder heirarchy');
+            throw new MigrationException('Project Folder does not contain the correct folder heirarchy');
         }
 
 
@@ -121,13 +122,13 @@ EOF;
             $project['dsn_command'] =  $input->getOption('dsn');
 
             if (false === $input->hasParameterOption(array('--username'))) {
-                throw new \InvalidArgumentException('A DSN must have a username set');
+                throw new MigrationException('A DSN must have a username set');
             }
 
             $project['username_command'] =  $input->getOption('username');
 
             if (false === $input->hasParameterOption(array('--password'))) {
-                throw new \InvalidArgumentException('A DSN must have a password set');
+                throw new MigrationException('A DSN must have a password set');
             }
 
             $project['password_command'] =  $input->getOption('password');

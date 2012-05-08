@@ -6,7 +6,7 @@ namespace Migration;
  * components library descent.
  *
  */
-abstract class Exception extends \Exception
+class Exception extends \Exception
 {
     /**
      * Original message, before escaping

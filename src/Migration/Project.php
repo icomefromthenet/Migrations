@@ -1,9 +1,10 @@
 <?php
 namespace Migration;
 
-use \Symfony\Component\Console\Output\OutputInterface;
-use \Symfony\Component\Finder\Finder;
-use \Symfony\Pimple\Pimple;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
+use Symfony\Pimple\Pimple;
+use Migration\Exception as MigrationException;
 
 class Project extends Pimple
 {
@@ -68,12 +69,12 @@ class Project extends Pimple
             $files = $folder->iterator();
 
             foreach($files as $file) {
-                throw new \RuntimeException('Root Directory must be EMPTY');
+                throw new MigrationException('Root Directory must be EMPTY');
             }
 
         } else {
 
-            throw new \RuntimeException('Root directory does not exist');
+            throw new MigrationException('Root directory does not exist');
         }
 
         #make config folders

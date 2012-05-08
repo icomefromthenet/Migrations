@@ -1,5 +1,5 @@
 <?php
-namespace Migration;
+namespace Migration\Components\Migration;
 
 use Migration\Database\Handler;
 use Migration\DatabaseSchema\Schema;
@@ -7,7 +7,7 @@ use Migration\DatabaseSchema\Schema;
 class TestData
 {
 
-    public function apply(Handler, $db Schema $sc)
+    public function apply(Connection $db, Schema $sc)
     {
 
 

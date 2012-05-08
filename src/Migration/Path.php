@@ -21,7 +21,20 @@ class Path
     {
         return $this->path;
     }
-
+    
+    /**
+      *  Set the path function
+      *
+      *  @return void
+      *  @access public
+      *  @param string $path the path to project folder
+      */
+    public function set($path)
+    {
+        $this->path = $path;
+        
+    }
+    
 
     //  -------------------------------------------------------------------------
 

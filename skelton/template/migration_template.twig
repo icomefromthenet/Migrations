@@ -1,19 +1,19 @@
 <?php
-namespace Migration;
+namespace Migration\Components\Migration;
 
-use Migration\Database\Handler;
-use Migration\DatabaseSchema\Schema;
+use Doctrine\DBAL\Connection,
+    Doctrine\DBAL\Schema\Schema;
 
-class {class_name}
+class {class_name} implements EntityInterface
 {
 
-    public function up(Handler $db, Schema $sc)
+    public function up(Connection $db, Schema $sc)
     {
 
 
     }
 
-    public function down(Handler $db, Schema $sc)
+    public function down(Connection $db, Schema $sc)
     {
 
 

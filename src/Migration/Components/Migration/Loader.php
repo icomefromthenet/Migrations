@@ -3,9 +3,9 @@ namespace Migration\Components\Migration;
 
 use Symfony\Component\Console\Output as Output;
 
-use Migration\Components\Migration\Collection;
 use Migration\Components\Migration\FileName as Filename;
 use Migration\Components\Migration\MigrationFile;
+use Migration\Components\Migration\CollectionInterface;
 
 class Loader
 {
@@ -28,9 +28,9 @@ class Loader
     /**
      * Return a filled migration collection
      *
-     * @return  Collection
+     * @return  void
      */
-    public function load(Collection $collection, Filename $filename)
+    public function load(CollectionInterface $collection, Filename $filename)
     {
         # load the migration files;
         $file_iterator = $this->getIo()->iterator($this->getIo()->path());
@@ -41,7 +41,6 @@ class Loader
           $collection->insert(new MigrationFile($file,$stamp),$stamp);
         }
 
-        return $collection;
     }
 
 

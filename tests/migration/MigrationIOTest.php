@@ -1,5 +1,4 @@
 <?php
-
 use Migration\Components\Migration\Io;
 use Migration\Components\Migration\Loader;
 

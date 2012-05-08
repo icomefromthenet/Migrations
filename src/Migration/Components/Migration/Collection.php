@@ -6,10 +6,8 @@
 
 namespace Migration\Components\Migration;
 
-use Monolog\Logger as Logger;
-use Symfony\Component\Console\Output\OutputInterface as Output;
+use SplFileInfo;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Migration\Components\Migration\Io;
 use Migration\Components\Migration\EntityInterface;
 use Migration\Components\Migration\MigrationFileInterface;
 use Migration\Components\Migration\Event\UpEvent;
@@ -19,29 +17,8 @@ use Migration\Components\Migration\Exception as MigrationException;
 use Migration\Components\Migration\Exception\MigrationMissingException;
 use Migration\Components\Migration\Exception\MigrationAppliedException;
 
-use \SplFileInfo;
-
-class Collection implements \Countable, \IteratorAggregate
+class Collection implements \Countable, \IteratorAggregate, CollectionInterface
 {
-
-    /**
-     * Console output class
-     *
-     * @var  Symfony\Component\Console\Output\OutputInterface
-     */
-    protected $output;
-
-    /**
-      *  @var \Monolog\Logger 
-      */
-    protected $log;
-   
-   /**
-    * Projet Folder
-    *
-    * @var Migration\Components\Migration\Io
-    */
-    protected $io;
 
   /**  The Event Dispatcher
     *
@@ -57,13 +34,10 @@ class Collection implements \Countable, \IteratorAggregate
     protected $inner_queue = array();
 
 
-    public function __construct(Output $output, Logger $log, Io $io, EventDispatcherInterface $event, $latest)
+    public function __construct(EventDispatcherInterface $event, $latest)
     {
-      $this->output           = $output;
-      $this->io               = $io;
       $this->latest_migration = $latest;
       $this->event            = $event;
-      $this->log              = $log;
     }
 
     //  -------------------------------------------------------------------------
@@ -140,19 +114,9 @@ class Collection implements \Countable, \IteratorAggregate
         throw new MigrationAppliedException(sprintf('Migration %s aleady been applied to database',$stamp));
       }
 
-      # migration not applied or force = true
-
-      $migration = $this->inner_queue[$stamp]->getClass();
-
-
-      $this->output->writeln("Running Up Migration ". getClass($migration));
-
-      $migration->up($this->database);
-
-
       # dispatch up event
       $event = new UpEvent();
-      $event->setMigrationFile($migration);
+      $event->setMigrationFile($this->inner_queue[$stamp]);
 
       $this->dispatchEvent($event);
 
@@ -177,16 +141,10 @@ class Collection implements \Countable, \IteratorAggregate
             throw new MigrationAppliedException(sprintf('Migration %s NOT been applied to database cant runt down',$stamp));
         }
   
-        # run down operation
-        $migration = $this->inner_queue[$stamp]->getClass();
-        $this->output->writeln("Running Down Migration ". getClass($migration));
-  
-        $migration->down($this->database);
-  
         # dispatch down event
         $event = new DownEvent();
-        $event->setMigrationFile($migration);
-  
+        $event->setMigrationFile($this->inner_queue[$stamp]);
+
         $this->dispatchEvent($event);
   
         # find previous stamp
@@ -219,25 +177,7 @@ class Collection implements \Countable, \IteratorAggregate
       return isset($this->inner_queue[$stamp]);
     }
 
-    //---------------------------------------------------------------
-
-    public function date_query(\DateTime $dte)
-    {
-        $stamp = $dte->format('U');
-
-        //iterate over and call run if date is in range
-        while($this->valid()) {
-
-            if($this->current['timestamp'] <= $stamp) {
-                $this->run($this->key());
-            }
-
-            $this->next();
-        }
-
-
-    }
-
+    
     //-------------------------------------------------------------
     # Get Map
 
@@ -282,6 +222,32 @@ class Collection implements \Countable, \IteratorAggregate
 
     }
 
-    //  -------------------------------------------------------------------------
+   //  -------------------------------------------------------------------------
+   # Propeties for LatestMigration Index
+   
+   public function getLatestMigration()
+   {
+      return $this->latest_migration; 
+   }
+   
+   public function setLatestMigration($latest)
+   {
+      $this->latest_migration = $latest;
+   }
+  
+  //  -------------------------------------------------------------------------
+  # Properties for EventDispatcher
+  
+  public function setEventHandler(EventDispatcherInterface $event)
+  {
+    $this->event = $event;
+  }
+    
+  public function getEventHandler()
+  {
+    return $this->event;    
+  }
+  
+  //  -------------------------------------------------------------------------
 }
 /* End of class */

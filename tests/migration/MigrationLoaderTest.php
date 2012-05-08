@@ -1,5 +1,4 @@
 <?php
-
 use Migration\Components\Migration\Io;
 use Migration\Components\Migration\Loader;
 use Migration\Components\Migration\Collection;
@@ -14,41 +13,92 @@ class MigrationLoaderTest extends AbstractProject
         
     public function testMigrationNewLoader()
     {
-        $io = new Io($this->getMockedPath()->get());
+        $io = $this->getMockBuilder('\Migration\Components\Migration\Io')
+                   ->disableOriginalConstructor()
+                   ->getMock();
+        
         $loader = new Loader($io);
         $this->assertInstanceOf('\Migration\Components\Migration\Loader',$loader);
 
-        return $loader;
     }
     
-    /**
-    *  @depends testMigrationNewLoader
-    */
-    public function testLoaderSchema(Loader $load)
+   
+    public function testLoaderSchema()
     {
-        $this->createMockMigrations();
-        $this->assertInstanceOf('\Migration\Components\Migration\MigrationFile',$load->schema());
+        $io = $this->getMockBuilder('\Migration\Components\Migration\Io')
+                   ->disableOriginalConstructor()
+                   ->getMock();
+        
+        $loader = new Loader($io);
+    
+        $io->expects($this->once())
+           ->method('schema')
+           ->will($this->returnValue(new \SplFileInfo(__FILE__)));
+    
+        $this->assertInstanceOf('\Migration\Components\Migration\MigrationFile',$loader->schema());
     }
     
-    /**
-    *  @depends testMigrationNewLoader
-    */
-    public function testLoaderTestData(Loader $load)
+  
+    public function testLoaderTestData()
     {
-        $this->createMockMigrations();    
-        $this->assertInstanceOf('\Migration\Components\Migration\MigrationFile',$load->testData());
+        $io = $this->getMockBuilder('\Migration\Components\Migration\Io')
+                   ->disableOriginalConstructor()
+                   ->getMock();
+     
+        $io->expects($this->once())
+           ->method('testData')
+           ->will($this->returnValue(new \SplFileInfo(__FILE__)));
+        
+        $loader = new Loader($io);
+    
+        $this->assertInstanceOf('\Migration\Components\Migration\MigrationFile',$loader->testData());
     }
     
-    /**
-    *  @depends testMigrationNewLoader
-    */
-    public function testCollectionLoader(Loader $load)
+  
+    public function testCollectionLoader()
     {
-        $this->createMockMigrations();
-        $col = $load->load($this->getMockCollection(),new FileName());
+        $collection_data = array(
+            new SplFileInfo(__FILE__),
+            new SplFileInfo(__FILE__),
+            new SplFileInfo(__FILE__),
+            new SplFileInfo(__FILE__),
+        );
+
+        $io = $this->getMockBuilder('\Migration\Components\Migration\Io')
+                   ->disableOriginalConstructor()
+                   ->getMock();
+        
+        $io->expects($this->once())
+           ->method('path')
+           ->will($this->returnValue(__DIR__)); 
+        
+        $io->expects($this->once())
+           ->method('iterator')
+           ->with($this->equalTo(__DIR__))
+           ->will($this->returnValue($collection_data));
+        
     
-        $this->assertEquals(4,count($col));
+        $collection = $this->getMockBuilder('\Migration\Components\Migration\CollectionInterface')->getMock();
+       
+       
+        $collection->expects($this->exactly(4))
+                   ->method('insert')
+                   ->with($this->isType('object'),$this->isType('integer'));
+       
+        $file_name  = $this->getMockBuilder('\Migration\Components\Migration\FileName')
+                           ->disableOriginalConstructor()
+                           ->getMock();
+    
+        $file_name->expects($this->exactly(4))
+                   ->method('parse')
+                   ->with($this->isType('string'))
+                   ->will($this->returnValue(11111)); 
+    
+    
+        $loader = new Loader($io);
+        $loader->load($collection,$file_name);
     }
+    
     
 }
 /* End of File */

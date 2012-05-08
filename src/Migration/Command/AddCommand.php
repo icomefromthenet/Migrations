@@ -27,16 +27,18 @@ class AddCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+         
            $project  = $this->getApplication()->getProject();
            $migration_manager = $project['migration_manager'];
            $template_manager  = $project['template_manager'];
            
            
-           $migration_text = $template_manager->load('migration_template');
+           $migration_template = $template_manager->getLoader()->load('migration_template.twig',array());
            
-           //$migration_manager->getWriter()->write($migration_text,$schema);
-           
-           
+           $migration_file = $migration_manager->getWriter()->write($migration_template);
+         
+           $output->writeLn('Finished Writing new Migration: <comment>'. $migration_file->getFileName() .'</commnet>');
+      
     }
 
 

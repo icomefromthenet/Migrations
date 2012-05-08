@@ -137,7 +137,7 @@ class TableManager implements TableInterface
         } catch (DBALException $e) {
             
             # throw custom exception 
-            throw new Exception($e->getMessage());
+            throw new MigrationException($e->getMessage());
         }
         
         return $results;
@@ -172,7 +172,7 @@ class TableManager implements TableInterface
         } catch (DBALException $e) {
             
             # throw custom exception 
-            
+            throw new MigrationException($e->getMessage());
         }
         
         
@@ -203,7 +203,7 @@ class TableManager implements TableInterface
         } catch (DBALException $e) {
             
             # throw custom exception 
-            
+            throw new MigrationException($e->getMessage());        
         }
         
         
