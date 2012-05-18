@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit colors="true" stopOnFailure="false" bootstrap="../src/Migration/Bootstrap.php">
+<phpunit colors="true" stopOnFailure="false" bootstrap="bootstrap.php">
     <testsuites>
         <testsuite>
             <directory>.</directory>

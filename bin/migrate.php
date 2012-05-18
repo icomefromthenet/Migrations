@@ -1,42 +1,30 @@
-#!/opt/lampp/bin/php
+#!/usr/bin/env php
 <?php
-use Migration\Project;
-use Migration\Command\Application;
+namespace Migration;
 
-use Migration\Command\DownCommand;
-use Migration\Command\UpCommand;
-use Migration\Command\StatusCommand;
-
-use Migration\Command\RunCommand;
-use Migration\Command\LatestCommand;
-use Migration\Command\ListCommand;
-use Migration\Command\ConfigureCommand;
-use Migration\Command\AddCommand;
-
-use Migration\Command\BuildCommand;
-
-
-if(strpos('@PHP-BIN@', '@PHP-BIN@') === 0) {
-    //not a pear install run normally
-
-  require __DIR__ .'/../src/Migration/Bootstrap.php';
-
-}
-else {
-   require '@PEAR-DIR@/Migration/Bootstrap.php';
-}
+use Migration\Project,
+    Migration\Command\Application,
+    Migration\Command\DownCommand,
+    Migration\Command\UpCommand,
+    Migration\Command\StatusCommand,
+    Migration\Command\RunCommand,
+    Migration\Command\LatestCommand,
+    Migration\Command\ListCommand,
+    Migration\Command\ConfigureCommand,
+    Migration\Command\AddCommand,
+    Migration\Command\BuildCommand,
+    Migration\Command\InitProjectCommand;
 
 //---------------------------------------------------------------------
 // Set Pear Directories
 //
 //--------------------------------------------------------------------
 
-if(strpos('@PHP-BIN@', '@PHP-BIN@') === 0) {
-    //not a pear install run normally
-  $project['data_path'] = new \Migration\Path(__DIR__ .'/../data');
-}
-else {
-   $project['data_path'] = new \Migration\Path('@PEAR-DATA@');
+if(strpos('@PHP-BIN@', '@PHP-BIN') === 0) {
+   set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
+   require 'Migration' . DIRECTORY_SEPARATOR .'Bootstrap.php';
+} else {
+   require 'Migration'. DIRECTORY_SEPARATOR .'Bootstrap.php';
 }
 
 //---------------------------------------------------------------------
@@ -53,6 +41,7 @@ $project->getConsole()->add(new StatusCommand('status'));
 $project->getConsole()->add(new RunCommand('run'));
 $project->getConsole()->add(new ListCommand('show'));
 $project->getConsole()->add(new AddCommand('add'));
+$project->getConsole()->add(new InitProjectCommand('init'));
 
 
 //--------------------------------------------------------------------
