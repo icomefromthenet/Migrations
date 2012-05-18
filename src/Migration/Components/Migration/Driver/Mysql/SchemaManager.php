@@ -515,6 +515,23 @@ class SchemaManager implements SchemaInterface
         }
 
     }
+    
+    //  -------------------------------------------------------------------------
+    # dump
+    
+    public function dump()
+    {
+	# use mysqldump    
+	$user   = $this->database->getUsername();
+	$pass   = $this->database->getPassword();
+	$schema = $this->database->getDatabase();
+	$command = sprintf('mysqldump --no-data -u %s -p%s %s',$user,$pass,$schema);
+	
+	return system($command);    	
+	
+    }
+    
+    //  -------------------------------------------------------------------------
 
 }
 /* End of File */

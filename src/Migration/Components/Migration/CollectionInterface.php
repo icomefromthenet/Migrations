@@ -41,34 +41,43 @@ interface CollectionInterface
     # Migration Behaviour
     
     /**
-      *  Migrate up to the given collection
+      *  Run up to a migration from current head
       *
       *  @param integer $stamp
-      *  @param boolean force applied migrations to be re-applied
+      *  @param boolean force migration to be re-applied
       *  @return void
       *  @access public
       */
     public function up($stamp = null,$force = false);
     
     /**
-      *  Migrate down to a migration
+      *  Run down on a migration from the current head
       *
       *  @param integer $stamp
-      *  @param boolean force run migrate not applied.
+      *  @param boolean force migrate to be re-applied.
       *  @return void
       *  @access public
       */
     public function down($stamp = null,$force = false);
     
     /**
-      *  Apply new migrations up from the current to the last
-      *  found in collection
+      *  Apply new migrations up from the head to the lastest
+      *  found in collection. 
       *
       *  @param boolean $force apply migrations that have been maked as applied
       *  @return void
       *  @access public
       */
     public function latest($force = false);
+    
+    /**
+      *  Run a single migration using given direction
+      *
+      *  @param integer $stamp the timestamp id
+      *  @param boolean $force to re-apply an applied migration
+      *  @param string $direction up|down
+      */
+    public function run($stamp,$force = false,$direction ='up');
         
     //  -------------------------------------------------------------------------
     # Misc

@@ -17,7 +17,7 @@ class MigrationGenericSchemaManagerTest extends AbstractProjectWithDb
         
         # build out test database
         
-        $this->buildDb();
+        //$this->buildDb();
         
         # fetch the object where going to test
         
@@ -26,6 +26,15 @@ class MigrationGenericSchemaManagerTest extends AbstractProjectWithDb
         parent::__construct();
     }
 
+    
+    public function testDump()
+    {
+        $builder = $this->db_builder;
+        $dump = $builder->dump();
+        
+        $this->assertTrue(true);        
+    }
+    
     
     public function testDropFk()
     {

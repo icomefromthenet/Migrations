@@ -250,5 +250,17 @@ interface SchemaInterface
       */
     public function build(MigrationFileInterface $schema, MigrationFileInterface $test_data, Collection $collection);
     
+    
+    //  -------------------------------------------------------------------------
+    # Dump will dump a schema the current database schema
+    
+    /**
+      *  Will dump a copy of the current database schema
+      *
+      *  @access public
+      *  @return string the database schema
+      */
+    public function dump();
+    
 }
 /* End of File */

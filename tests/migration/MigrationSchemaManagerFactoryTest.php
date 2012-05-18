@@ -9,7 +9,7 @@ class MigrationSchemaManagerFactoryTest extends AbstractProject
     public function testFactoryImplementsExtensionInterface()
     {
       
-        $out    =  $this->getMockBuilder('Symfony\Component\Console\Output\OutputInterface')->getMock(); 
+        $out    = $this->getMockBuilder('Symfony\Component\Console\Output\OutputInterface')->getMock(); 
         $log    = $this->getMockBuilder('Monolog\Logger')
                         ->disableOriginalConstructor()
                         ->getMock();
@@ -26,7 +26,7 @@ class MigrationSchemaManagerFactoryTest extends AbstractProject
     
     public function testCreate()
     {
-        $out    =  $this->getMockBuilder('Symfony\Component\Console\Output\OutputInterface')->getMock(); 
+        $out    = $this->getMockBuilder('Symfony\Component\Console\Output\OutputInterface')->getMock(); 
         $log    = $this->getMockBuilder('Monolog\Logger')
                         ->disableOriginalConstructor()
                         ->getMock();

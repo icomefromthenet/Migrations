@@ -361,6 +361,19 @@ class SchemaManager implements SchemaInterface
         }
 
     }
+    
+    //  -------------------------------------------------------------------------
+    # Dump
 
+    public function dump()
+    {
+	# use doctrine schema dump
+	
+	$schema_manager = $this->database->getSchemaManager();
+	$platform = $this->database->getDatabasePlatform();
+	return implode (';' .PHP_EOL,$schema_manager->createSchema()->toSql($platform));
+	
+    }
+    
 }
 /* End of File */

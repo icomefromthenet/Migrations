@@ -18,7 +18,7 @@ class MigrationMysqlSchemaManagerTest extends AbstractProjectWithDb
         
         # build out test database
         
-        $this->buildDb();
+        //$this->buildDb();
         
         # fetch the object where going to test
         
@@ -27,6 +27,16 @@ class MigrationMysqlSchemaManagerTest extends AbstractProjectWithDb
         parent::__construct();
     }
 
+    public function testDump()
+    {
+        $builder = $this->db_builder;
+        $str = $builder->dump();
+        
+        # no exceptions or errors
+        $this->assertTrue(true);
+    }
+    
+    
     
     public function testDropFk()
     {
