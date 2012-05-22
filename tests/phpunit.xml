@@ -8,6 +8,14 @@
                 <directory>myproject</directory>
             </exclude>
         </testsuite>
-  </testsuites>  
+  </testsuites>
     
+   <php>
+    <const name="DEMO_DATABASE_USER" value="root"/>
+    <const name="DEMO_DATABASE_PASSWORD" value="vagrant"/>
+    <const name="DEMO_DATABASE_SCHEMA" value="sakila"/>
+    <const name="DEMO_DATABASE_PORT" value="3306"/>
+    <const name="DEMO_DATABASE_HOST" value="localhost"/>
+    <const name="DEMO_DATABASE_TYPE" value="pdo_mysql"/>
+    </php> 
 </phpunit>

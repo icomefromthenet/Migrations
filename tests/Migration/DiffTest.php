@@ -2,7 +2,8 @@
 namespace Migration\Tests\Migration;
 
 use Migration\Components\Migration\Diff,
-    Migration\Tests\Base\AbstractProject;
+    Migration\Tests\Base\AbstractProject,
+    DateTime;
 
 
 class DiffTest extends AbstractProject

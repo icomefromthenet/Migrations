@@ -1,12 +1,13 @@
 <?php
 namespace Migration\Tests\Migration;
 
-use Migration\Components\Migration\Io;
-    Migration\Components\Migration\Loader;
-    Migration\Components\Migration\Collection;
-    Migration\Components\Migration\MigrationFile;
-    Migration\Components\Migration\FileName;
-    Migration\Tests\Base\AbstractProject;
+use Migration\Components\Migration\Io,
+    Migration\Components\Migration\Loader,
+    Migration\Components\Migration\Collection,
+    Migration\Components\Migration\MigrationFile,
+    Migration\Components\Migration\FileName,
+    Migration\Tests\Base\AbstractProject,
+    SplFileInfo;
 
 class LoaderTest extends AbstractProject
 {

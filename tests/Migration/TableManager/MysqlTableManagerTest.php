@@ -1,5 +1,5 @@
 <?php
-namespace Migration\Tests\Migration;
+namespace Migration\Tests\Migration\TableManager;
 
 use Migration\Components\Migration\Driver\Mysql\TableManager,
     Migration\Tests\Base\AbstractProjectWithDb;
@@ -12,10 +12,8 @@ class MysqlTableManagerTest extends AbstractProjectWithDb
       */
     protected $table;
 
-
-    public function __construct()
+    public function setUp()
     {
-        
         # build out test database
         
         $this->buildDb();
@@ -25,8 +23,16 @@ class MysqlTableManagerTest extends AbstractProjectWithDb
         $this->table = $this->getTable();
         
         $this->table->build();
+    
+    
+        parent::setUp();        
+    }
+    
+    public function tearDown()
+    {
+        unset($this->table);
         
-        parent::__construct();
+        parent::tearDown();
     }
 
     
@@ -65,6 +71,7 @@ class MysqlTableManagerTest extends AbstractProjectWithDb
     
     public function testPop()
     {
+        $this->testPush();
         $table = $this->table;
         $this->assertTrue($table->pop()); 
     }

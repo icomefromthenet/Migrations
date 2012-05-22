@@ -2,7 +2,7 @@
 namespace Migration\Components\Migration;
 
 use Migration\Components\Migration\Event\Base as BaseEvent;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface as Event;
 
 interface CollectionInterface
 {
@@ -74,10 +74,9 @@ interface CollectionInterface
       *  Run a single migration using given direction
       *
       *  @param integer $stamp the timestamp id
-      *  @param boolean $force to re-apply an applied migration
       *  @param string $direction up|down
       */
-    public function run($stamp,$force = false,$direction ='up');
+    public function run($stamp,$direction ='up');
         
     //  -------------------------------------------------------------------------
     # Misc
@@ -99,7 +98,7 @@ interface CollectionInterface
     public function setLatestMigration($latest);
     
     
-    public function setEventHandler(EventDispatcherInterface $event);
+    public function setEventHandler(Event $event);
     
     public function getEventHandler();
     

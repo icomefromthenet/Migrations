@@ -3,7 +3,7 @@ namespace Migration\Components\Migration\Exception;
 
 use Migration\Components\Migration\Exception as MigrationException;
 
-class MigrationAppliedException extends MigrationException
+class MigrationInCollectionException extends MigrationException
 {
 
 }

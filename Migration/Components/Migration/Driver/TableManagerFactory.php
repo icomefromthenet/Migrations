@@ -25,15 +25,12 @@ class TableManagerFactory implements ExtensionInterface
       *  @var string[] list of SchemaManagers
       */
     protected static $drivers = array(
-        'mysql'   => 'Migration\Components\Migration\Driver\Mysql\TableManager',
-        'sqlite'  => 'Migration\Components\Migration\Driver\Generic\TableManager',
-        'pgsql'   => 'Migration\Components\Migration\Driver\Generic\TableManager',
-        'oci'     => 'Migration\Components\Migration\Driver\Generic\TableManager',
-        'oci8'    => 'Migration\Components\Migration\Driver\Generic\TableManager',
-        'db2'     => 'Migration\Components\Migration\Driver\Generic\TableManager',
-        'ibm'     => 'Migration\Components\Migration\Driver\Generic\TableManager',
-        'sqlsrv'  => 'Migration\Components\Migration\Driver\Generic\TableManager',
-        'mysqli'  => 'Migration\Components\Migration\Driver\Generic\TableManager'     
+        'pdo_mysql'   => 'Migration\Components\Migration\Driver\Mysql\TableManager',
+        'pdo_sqlite'  => 'Migration\Components\Migration\Driver\Generic\TableManager',
+        'pdo_pgsql'   => 'Migration\Components\Migration\Driver\Generic\TableManager',
+        'pdo_oci'     => 'Migration\Components\Migration\Driver\Generic\TableManager',
+        'oci8'        => 'Migration\Components\Migration\Driver\Generic\TableManager',
+        'pdo_sqlsrv'  => 'Migration\Components\Migration\Driver\Generic\TableManager',
     );
    
     

@@ -1,5 +1,5 @@
 <?php
-namespace Migration\Tests\Migration;
+namespace Migration\Tests\Migration\TableManager;
 
 use Migration\Components\Migration\Driver\Generic\TableManager,
     Migration\Tests\Base\AbstractProjectWithDb;
@@ -13,9 +13,8 @@ class GenericTableManagerTest extends AbstractProjectWithDb
     protected $table;
 
 
-    public function __construct()
+    public function setUp()
     {
-        
         # build out test database
         
         $this->buildDb();
@@ -25,8 +24,16 @@ class GenericTableManagerTest extends AbstractProjectWithDb
         $this->table = $this->getTable();
         
         $this->table->build();
+    
+    
+        parent::setUp();        
+    }
+    
+    public function tearDown()
+    {
+        unset($this->table);
         
-        parent::__construct();
+        parent::tearDown();
     }
 
     
@@ -66,6 +73,8 @@ class GenericTableManagerTest extends AbstractProjectWithDb
     
     public function testPop()
     {
+        $this->testPush();
+        
         $table = $this->table;
         $this->assertTrue($table->pop()); 
     }

@@ -1,5 +1,5 @@
 <?php
-namespace Migration\Tests\Migration;
+namespace Migration\Tests\Migration\Events;
 
 use Migration\Components\Migration\Event\Base,
     Migration\Components\Migration\Event\UpEvent,

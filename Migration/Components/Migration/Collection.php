@@ -6,16 +6,19 @@
 
 namespace Migration\Components\Migration;
 
-use SplFileInfo;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Migration\Components\Migration\EntityInterface;
-use Migration\Components\Migration\MigrationFileInterface;
-use Migration\Components\Migration\Event\UpEvent;
-use Migration\Components\Migration\Event\DownEvent;
-use Migration\Components\Migration\Event\Base as BaseEvent;
-use Migration\Components\Migration\Exception as MigrationException;
-use Migration\Components\Migration\Exception\MigrationMissingException;
-use Migration\Components\Migration\Exception\MigrationAppliedException;
+use SplFileInfo,
+    ArrayIterator,
+    DateTime,
+    Symfony\Component\EventDispatcher\EventDispatcherInterface as Event,
+    Migration\Components\Migration\EntityInterface,
+    Migration\Components\Migration\MigrationFileInterface,
+    Migration\Components\Migration\Event\UpEvent,
+    Migration\Components\Migration\Event\DownEvent,
+    Migration\Components\Migration\Event\Base as BaseEvent,
+    Migration\Components\Migration\Exception as MigrationException,
+    Migration\Components\Migration\Exception\MigrationMissingException,
+    Migration\Components\Migration\Exception\MigrationAppliedException,
+    Migration\Components\Migration\Exception\MigrationInCollectionException;
 
 class Collection implements \Countable, \IteratorAggregate, CollectionInterface
 {
@@ -39,7 +42,7 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
     protected $map = array();
 
 
-    public function __construct(EventDispatcherInterface $event, $latest)
+    public function __construct(Event $event, $latest)
     {
       $this->latest_migration = $latest;
       $this->event            = $event;
@@ -95,7 +98,7 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
     public function insert(MigrationFileInterface  $migration, $stamp)
     {
       if($this->exists($stamp) === true) {
-        throw new Exception(sprintf('%s already exists in the collection',$stamp));
+        throw new MigrationInCollectionException(sprintf('%s already exists in the collection',$stamp));
       }
 
       # assign the migration to the collection
@@ -108,16 +111,16 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
 
     //----------------------------------------------------------------
 
-    public function up($stamp = NULL,$force = FALSE)
+    public function up($stamp = null ,$force = false)
     {
       # check if stamp actually exists
-      if($this->exists($stamp) !== false) {
+      if($this->exists($stamp) === false) {
           throw new MigrationMissingException(sprintf('Migration with stamp %s can not be found',$stamp));
       }
   
       $map = $this->getMap();
       $stamp_index = array_search($stamp,$map);
-      $head_index  = ($this->latest === null) ? 0 : array_search($this->latest,$map);
+      $head_index  = ($this->latest_migration === null) ? 0 : array_search($this->latest_migration,$map);
     
       # check for invalid up statement
       if($stamp_index < $head_index) {
@@ -125,77 +128,83 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
       }
       
       # check if two heads are equal (not equal on first run as latest === null)
-      if($stamp === $this->latest && $force === false) {
+      if($stamp === $this->latest_migration && $force === false) {
           throw new MigrationAppliedException('Migration already applied use --force');
       } 
     
       # run the migrations up new head , we dont want to apply the
       # current head as it is already applied and force is false
       # if new head  === to old head and force is true re-apply the head
-      if($stamp !== $this->latest) {
+      if($stamp !== $this->latest_migration) {
         $head_index = $head_index +1; // move new head to first not applied migration
       }
       
       # run the selected migrations
       for($head_index; $head_index <= $stamp_index; $head_index++) {
-          $this->run($map[$head_index],$force,'up');
+         if($this->inner_queue[$map[$head_index]]->getApplied() === false || $force === true) {
+              $this->run($map[$head_index],'up'); 
+         }
       }
       
       # change to the new head
-      $this->latest = $stamp;
+      $this->latest_migration= $stamp;
 
     }
 
     //----------------------------------------------------------------
 
-    public function down($stamp = NULL,$force = FALSE)
+    public function down($stamp = null,$force = false)
     {
       
-        # check if stamp actually exists
-        if($this->exists($stamp) !== false) {
+        # check if stamp actually exists, exclude the 0 stamp from check
+        if($this->exists($stamp) === false && $stamp !== null) {
           throw new MigrationMissingException(sprintf('Migration with stamp %s can not be found',$stamp));
         }
   
-        # check if the down movement is possible, if the index of the new head
-        # is greater than index of current head then its an error.
         $map = $this->getMap();
-        $stamp_index = array_search($stamp,$map);
-        $head_index  = ($this->latest === null) ? 0 : array_search($this->latest,$map);
+        $stamp_index = array_search((integer)$stamp,$map);
+        
+        # if value not found ie stamp null passed in still need the loop to run so a negative index is asigned
+        if($stamp_index === false) {
+          $stamp_index = -1;
+        }
+        
+        # the first stamp would be at index 0, set a negative index if no head
+        $head_index  = ($this->latest_migration === null) ? -1 : array_search($this->latest_migration,$map);
     
-        if($stamp_index > $head_index) {
+        if($stamp_index === $head_index || $stamp_index > $head_index ) {
+          throw new MigrationAppliedException('Down must be called on migration below the head');
+        }
+    
+        # checking user error where the down stamp > then the current head (which is impossible movment)
+        if($stamp_index > $head_index ) {
           throw new MigrationException('Can not run down to given stamp %s as current head is lower, try running up first');
         }
       
-        if($stamp_index === $head_index) {
-        
-           $this->run($map[$stamp_index],$force,'down');
-           $this->latest = null;
+                      
+        # stamp given is the new head all before it have down run on them, but not the given stamp head = last migration that up applied
+        for($head_index; $head_index > $stamp_index; --$head_index) {
+          
+          
+          # skip unapplied migrations unless force has been set true.
+          if($this->inner_queue[$map[$head_index]]->getApplied() === true || $force === true) {
+              $this->run($map[$head_index],'down'); 
+          }
+          
         }
-        else {       
-        
-         # run the migrations down new head, (new head is not applied)
-         for($head_index; $head_index < $stamp_index; $head_index--) {
-           $this->run($map[$head_index],$force,'down');
-         }
       
-      }
         #set the new latest to this one
-        $this->latest = $stamp;
+        $this->latest_migration = $stamp;
         
     }
   
    //  -------------------------------------------------------------------------
 
-    public function run($stamp,$force = false,$direction ='up')
+    public function run($stamp,$direction ='up')
     {
         //check if migration exists
-        if($this->exists($stamp) !== false) {
-            throw new MigrationMissingException(sprintf('Migration with %s can not be found'));
-        }
-  
-        # test if migration has NOT been applied and force = false
-        if($this->inner_queue[$stamp]->getApplied() === true && $force === false) {
-            throw new MigrationAppliedException(sprintf('Migration %s NOT been applied to database cant runt down',$stamp));
+        if($this->exists($stamp) === false) {
+            throw new MigrationMissingException(sprintf('Migration with %s can not be found',$stamp));
         }
   
         if($direction === 'down') {
@@ -205,28 +214,47 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
           $event = new UpEvent();
         }
 
-        $event->setMigrationFile($this->inner_queue[$stamp]);
+        $event->setMigration($this->inner_queue[$stamp]);
         $this->dispatchEvent($event);
     
     }
   
   //  -------------------------------------------------------------------------
 
-    public function latest($force = FALSE)
+    public function latest($force = false)
     {
-
-      $map = $this->getMap();
-      $head_index  = array_search($this->latest,$map);
-      $remaining_stamps = count($map)-1; //convert to 0 based array index 
       
-      # run the migrations up new head
-      for($head_index; $head_index <= $remaining_stamps; $head_index++) {
-        $this->run($map[$head_index],$force,'up');
+      $map = $this->getMap();
+      
+      # account for having no head migration
+      if($this->latest_migration !== null) {
+        $head_index  = array_search($this->latest_migration,$map);
+        $total_stamps = $this->count() -1; 
+      } else {
+        $total_stamps = $this->count() -1;
+        $head_index = -1; 
       }
       
-      # change to the new head
-      $this->latest = $map[$remaining_stamps];
-
+      # head won't be run again if there are no migratons to apply
+      if($head_index !== $total_stamps) {
+      
+        # want to iterate over migrations after the head (+ 1)
+        $head_index = ($head_index +1);
+      
+        # run the migrations up new head
+        for($head_index; $head_index <= $total_stamps; $head_index++) {
+       
+          if($this->inner_queue[$map[$head_index]]->getApplied() === false || $force === true) {
+            $this->run($map[$head_index],'up');
+          }
+        }
+        
+        # change to the new head the last migration in the map
+        $this->latest_migration = $map[$total_stamps];
+        
+      }
+      
+      
     }
 
   //  -------------------------------------------------------------------------
@@ -303,9 +331,9 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
   //  -------------------------------------------------------------------------
   # Properties for EventDispatcher
   
-  public function setEventHandler(EventDispatcherInterface $event)
+  public function setEventHandler(Event $event)
   {
-    $this->event = $event;
+      $this->event = $event;
   }
     
   public function getEventHandler()

@@ -29,5 +29,6 @@
   <string id="import_include_matches"></string>
   <string id="language">PHP</string>
   <string id="lastInvocation">Project</string>
+  <string id="mappedPaths">file://192.168.0.101/vagrant/bin##file:///home/lewis/Projects/migrations/bin::file://192.168.0.101/vagrant/build##file:///home/lewis/Projects/migrations/build::file://192.168.0.101/vagrant/tests##file:///home/lewis/Projects/migrations/tests::file://192.168.0.101/vagrant/Migration##file:///home/lewis/Projects/migrations/Migration</string>
 </preference-set>
 </project>

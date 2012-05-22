@@ -14,7 +14,7 @@ class InitProjectCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         if(strpos('@PHP-BIN@','@PHP-BIN') === 0) {
-            $skelton = realpath(__DIR__ .'/../../../skelton');
+            $skelton = realpath(__DIR__ .'/../../skelton');
         }
         else {
             $skelton = '@PEAR-DATA@'. DIRECTORY_SEPARATOR .'Migration'. DIRECTORY_SEPARATOR .'skelton';

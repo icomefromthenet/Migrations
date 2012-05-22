@@ -13,7 +13,8 @@ use Migration\Project,
     Migration\Command\ConfigureCommand,
     Migration\Command\AddCommand,
     Migration\Command\BuildCommand,
-    Migration\Command\InitProjectCommand;
+    Migration\Command\InitProjectCommand,
+    Migration\Command\InstallCommand;
 
 //---------------------------------------------------------------------
 // Set Pear Directories
@@ -42,6 +43,7 @@ $project->getConsole()->add(new RunCommand('run'));
 $project->getConsole()->add(new ListCommand('show'));
 $project->getConsole()->add(new AddCommand('add'));
 $project->getConsole()->add(new InitProjectCommand('init'));
+$project->getConsole()->add(new InstallCommand('install'));
 
 
 //--------------------------------------------------------------------

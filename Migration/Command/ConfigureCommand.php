@@ -29,7 +29,7 @@ class ConfigureCommand extends Command
         $answers =  array();
 
         # Ask for the database type
-        $answers['db_type'] =  strtolower($dialog->ask($output,'<question>Which Database does this belong? [mysql|mssql|oracle|posgsql]: </question>','mysql'));
+        $answers['db_type'] =  strtolower($dialog->ask($output,'<question>Which Database does this belong? [mysql|mssql|oracle|posgsql|oci8]: </question>','mysql'));
 
         # apply format of the Doctrine DBAL
         $answers['db_type'] = ($answers['db_type'] !== 'oci8') ? $answers['db_type'] = 'pdo_' . $answers['db_type'] : $answers['db_type'];        
@@ -87,7 +87,7 @@ class ConfigureCommand extends Command
         }
 
         # tell them the file was written
-        $output->writeln(sprintf("++ Writing <comment>config file</comment>  %s.php",$this->alias));
+        $output->writeln(sprintf("++ Writing <comment>config file</comment>  %s",$project->getConfigName()));
 
     }
 

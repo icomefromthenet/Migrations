@@ -1,7 +1,7 @@
 <?php
-namespace Migration\Tests\Migration;
+namespace Migration\Tests\Migration\TableManager;
 
-use Migration\Components\Migration\Driver\SchemaManagerFactory,
+use Migration\Components\Migration\Driver\TableManagerFactory,
     Migration\Tests\Base\AbstractProject;
 
 class SchemaManagerFactoryTest extends AbstractProject
@@ -10,7 +10,6 @@ class SchemaManagerFactoryTest extends AbstractProject
     public function testFactoryImplementsExtensionInterface()
     {
       
-        $out    = $this->getMockBuilder('Symfony\Component\Console\Output\OutputInterface')->getMock(); 
         $log    = $this->getMockBuilder('Monolog\Logger')
                         ->disableOriginalConstructor()
                         ->getMock();
@@ -19,7 +18,7 @@ class SchemaManagerFactoryTest extends AbstractProject
                            ->disableOriginalConstructor()
                            ->getMock();
       
-        $factory = new SchemaManagerFactory($log,$out,$connection);
+        $factory = new TableManagerFactory($connection,$log);
         
         $this->assertInstanceOf('Migration\ExtensionInterface',$factory);
     }
@@ -27,7 +26,6 @@ class SchemaManagerFactoryTest extends AbstractProject
     
     public function testCreate()
     {
-        $out    = $this->getMockBuilder('Symfony\Component\Console\Output\OutputInterface')->getMock(); 
         $log    = $this->getMockBuilder('Monolog\Logger')
                         ->disableOriginalConstructor()
                         ->getMock();
@@ -36,15 +34,14 @@ class SchemaManagerFactoryTest extends AbstractProject
                            ->disableOriginalConstructor()
                            ->getMock();
       
-        $factory = new SchemaManagerFactory($log,$out,$connection);
-        $manager_mysql = $factory->create('mysql');
+        $factory = new TableManagerFactory($connection,$log);
+        $manager_mysql = $factory->create('pdo_mysql','migration_table');
        
-        $this->assertInstanceOf('Migration\Components\Migration\Driver\Mysql\SchemaManager',$manager_mysql);
+        $this->assertInstanceOf('Migration\Components\Migration\Driver\Mysql\TableManager',$manager_mysql);
     }
     
     public function testUpperCaseKey()
     {
-        $out    =  $this->getMockBuilder('Symfony\Component\Console\Output\OutputInterface')->getMock(); 
         $log    = $this->getMockBuilder('Monolog\Logger')
                         ->disableOriginalConstructor()
                         ->getMock();
@@ -53,10 +50,10 @@ class SchemaManagerFactoryTest extends AbstractProject
                            ->disableOriginalConstructor()
                            ->getMock();
       
-        $factory = new SchemaManagerFactory($log,$out,$connection);
-        $manager_mysql = $factory->create('MYSQL');
+        $factory = new TableManagerFactory($connection,$log);
+        $manager_mysql = $factory->create('PDO_MYSQL','migration_table');
        
-        $this->assertInstanceOf('Migration\Components\Migration\Driver\Mysql\SchemaManager',$manager_mysql);
+        $this->assertInstanceOf('Migration\Components\Migration\Driver\Mysql\TableManager',$manager_mysql);
     }
     
     /**
@@ -66,7 +63,6 @@ class SchemaManagerFactoryTest extends AbstractProject
     public function testCreateBadKey()
     {
         
-        $out    =  $this->getMockBuilder('Symfony\Component\Console\Output\OutputInterface')->getMock(); 
         $log    = $this->getMockBuilder('Monolog\Logger')
                         ->disableOriginalConstructor()
                         ->getMock();
@@ -75,8 +71,8 @@ class SchemaManagerFactoryTest extends AbstractProject
                            ->disableOriginalConstructor()
                            ->getMock();
       
-        $factory = new SchemaManagerFactory($log,$out,$connection);
-        $factory->create('bad');
+        $factory = new TableManagerFactory($connection,$log);
+        $factory->create('bad','migration_table');
             
     }
     

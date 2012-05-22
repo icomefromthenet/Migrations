@@ -1,41 +1,47 @@
 <?php
-namespace Migration\Tests\Migration;
+namespace Migration\Tests\Migration\SchemaManager;
 
-use Migration\Components\Migration\Driver\Mysql\SchemaManager,
+use Migration\Components\Migration\Driver\Generic\SchemaManager,
     Migration\Tests\Base\AbstractProjectWithDb;
 
-class MysqlSchemaManagerTest extends AbstractProjectWithDb
+class GenericSchemaManagerTest extends AbstractProjectWithDb
 {
 
     /**
-      *  @var \Migration\Components\Migration\Driver\Mysql\SchemaManager 
+      *  @var \Migration\Components\Migration\Driver\Generic\SchemaManager 
       */
     protected $db_builder;
 
-
-    public function __construct()
+    public function setUp()
     {
-        
         # build out test database
         
-        //$this->buildDb();
-        
+        $this->buildDb();
+    
         # fetch the object where going to test
         
         $this->db_builder = $this->getDatabasebBuilder();
-        
-        parent::__construct();
+    
+    
+        parent::setUp();        
     }
-
+    
+    public function tearDown()
+    {
+        unset($this->db_builder);
+        
+        parent::tearDown();
+    }
+    
+    
+    
     public function testDump()
     {
         $builder = $this->db_builder;
-        $str = $builder->dump();
+        $dump = $builder->dump();
         
-        # no exceptions or errors
-        $this->assertTrue(true);
+        $this->assertTrue(true);        
     }
-    
     
     
     public function testDropFk()
@@ -66,46 +72,13 @@ class MysqlSchemaManagerTest extends AbstractProjectWithDb
         $this->assertTrue(true);
     }
 
-    public function testDropProcedures()
-    {
-        $builder = $this->db_builder;
-        $builder->dropProcedure('film_in_stock');
-        $this->assertTrue(true);
-    }
-
-    public function testDisableEnableFK()
-    {
-        $builder = $this->db_builder;
-    
-        $builder->disableFK();
-        
-        $builder->enableFK();
-        
-        $this->assertTrue(true);
-    }
-    
-    
-    public function testGetProcedures()
-    {
-        $builder = $this->db_builder;
-        $procedures = $builder->listProcedures();
-        $this->assertTrue(count($procedures) > 0);
-    }
-    
-    public function testGetFunctions()
-    {
-        $builder = $this->db_builder;
-        $functions = $builder->listFunctions();
-        $this->assertTrue(count($functions) > 0);
-    }
-    
     
     public function testListTables()
     {
         $builder = $this->db_builder;
         $tables =$builder->listTables();    
     
-        $this->assertTrue(count($tables) === 15);
+        $this->assertEquals(16,count($tables));
         
     }
     
@@ -114,22 +87,12 @@ class MysqlSchemaManagerTest extends AbstractProjectWithDb
     {
         $builder = $this->db_builder;
         $views =$builder->listViews();    
-        $this->assertTrue(count($views) === 6);
+        $this->assertEquals(7,count($views));
         
         
     }
 
-
-    public function testListTriggers()
-    {
-        $builder = $this->db_builder;
-        $triggers =$builder->listTriggers();    
-        
-        $this->assertTrue(count($triggers) === 6);
-        
-    }
-    
-    
+  
     public function testShow()
     {
         $builder = $this->db_builder;
@@ -143,11 +106,7 @@ class MysqlSchemaManagerTest extends AbstractProjectWithDb
     {
         $builder = $this->db_builder;
         
-        $builder->disableFK();
-        
         $builder->clean();
-        
-        $builder->enableFK();
     
         $this->assertTrue(true);
         

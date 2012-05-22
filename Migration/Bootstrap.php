@@ -126,51 +126,96 @@ set_error_handler(array($project['error'],'errorHandler'));
 set_exception_handler(array($project['error'],'exceptionHandler'));
 
 //---------------------------------------------------------------
-// Setup Database (lazy loaded)
+// Get Config
 //
 //--------------------------------------------------------------
 
-$project['database'] = $project->share(function($project){
 
-    $config_manager = $project->getConfigManager();
+$project['config_file'] = $project->share(function($project){
+   
+   $config_manager = $project->getConfigManager();
 
     if($config_manager === null) {
         throw new \RuntimeException('Config Manager not loaded, must be loaded before booting the database');
     }
 
-    # if config name not set that we use the default
-    $config_name = $project->getConfigName();
-
-        # is the dsn set
+    $entity = new \Migration\Components\Config\Entity();
+    
+    # is the dsn set
     if(isset($project['dsn_command']) === true) {
+      $dsn             = $project['dsn_command'];
 
-        $dsn =  $project['dsn_command'];
-        $user = $project['username_command'];
-        $password = $project['password_command'];
-
-        $connectionParams = array('pdo' => new \PDO($dsn,$user,$password));
-
+      # attempt to parse dsn for detials
+      $parsed          = $project->parseDSN($dsn);
+      /*$parsed = array(
+            'phptype'  => false,
+            'dbsyntax' => false,
+            'username' => false,
+            'password' => false,
+            'protocol' => false,
+            'hostspec' => false,
+            'port'     => false,
+            'socket'   => false,
+            'database' => false,
+        ); */
+      
+      $db_type         = ($parsed['phptype'] !== 'oci8') ? $parsed['phptype'] = 'pdo_' . $parsed['phptype'] : $parsed['phptype'];
+      $db_schema       = $parsed['database'];
+      $db_host         = $parsed['hostspec'];
+      $db_port         = ($parsed['port'] === false) ? 3306 : $parsed['port']; //could be false if not provided
+      
+      $user            = $parsed['username'];
+      $password        = $parsed['password'];
+      $migration_table = $project['schema_migration_table'];
+         
+      $entity->merge(array(
+         'db_type' => $db_type ,
+         'db_schema' => $db_schema,
+         'db_user' => $user ,
+         'db_password' => $password,
+         'db_host' => $db_host ,
+         'db_port' => $db_port,
+         'db_migration_table' => $migration_table,                         
+      ));
+         
     } else {
 
+       # if config name not set that we use the default
+       $config_name = $project->getConfigName();
+    
+    
         # check if we can load the config given
         if($config_manager->getLoader()->exists($config_name) === false) {
            throw new \RuntimeException(sprintf('Missing database config at %s ',$config_name));
         }
 
         # load the config file
-        $entity = $config_manager->getLoader()->load($config_name);
+        $config_manager->getLoader()->load($config_name,$entity);
+    }
+    
+    # store the global config for later access
+    return $entity;
 
-        $connectionParams = array(
+});
+
+//---------------------------------------------------------------
+// Setup Database (lazy loaded)
+//
+//--------------------------------------------------------------
+
+$project['database'] = $project->share(function($project){
+
+    $entity = $project['config_file'];
+
+   $connectionParams = array(
         'dbname' => $entity->getSchema(),
         'user' => $entity->getUser(),
         'password' => $entity->getPassword(),
         'host' => $entity->getHost(),
         'driver' => $entity->getType(),
-        );
-
-    }
-
-    return \Doctrine\DBAL\DriverManager::getConnection($connectionParams, new \Doctrine\DBAL\Configuration());
+   );
+    
+   return \Doctrine\DBAL\DriverManager::getConnection($connectionParams, new \Doctrine\DBAL\Configuration());
 });
 
 

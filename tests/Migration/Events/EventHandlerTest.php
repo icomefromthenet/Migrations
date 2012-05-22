@@ -1,8 +1,9 @@
 <?php
-namespace Migration\Tests\Migration;
+namespace Migration\Tests\Migration\Events;
 
 use Migration\Components\Migration\Event\Handler,
-    Migration\Tests\Base\AbstractProject;
+    Migration\Tests\Base\AbstractProject,
+    DateTime;
 
 class EventHandlerTest extends AbstractProject
 {

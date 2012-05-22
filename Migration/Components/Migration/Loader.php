@@ -1,11 +1,10 @@
 <?php
 namespace Migration\Components\Migration;
 
-use Symfony\Component\Console\Output as Output;
-
-use Migration\Components\Migration\FileName as Filename;
-use Migration\Components\Migration\MigrationFile;
-use Migration\Components\Migration\CollectionInterface;
+use Symfony\Component\Console\Output as Output,
+    Migration\Components\Migration\FileName as Filename,
+    Migration\Components\Migration\MigrationFile,
+    Migration\Components\Migration\CollectionInterface;
 
 class Loader
 {

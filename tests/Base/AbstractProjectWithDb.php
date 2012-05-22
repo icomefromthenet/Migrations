@@ -8,8 +8,8 @@ class AbstractProjectWithDb extends AbstractProject
     
     public function buildDb()
     {
-        exec('mysql -utest -pnone < '.__DIR__ .'/sakila-schema.sql');  
-        exec('mysql -utest -pnone < '.__DIR__ .'/sakila-data.sql');  
+        exec('/usr/bin/mysql -u '. DEMO_DATABASE_USER . ' -p'.DEMO_DATABASE_PASSWORD .' < '.__DIR__ .'/sakila-schema.sql');  
+        exec('/usr/bin/mysql -u '. DEMO_DATABASE_USER . ' -p'.DEMO_DATABASE_PASSWORD .' < '.__DIR__ .'/sakila-data.sql');  
     }
     
     //  -------------------------------------------------------------------------
@@ -26,22 +26,19 @@ class AbstractProjectWithDb extends AbstractProject
       */
     public function getDoctrineConnection()
     {
-        if(self::$doctrine_connection === null) {
         
-            $config = new \Doctrine\DBAL\Configuration();
+        $config = new \Doctrine\DBAL\Configuration();
             
-            $connectionParams = array(
-                'dbname' => 'sakila',
-                'user' => 'root',
-                'password' => 'vagrant',
-                'host' => 'localhost',
-                'driver' => 'pdo_mysql',
-            );
+        $connectionParams = array(
+                'dbname'   => DEMO_DATABASE_SCHEMA,
+                'user'     => DEMO_DATABASE_USER,
+                'password' => DEMO_DATABASE_PASSWORD,
+                'host'     => DEMO_DATABASE_HOST,
+                'driver'   => DEMO_DATABASE_TYPE,
+        );
         
-           self::$doctrine_connection = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
-        }
         
-        return self::$doctrine_connection;
+        return \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
         
     }
     
