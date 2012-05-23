@@ -21,14 +21,9 @@ class InstallCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $project = $this->getApplication()->getProject();
-        $migration_manager = $project->getMigrationManager();
-        
-        # Ensure Config is valid by loading it will throw exception if not exist or load from dsn
-        # passes via the command line.
-        $config = $project->getConfigFile();
-
-        # load the table manager factory and driver instance        
-        $table_manager = $migration_manager->getTableManagerFactory()->create($config->getType(),$config->getMigrationTable());
+        $config  = $project->getConfigFile();
+        $table_manager = $project->getMigrationManager()->getTableManager();
+    
         
         # test if the table has been previously init
         if($table_manager->exists() === true)  {
@@ -51,7 +46,7 @@ after this command you can run all migration commands.
 
 Example
 
->> install
+>> app:install
 
 EOF
 );

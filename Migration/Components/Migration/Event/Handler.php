@@ -2,11 +2,12 @@
 
 namespace Migration\Components\Migration\Event;
 
-use Migration\Components\Migration\Driver\TableInterface;
-use Migration\Components\Migration\Exception as MigrationException;
-use Migration\Components\Migration\Event\Base as MigrationEvent;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Schema\Schema;
+use DateTime,
+    Migration\Components\Migration\Driver\TableInterface,
+    Migration\Components\Migration\Exception as MigrationException,
+    Migration\Components\Migration\Event\Base as MigrationEvent,
+    Doctrine\DBAL\Connection,
+    Doctrine\DBAL\Schema\Schema;
 
 class Handler
 {
@@ -34,9 +35,10 @@ class Handler
       *
       *  @param MigrationEvent $event
       */
-    public function handleUp(MigrationEvent $event, Schema $schema)
+    public function handleUp(MigrationEvent $event)
     {
         $migration = $event->getMigration();
+        $schema = $this->conn->getSchemaManager();
         
         $this->conn->beginTransaction();
         
@@ -47,8 +49,8 @@ class Handler
             $migration->getEntity()->up($this->conn, $schema);
             
             # Add to the state table
-           
-            $this->migration->push($migration->getTimestamp());
+            $dte = DateTime::createFromFormat('U',$migration->getTimestamp());
+            $this->migration->push($dte);
             
             
             # Mark the migration as applied
@@ -72,10 +74,10 @@ class Handler
       *
       *  @param MigrationEvent $event
       */    
-    public function handleDown(MigrationEvent $event, Schema $schema)
+    public function handleDown(MigrationEvent $event)
     {
         $migration = $event->getMigration();
-        
+        $schema = $this->conn->getSchemaManager();
         $this->conn->beginTransaction();
         
         try {

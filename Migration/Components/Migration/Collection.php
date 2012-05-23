@@ -104,11 +104,26 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
       # assign the migration to the collection
       $this->inner_queue[$stamp] = $migration;
       
+      ksort($this->inner_queue);
+      
       # rebuild the index map
       $this->map = array_keys($this->inner_queue);  
       
     }
 
+    //----------------------------------------------------------------
+
+    
+    public function get($stamp) {
+      
+      if(is_int($stamp) === false) {
+          throw new MigrationException('Stamp must be an integer');
+      }
+      
+      return $this->inner_queue[$stamp];
+    }
+    
+    
     //----------------------------------------------------------------
 
     public function up($stamp = null ,$force = false)
@@ -124,7 +139,7 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
     
       # check for invalid up statement
       if($stamp_index < $head_index) {
-          throw new MigrationException('Can not run up to given stamp %s as current head is higher, try running down first');
+          throw new MigrationException('Can\'t run up to given migration as current head is higher, try running down first');
       }
       
       # check if two heads are equal (not equal on first run as latest === null)
@@ -172,8 +187,10 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
         # the first stamp would be at index 0, set a negative index if no head
         $head_index  = ($this->latest_migration === null) ? -1 : array_search($this->latest_migration,$map);
     
-        if($stamp_index === $head_index || $stamp_index > $head_index ) {
+        if($stamp_index === $head_index && $force === false ) {
           throw new MigrationAppliedException('Down must be called on migration below the head');
+        } else if($stamp_index === $head_index && $force === true) {
+          $stamp_index = $stamp_index -1; //need the loop to run below fake a lower stamp_index
         }
     
         # checking user error where the down stamp > then the current head (which is impossible movment)

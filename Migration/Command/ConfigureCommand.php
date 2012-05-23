@@ -100,7 +100,7 @@ Write a <info>new configuration file</info> to the project folder:
 
 Example
 
->> configure
+>> app:configure
 
 Will as you the following questions. 
 

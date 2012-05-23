@@ -25,8 +25,8 @@ ini_set('display_errors', 1);
 //--------------------------------------------------------------
 
 
-define('COREPATH',   __DIR__. DIRECTORY_SEPARATOR . '..'     . DIRECTORY_SEPARATOR);
-define('VENDORPATH', __DIR__. DIRECTORY_SEPARATOR . 'Vendor' . DIRECTORY_SEPARATOR);
+define('COREPATH',   realpath(__DIR__. DIRECTORY_SEPARATOR . '..'    ) . DIRECTORY_SEPARATOR);
+define('VENDORPATH', realpath(__DIR__. DIRECTORY_SEPARATOR . 'Vendor') . DIRECTORY_SEPARATOR);
 
 
 //------------------------------------------------------------------------------
@@ -49,6 +49,7 @@ $symfony_auto_loader->registernamespaces(
 ));
 
 $symfony_auto_loader->registerPrefix('Twig_', VENDORPATH .'Symfony' . DIRECTORY_SEPARATOR);
+$symfony_auto_loader->useIncludePath(true);
 $symfony_auto_loader->register();
 
 
@@ -59,6 +60,7 @@ $symfony_auto_loader->register();
 //------------------------------------------------------------------------------
 
 $project = new Project(new Path());
+
 
 
 //------------------------------------------------------------------------------
@@ -235,20 +237,146 @@ $project['config_manager'] = $project->share(function($project){
 
 
 //---------------------------------------------------------------
-// Setup Migration Manager (lazy loaded)
+// Setup Migration Manager 
 //
 //---------------------------------------------------------------
 
-$project['schema_name'] = 'default';
-
 $project['migration_manager'] = $project->share(function($project){
     $io = new \Migration\Components\Migration\Io($project->getPath()->get());
-    $io->setProjectFolder('migration'. DIRECTORY_SEPARATOR . $project['schema_name']);
+    
+    $project['loader']->setMigrationPath($io->path(''));
   
     # instance the manager, no database needed here
     return new \Migration\Components\Migration\Manager($io,$project);
 });
 
+//---------------------------------------------------------------
+// Migration Collection
+//
+//---------------------------------------------------------------
+
+$project['migration_collection'] = $project->share(function($project){
+   
+   $event             = $project['migration_event_dispatcher'];
+   $table_manager     = $project['migration_table_manager'];
+   $migration_manager = $project['migration_manager'];
+   
+   
+   # fetch the last applied stamp   
+   $stamp_collection = $table_manager->fill();
+   $latest = end($stamp_collection);
+   
+   # check for empty return from end
+   if($latest === false) {
+      $latest = null;
+   }
+   
+   reset($stamp_collection);
+   
+   # load the collection via the loader
+   $collection = new \Migration\Components\Migration\Collection($event,$latest);
+   $migration_manager->getLoader()->load($collection,$project['migration_filename_parser']);
+   
+   # merge the collection together
+   foreach($stamp_collection as $stamp) {
+      
+      if($collection->exists($stamp) === true) {
+         $collection->get($stamp)->setApplied(true);   
+      }
+   }
+      
+   
+   return $collection;
+});
+
+
+
+
+//---------------------------------------------------------------
+// Migration Filename parser
+//
+//---------------------------------------------------------------
+
+$project['migration_filename_parser'] = $project->share(function($project){
+   return new \Migration\Components\Migration\FileName();
+});
+
+
+//---------------------------------------------------------------
+// Migration Event Dispatcher
+//
+//---------------------------------------------------------------
+
+$project['migration_event_dispatcher'] = $project->share(function($project){
+   $handler = $project['migration_event_handler'];
+   $event   = $project['event_dispatcher'];
+   
+   $event->addListener('migration.up',  array($handler,'handleUp'));
+   $event->addListener('migration.down',array($handler,'handleDown'));
+   
+   return $event;
+});
+
+//---------------------------------------------------------------
+// Migration Event Handler
+//
+//---------------------------------------------------------------
+
+$project['migration_event_handler'] = $project->share(function($project){
+   return new \Migration\Components\Migration\Event\Handler($project['migration_table_manager'],$project['database']);
+});
+
+//---------------------------------------------------------------
+// Migration Table Manager Factory and the Manager
+//
+//---------------------------------------------------------------
+
+$project['migration_table_factory'] = $project->share(function($project){
+   return new \Migration\Components\Migration\Driver\TableManagerFactory($project['database'],$project['logger']);
+});
+
+$project['migration_table_manager'] = $project->share(function($project){
+   
+   # uses the config to derive a table manager
+   # config comes from the file setup in the configure command or a dsn passed via cli.
+   
+   $factory       = $project['migration_table_factory'];
+   $config        = $project['config_file'];
+   return $factory->create($config->getType(),$config->getMigrationTable());
+});
+
+
+//---------------------------------------------------------------
+// Migration Schema Manager Factory and Manager
+//
+//---------------------------------------------------------------
+
+$project['migration_schema_factory'] = $project->share(function($project){
+   return new \Migration\Components\Migration\Driver\SchemaManagerFactory($project['logger'],$project['console_output'],$project['database']);
+});
+
+$project['migration_schema_manager'] = $project->share(function($project){
+   
+   # uses the config to derive a schema manager
+   # config comes from the file setup in the configure command or a dsn passed via cli.
+   
+   $factory       = $project['migration_schema_factory'];
+   $config        = $project['config_file'];
+   return $factory->create($config->getType());
+});
+
+//---------------------------------------------------------------
+// Migration Sanity Check
+//
+//---------------------------------------------------------------
+
+$project['migration_sanity_check'] = $project->share(function($project){
+
+   $migration_collection    = $project['migration_collection'];
+   $migration_table_manager = $project['migration_table_manager'];
+
+   return new \Migration\Components\Migration\Diff($migration_collection->getMap(),$migration_table_manager->fill());
+});
 
 //---------------------------------------------------------------
 // Setup Templating Manager (lazy loaded)

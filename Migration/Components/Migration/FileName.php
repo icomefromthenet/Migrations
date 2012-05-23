@@ -1,13 +1,16 @@
 <?php
 namespace Migration\Components\Migration;
 
+use DateTime,
+    Migration\Components\Migration\Exception as MigrationException;
+
 class FileName
 {
 
-    const SUFFIX = '_Migration';
+    const PREFIX = 'migration';
 
     const FORMATT = 'Y_m_d_H_i_s';
-
+    
     /**
      * Gets a time stamp from a file name created using
      * the generate function
@@ -17,23 +20,29 @@ class FileName
      */
     public function parse($filepath)
     {
-        $stamp = \str_ireplace(self::SUFFIX, '', \basename(\rtrim($filepath,'.php')));
-
-
-        $parsed_date = \DateTime::createFromFormat(
-                self::FORMATT, $stamp
+        $short = basename(rtrim($filepath,'.php'));
+        
+        $matched = array();
+        preg_match('/[0-9]+_[0-9]+_[0-9]+_[0-9]+_[0-9]+_[0-9]+$/',$short,$matched);
+        
+        if(isset($matched[0]) === false) {
+            throw new MigrationException('File Name is invalid at::'.$filepath);
+        }
+        
+        $parsed_date = DateTime::createFromFormat(
+                self::FORMATT, $matched[0]
         );
 
-        $timestamp = $parsed_date->format('U');
+        $timestamp = $parsed_date->format('U') +0; //force init cast
 
         return $timestamp;
     }
 
     //----------------------------------------------------------------
 
-    public function generate()
+    public function generate($prefix = null)
     {
-        $dte = new \DateTime();
+        $dte = new DateTime();
 
         $stamp = array(
             $dte->format('Y'),
@@ -43,8 +52,27 @@ class FileName
             $dte->format('i'),
             $dte->format('s'),
         );
-
-        return implode('_',$stamp) . self::SUFFIX;
+        
+        # none been provided use default
+        if($prefix === null ) {
+            $prefix = self::PREFIX;
+        }
+        
+        # trim spaces from start and end of string
+        $prefix = strtolower(trim($prefix));
+        
+        #remove file extension not be included here
+        $prefix = rtrim($prefix,'.php');
+        
+        # remove spaces for underscores
+        $prefix = str_replace(' ','_',$prefix);
+        
+        # valid the suffix
+        if(preg_match('/^[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)*$/',$prefix) == 0) {
+            throw new MigrationException('Prefix must be a valid alphanumeric string and start with a character a-z|A-Z');
+        }
+        
+        return $prefix .'_'. implode('_',$stamp); 
 
     }
 

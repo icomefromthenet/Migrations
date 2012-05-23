@@ -107,17 +107,14 @@ class MigrationFile implements MigrationFileInterface
       */
     public function getEntity()
     {
-       $class_name = basename($this->getFilename());
-
-        # require the class
-        require($this->getRealPath());
-
-        # test if it exists
-        if(class_exists($class_name) === false) {
-            throw new EntityNotExistException(sprintf('migration class %s does not exist',$class_name));
+        $basename = rtrim(basename($this->getFilename()),'.php');
+        $class = __NAMESPACE__.'\\Entities\\'.$basename;
+        
+        if(class_exists($class) === false) {
+            throw new EntityNotExistException('Entity does not exist at '.$class);
         }
-
-        return new $class_name;
+        
+        return new $class();
     }
 
     //  -------------------------------------------------------------------------

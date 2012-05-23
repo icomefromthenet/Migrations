@@ -37,6 +37,21 @@ class Autoload extends UniversalClassLoader
     }
     
     //  -------------------------------------------------------------------------
+    
+    protected $migration_path;
+    
+    public function setMigrationPath($path)
+    {
+        $this->migration_path = $path;
+    }
+    
+    public function getMigrationPath()
+    {
+        return $this->migration_path;
+    }
+    
+    
+    //  -------------------------------------------------------------------------
     # Namespace Extension Filter 
     
     protected $filter;
@@ -69,6 +84,15 @@ class Autoload extends UniversalClassLoader
             return parent::findFile($class);
        }
        
+        $pos = strrpos($class, '\\');
+        $namespace = substr($class, 0, $pos);
+        $className = substr($class, $pos + 1);
+        
+        # make early use of include path
+        if ($namespace === 'Migration\Components\Migration\Entities') {
+            return rtrim($this->migration_path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $className .'.php';
+        }
+       
         # fetch the extension namespaces
         
         #find if any match the current namespace
@@ -77,6 +101,8 @@ class Autoload extends UniversalClassLoader
             $pos = strrpos($class, '\\');
             $namespace = substr($class, 0, $pos);
             $className = substr($class, $pos + 1);
+            
+            
             
             # check if the extension namespace found in the current class (at string 0)
             if  (0 === strpos($namespace,$ext_namespace)) {

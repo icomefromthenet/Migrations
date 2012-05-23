@@ -2,7 +2,7 @@
 namespace Migration\Components\Migration;
 
 use Doctrine\DBAL\Connection,
-    Doctrine\DBAL\Schema\Schema;
+    Doctrine\DBAL\Schema\AbstractSchemaManager as Schema;
 
 /**
   *  Abstract Class Represents a single migration.
@@ -14,7 +14,7 @@ interface EntityInterface
       *  Performs an up action on a schema
       *  
       *  @param \Doctrine\DBAL\Connection $pdo
-      *  @param \Doctrine\DBAL\Schema\Schema $sc
+      *  @param \Doctrine\DBAL\Schema\AbstractSchemaManager $sc
       *  @access public
       *  @return void
       */
@@ -27,7 +27,7 @@ interface EntityInterface
       * @return void;
       * @access public
       * @param \Doctrine\DBAL\Connection $db;
-      * @param \Doctrine\DBAL\Schema\Schema $sc 
+      * @param \Doctrine\DBAL\Schema\AbstractSchemaManager $sc 
       */
     public function down(Connection $db, Schema $sc);
     

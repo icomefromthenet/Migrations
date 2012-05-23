@@ -210,10 +210,10 @@ class AbstractProject extends PHPUnit_Framework_TestCase
         # create the directories
 
         $migrations = array(
-            '2012_01_02_22_33_33_Migration.php',
-            '2012_01_03_22_33_33_Migration.php',
-            '2012_01_04_22_33_33_Migration.php',
-            '2012_01_05_22_33_33_Migration.php',
+            '2012_01_02_22_33_33_migration.php',
+            '2012_01_03_22_33_33_migration.php',
+            '2012_01_04_22_33_33_migration.php',
+            '2012_01_05_22_33_33_migration.php',
             'schema.php',
             'test_data.php'
         );

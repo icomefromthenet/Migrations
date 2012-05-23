@@ -12,7 +12,6 @@ use Migration\Components\Config\Entity as ConfigEntity;
 use Migration\Components\Migration\Event\Handler as MigrationHandler;
 use Migration\Components\Migration\Collection as MigrationCollection;
 use Migration\Io\DirectoryExistsException;
-use Migration\Components\Migration\FileName as FileNameParser;
 use Migration\Components\Migration\Diff as SanityCheck;
 
 /*
@@ -40,23 +39,8 @@ class Manager implements ManagerInterface
     /**
       *  @var Migration\Project 
       */
-    protected $project;
+    protected $di;
       
-    /**
-      *  @var Migration\Components\Migration\FileName 
-      */
-    protected $file_name;
-    
-    /**
-      *  @var Migration\Components\Migration\Diff 
-      */
-    protected $diff;
-    
-    /**
-      *  @var Migration\Components\Migration\Collection 
-      */
-    protected $migration_collection;
-    
     /*
      * __construct()
      * @param $arg
@@ -65,7 +49,7 @@ class Manager implements ManagerInterface
     public function __construct(IoInterface $io, Project $di )
     {
         $this->io = $io;
-        $this->project = $di;
+        $this->di = $di;
     }
 
     //  -------------------------------------------------------------------------
@@ -79,20 +63,7 @@ class Manager implements ManagerInterface
       */
     public function getEventHandler()
     {
-        if($this->handler === null) {
-          
-          # load the event handler
-          $this->handler = new MigrationHandler($this->getTableManager(),
-                                                $this->project['database']);   
-        
-           # bind event handlers
-           $event = $this->project['event_dispatcher'];
-           $event->addListener('upEvent',  array($this->handler,'handleUp'));
-           $event->addListener('downEvent',array($this->handler,'handleDown'));
-     
-        }
-         
-        return $this->handler;        
+        return $this->di['migration_event_handler'];       
     }
 
     
@@ -107,13 +78,7 @@ class Manager implements ManagerInterface
       */
     public function getMigrationCollection()
     {
-        if($this->migration_collection === null) {
-            $this->migration_collection =  new MigrationCollection($this->project['console_output'],
-                                                                   $this->project['logger'],
-                                                                   $this->io);
-        }
-        
-        return $this->migration_collection;
+       return $this->di['migration_collection'];
     }
     
     
@@ -128,38 +93,7 @@ class Manager implements ManagerInterface
       */    
     public function getFileNameParser()
     {
-        if($this->file_name === null) {
-            $this->file_name = new FileNameParser();
-        }
-        
-        return $this->file_name;
-        
-    }
-
-    
-    //  -------------------------------------------------------------------------
-    # Sanity Checker
-    
-    /**
-      *  Loads the Sanity Check (Diff)
-      *
-      *  @return Migration\Components\Migration\Diff
-      *  @access public
-      */    
-    public function getSanityCheck()
-    {
-        if($this->diff === null) {
-            
-            # load table manager
-            $table = $this->getTableManager();
-            
-            # load collection
-            $collection = $this->getMigrationCollection();
-            
-            $this->diff = new SanityCheck($collection->getMap(),$table->fill());    
-        }
-        
-        return $this->diff;
+        return $this->di['migration_filename_parser'];
     }
     
 
@@ -178,7 +112,7 @@ class Manager implements ManagerInterface
     public function getLoader()
     {
         if($this->loader === NULL) {
-            $this->loader = new Loader($this->io);
+            $this->loader = new Loader($this->io,$this->getFileNameParser());
             
         }
 
@@ -207,34 +141,6 @@ class Manager implements ManagerInterface
     }
 
     //  -------------------------------------------------------------------------
-    # Migration Schema Builder
-
-    /**
-    * function build
-    *
-    * Create a migration schema
-    *
-    * @access public
-    * @param string the name of the new schema
-    * @return boolean
-    * @throws SchemaExistsException
-    */
-    public function build($name)
-    {
-        $name = strtolower($name);
-
-        try {
-
-            return $this->io->mkdir($name,null);
-
-        } catch(DirectoryExistsException $e) {
-
-            throw new SchemaExistsException("Schema $name exists already");
-
-        }
-    }
-
-    //  -------------------------------------------------------------------------
 
     /**
       *  Fetch the Schema Manager Factory
@@ -244,7 +150,7 @@ class Manager implements ManagerInterface
       */    
     public function getSchemaManagerFactory()
     {
-        return new SchemaManagerFactory($this->project['logger'],$this->project['console_output'],$this->project['database']);
+        return $this->di['migration_schema_factory'];
     }
     
     /**
@@ -255,11 +161,47 @@ class Manager implements ManagerInterface
       */
     public function getTableManagerFactory()
     {
-        return new TableManagerFactory($this->project['database'],$this->project['logger']);
+        return $this->di['migration_table_factory'];
     }
     
     //  -------------------------------------------------------------------------
     
+    /**
+      *  Fetch the table manager for the configured
+      *  database
+      *
+      *  @access public
+      *  @return \Migration\Components\Migration\Driver\TableInterface
+      */
+    public function getTableManager()
+    {
+        return $this->di['migration_table_manager'];
+    }
+    
+    /**
+      *  Fetch the schema manager for the configured
+      *  database
+      *
+      *  @access public
+      *  @return \Migration\Components\Migration\Driver\SchemaInterface
+      */
+    public function getSchemaManager()
+    {
+        return $this->di['migration_schema_manager'];
+    }
+    
+    //  -------------------------------------------------------------------------
+   
+    /**
+      *  Fetch the Sanity Checker to find out of sync migration setups
+      *
+      *  @access public
+      *  @return \Migration\Components\Migration\Diff;
+      */
+    public function getSanityCheck()
+    {
+        return  $this->di['migration_sanity_check'];
+    }
     
 }
 /* End of File */

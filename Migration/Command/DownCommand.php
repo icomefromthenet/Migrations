@@ -13,20 +13,43 @@ class DownCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         
-        # Fetch the Migration Component
-        $project  = $this->getApplication()->getProject();
-        $migration_manager = $project['migration_manager'];
+       $project            = $this->getApplication()->getProject();
+       $migrantion_manager = $project->getMigrationManager();
+       $table_manager      = $migrantion_manager->getTableManager();
+       $collection         = $migrantion_manager->getMigrationCollection();
+       $event              = $project->getEventDispatcher(); 
+     
+       # run sanity check 
+       $sanity             = $migrantion_manager->getSanityCheck();
+     
+       # check if that are new migrations under the head.
+       # these are easy to miss since they are in the middle of the list
+       $sanity->diffAB(); 
         
-        # Get the loader dependecies
-        $loader = $migration_manager->getLoader();
-        $file_name_parser = $migration_manager->getFileNameParser();
-        $migration_collection = $migration_manager->getMigrationCollection();
-        
-        # load the migrations and do sanity check
-        
-        $loader->load($migration_collection,$file_name_parser);
-        
-        
+       # attach some event to output
+       
+       $event->addListener('migration.down', function ( \Migration\Components\Migration\Event\DownEvent $event) use ($output) {
+            $output->writeln("\t" . 'Applying Down on migration: <info>'.$event->getMigration()->getFilename(). '</info>');
+       });
+       
+       $map = $collection->getMap();
+       $index = $input->getArgument('index');
+       
+       
+       
+       if(($index = $index -1) < 0) {
+         $stamp = null;
+       } else {
+
+         if(isset($map[$index]) === false) {
+            throw new InvalidArgumentException(sprintf('Index at %s not found ',$index));
+         }
+         
+         $stamp = $map[$index];
+       }
+       
+       # will migrate up to the newest migration found.
+       $collection->down($stamp,$input->getOption('force')); 
         
     }
     
@@ -36,40 +59,14 @@ class DownCommand extends Command
         $this->setHelp(<<<EOF
 Move the migration <info>down</info> to the supplied migration:
 
-If you want to undo the last migration run <info>down</info> with <comment>no arguments</comment>.
-
 Example  
 
->> down <comment>5</comment> 
-
-Will Migrate down to the 5th migration, this could run 100 migrations if you current migration is 105.
-
->> down <comment>no arguments</comment> 
-
-will migrate down to the previous migration if current migration 105 running down
-with no aguments will set the current migration to 104.
-
->> down  <comment>-dte=Yesterday</comment>
-
-Will limit the selected migrations to those appearing on and before the date.
-The string must be parsable by strtotime().
+>> app:down <comment>5</comment> 
 
 EOF
 );        
-        $this->setDefinition(array(
-            new InputArgument(
-                    'migration_number', 
-                    InputArgument::OPTIONAL,   
-                    'migration index number e.g 6',
-                    NULL
-                    ),
-            new InputOption(
-                    'data-created',
-                    '-dte',
-                    InputArgument::OPTIONAL,
-                    'strtotime date string'
-            )
-        ));
+        $this->addArgument('index',InputArgument::REQUIRED,'migration index number e.g 6');
+        $this->addOption('--force','-f',null,'Force migration to be applied');
         
         parent::configure();
     }

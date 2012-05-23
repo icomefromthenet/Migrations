@@ -11,33 +11,17 @@ class AddCommand extends Command
 {
 
 
-    protected $build_db = false;
-
-
-    /**
-     * Interacts with the user.
-     *
-     * @param InputInterface  $input  An InputInterface instance
-     * @param OutputInterface $output An OutputInterface instance
-     */
-    protected function interact(InputInterface $input, OutputInterface $output)
-    {
-
-    }
-
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-         
            $project  = $this->getApplication()->getProject();
-           $migration_manager = $project['migration_manager'];
-           $template_manager  = $project['template_manager'];
-           
+           $migration_manager = $project->getMigrationManager();
+           $template_manager  = $project->getTemplatingManager();
            
            $migration_template = $template_manager->getLoader()->load('migration_template.twig',array());
            
-           $migration_file = $migration_manager->getWriter()->write($migration_template);
+           $migration_file = $migration_manager->getWriter()->write($migration_template,$input->getArgument('migration_suffix'));
          
-           $output->writeLn('Finished Writing new Migration: <comment>'. $migration_file->getFileName() .'</commnet>');
+           $output->writeLn('Finished Writing new Migration: <comment>'. $migration_file->getFileName() .'</comment>');
       
     }
 
@@ -51,13 +35,35 @@ Will <info>Add new migration file</info> using the template.
 This should be run to create new migration files, Open and implement
 the Up and Down methods.
 
-Example:
+You may pass in an optional <comment>Alpha Numeric suffix.</comment>
 
->> add 
+<comment>Example (Default suffix):</comment>
+
+>> app:add
+
+<comment>Example (Custom suffix): </comment>
+
+>> app:add 'added currency column to table x'
+
+<error>Invalid Example (Must start with a-z|A-z):</error>
+
+>> app:add '00988'
+
+<error>Invalid Example (not alpha numeric):</error>
+
+>> app:add suffix with = sign 
 
 EOF
     );
 
+          $this->setDefinition(array(
+            new InputArgument(
+                    'migration_suffix',
+                    InputArgument::OPTIONAL,
+                    'suffix to attach to file',
+                    NULL
+            )
+        ));
 
         parent::configure();
     }

@@ -32,20 +32,20 @@ class Writer
     # Writer
 
 
-    public function write(Template $migration_template)
+    public function write(Template $migration_template,$optional_suffix = null)
     {
 
         # generate file name
-        $file_name = $this->getFilename()->generate();
+        $file_name = $this->getFilename()->generate($optional_suffix);
 
         # check that name is free
-        if($this->getIo()->exists($file_name,'') === true) {
+        if($this->getIo()->exists($file_name.'.php','') === true) {
             throw new MigrationException('Migration already exists');
         }
 
         # write the file content
-        if($this->getIo()->write($file_name,'',$migration_template->render(array('class_name'=>$file_name)),false)) {
-            return $this->getIo()->load($file_name,'',true);
+        if($this->getIo()->write($file_name.'.php','',$migration_template->render(array('class_name'=>$file_name)),false)) {
+            return $this->getIo()->load($file_name.'.php','',true);
         }
         
         return false;

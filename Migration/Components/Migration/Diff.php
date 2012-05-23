@@ -51,7 +51,8 @@ class Diff
       *  @var integer[]
       */
     protected $database_list;
-
+    
+    
     /*
      * __construct()
      *
@@ -64,8 +65,8 @@ class Diff
     {
         $this->file_list = $file;
         $this->database_list = $database;
+        
     }
-
     //  -------------------------------------------------------------------------
     # Diff
 
@@ -165,6 +166,5 @@ class Diff
         
     }
     
-
 }
 /* End of File */

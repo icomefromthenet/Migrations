@@ -52,10 +52,10 @@ normally run this within the project folder but can be overriden with -p option.
 
 Example
 <comment>Override the path</comment>
->> init <info> -p /home/bob/project </info>
+>> app:init <info> -p /home/bob/project </info>
 
 <comment>Build into the current folder.</comment>
->> init
+>> app:init
 EOF
                 );
         $this->setDefinition(array(

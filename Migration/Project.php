@@ -21,18 +21,6 @@ class Project extends Pimple
     }
 
     
-    /**
-      *  Function getDataPath
-      *
-      *  @return \Migration\Path
-      *  @access public
-      */
-    public function getDataPath()
-    {
-          return $this['data_path'];
-     
-    }
-    
     
 
     //  -------------------------------------------------------------------------
@@ -223,6 +211,20 @@ class Project extends Pimple
         return $this['migration_manager'];
     }
 
+    
+    //  -------------------------------------------------------------------------
+    # Event Class
+    
+    /**
+      *  Fetch the event dispatcher
+      *
+      *  @access public
+      *  @return \Symfony\Component\EventDispatcher\EventDispatcher
+      */
+    public function getEventDispatcher()
+    {
+         return $this['event_dispatcher'];
+    }
 
     //  -------------------------------------------------------------------------
     # Debug Log
@@ -265,31 +267,6 @@ class Project extends Pimple
     public function getConfigFile()
     {
           return $this['config_file'];
-    }
-
-    //  -------------------------------------------------------------------------
-    # Schema Name
-
-    /**
-      * function setSchemaName
-      *
-      * @access public
-      * @param string $name;
-      */
-    public function setSchemaName($name)
-    {
-        $this['schema_name'] = $name;
-    }
-
-    /**
-      *  function getSchemaName
-      *
-      *  @access public
-      *  @return string schema name;
-      */
-    public function getSchemaName()
-    {
-        return $this['schema_name'];
     }
 
     //  -------------------------------------------------------------------------

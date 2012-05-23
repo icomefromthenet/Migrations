@@ -12,12 +12,17 @@ class EventHandlerTest extends AbstractProject
     
     protected $table_interface;
     
-    
     public function setUp()
     {
         $conn = $this->getMockBuilder('\Doctrine\DBAL\Connection')
                      ->disableOriginalConstructor()
                      ->getMock();
+                     
+        $mock_schema = $this->getMockBuilder('\Doctrine\DBAL\Schema\AbstractSchemaManager')
+                            ->disableOriginalConstructor()
+                            ->getMockForAbstractClass();              
+        
+        $conn->expects($this->any())->method('getSchemaManager')->will($this->returnValue($mock_schema));             
         
         $table = $this->getMockBuilder('\Migration\Components\Migration\Driver\TableInterface')
                       ->disableOriginalConstructor()
@@ -59,15 +64,14 @@ class EventHandlerTest extends AbstractProject
         $connection = $this->doctrine_connection;
         $timestamp = new DateTime();
        
-        $mock_schema = $this->getMockBuilder('\Doctrine\DBAL\Schema\Schema')
-                            ->getMock(); 
+       
        
         $mock_entity = $this->getMockBuilder('\Migration\Components\Migration\EntityInterface')
                             ->getMock(); 
        
         $mock_entity->expects($this->once())
                    ->method('up')
-                   ->with($this->equalTo($connection),$this->equalTo($mock_schema));
+                   ->with($this->equalTo($connection),$this->isInstanceOf('\Doctrine\DBAL\Schema\AbstractSchemaManager'));
        
         $mock_migration = $this->getMockBuilder('\Migration\Components\Migration\MigrationFileInterface')
                                ->getMock(); 
@@ -82,7 +86,7 @@ class EventHandlerTest extends AbstractProject
         
         $mock_migration->expects($this->once())
                        ->method('getTimestamp')
-                       ->will($this->returnValue($timestamp));
+                       ->will($this->returnValue($timestamp->format('U')));
         
         
         $up_event = $this->getMockBuilder('\Migration\Components\Migration\Event\UpEvent')
@@ -100,11 +104,11 @@ class EventHandlerTest extends AbstractProject
         
         $table->expects($this->once())
                ->method('push')
-               ->with($this->equalTo($timestamp));
+               ->with($this->isInstanceOf('\DateTime'));
                          
         $handler = new Handler($table,$connection);   
         
-        $handler->handleUp($up_event,$mock_schema);        
+        $handler->handleUp($up_event);        
     }
     
     /**
@@ -117,16 +121,13 @@ class EventHandlerTest extends AbstractProject
         $table = $this->table_interface;
         $connection = $this->doctrine_connection;
         $timestamp = new DateTime();
-       
-        $mock_schema = $this->getMockBuilder('\Doctrine\DBAL\Schema\Schema')
-                            ->getMock(); 
-       
+              
         $mock_entity = $this->getMockBuilder('\Migration\Components\Migration\EntityInterface')
                             ->getMock(); 
        
         $mock_entity->expects($this->once())
                    ->method('up')
-                   ->with($this->equalTo($connection),$this->equalTo($mock_schema));
+                   ->with($this->equalTo($connection),$this->isInstanceOf('\Doctrine\DBAL\Schema\AbstractSchemaManager'));
        
         $mock_migration = $this->getMockBuilder('\Migration\Components\Migration\MigrationFileInterface')
                                ->getMock(); 
@@ -137,7 +138,7 @@ class EventHandlerTest extends AbstractProject
         
         $mock_migration->expects($this->once())
                        ->method('getTimestamp')
-                       ->will($this->returnValue($timestamp));
+                       ->will($this->returnValue($timestamp->format('U')));
         
         
         $up_event = $this->getMockBuilder('\Migration\Components\Migration\Event\UpEvent')
@@ -155,12 +156,12 @@ class EventHandlerTest extends AbstractProject
         
         $table->expects($this->once())
                ->method('push')
-               ->with($this->equalTo($timestamp))
+               ->with($this->isInstanceOf('\DateTime'))
                ->will($this->throwException( new \Migration\Components\Migration\Exception('anexception'))); 
                          
         $handler = new Handler($table,$connection);   
         
-       $handler->handleUp($up_event,$mock_schema);        
+       $handler->handleUp($up_event);        
         
     }
     
@@ -175,15 +176,12 @@ class EventHandlerTest extends AbstractProject
         $connection = $this->doctrine_connection;
         $timestamp = new DateTime();
        
-        $mock_schema = $this->getMockBuilder('\Doctrine\DBAL\Schema\Schema')
-                            ->getMock(); 
-       
         $mock_entity = $this->getMockBuilder('\Migration\Components\Migration\EntityInterface')
                             ->getMock(); 
        
         $mock_entity->expects($this->once())
                    ->method('down')
-                   ->with($this->equalTo($connection),$this->equalTo($mock_schema));
+                   ->with($this->equalTo($connection),$this->isInstanceOf('\Doctrine\DBAL\Schema\AbstractSchemaManager'));
        
         $mock_migration = $this->getMockBuilder('\Migration\Components\Migration\MigrationFileInterface')
                                ->getMock(); 
@@ -215,7 +213,7 @@ class EventHandlerTest extends AbstractProject
                
         $handler = new Handler($table,$connection);   
         
-        $handler->handleDown($up_event,$mock_schema);     
+        $handler->handleDown($up_event);     
         
     }
     
@@ -231,15 +229,13 @@ class EventHandlerTest extends AbstractProject
         $connection = $this->doctrine_connection;
         $timestamp = new DateTime();
        
-        $mock_schema = $this->getMockBuilder('\Doctrine\DBAL\Schema\Schema')
-                            ->getMock(); 
-       
+             
         $mock_entity = $this->getMockBuilder('\Migration\Components\Migration\EntityInterface')
                             ->getMock(); 
        
         $mock_entity->expects($this->once())
                    ->method('down')
-                   ->with($this->equalTo($connection),$this->equalTo($mock_schema));
+                   ->with($this->equalTo($connection),$this->isInstanceOf('\Doctrine\DBAL\Schema\AbstractSchemaManager'));
        
         $mock_migration = $this->getMockBuilder('\Migration\Components\Migration\MigrationFileInterface')
                                ->getMock(); 
@@ -267,7 +263,7 @@ class EventHandlerTest extends AbstractProject
                
         $handler = new Handler($table,$connection);   
         
-        $handler->handleDown($up_event,$mock_schema);     
+        $handler->handleDown($up_event);     
         
         
         

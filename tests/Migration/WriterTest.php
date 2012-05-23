@@ -38,7 +38,7 @@ class WriterTest extends AbstractProject
                         ->getMock();
   
   
-        $new_file = '2011_01_12_MM_II_SS';
+        $new_file = '2011_01_12_mm_ii_ss';
    
         $io = $this->getMockBuilder('Migration\Components\Migration\Io')
                     ->disableOriginalConstructor()
@@ -46,7 +46,7 @@ class WriterTest extends AbstractProject
         
         $io->expects($this->once())
             ->method('exists')
-            ->with($this->equalto($new_file),$this->equalTo(''))
+            ->with($this->equalto($new_file.'.php'),$this->equalTo(''))
             ->will($this->returnValue(true));
             
         $file_name = $this->getMockBuilder('Migration\Components\Migration\FileName')
@@ -59,12 +59,12 @@ class WriterTest extends AbstractProject
                      
         $writer = new Writer($io,$file_name);
        
-        $writer->write($template); 
+        $writer->write($template,null); 
     }
    
     public function testWriterWriteFails()
     {
-        $new_file = '2011_01_12_MM_II_SS';
+        $new_file = '2011_01_12_mm_ii_ss';
    
         $template = $this->getMockBuilder('\Migration\Components\Templating\Template')
                         ->disableOriginalConstructor()
@@ -81,12 +81,12 @@ class WriterTest extends AbstractProject
         
         $io->expects($this->once())
             ->method('exists')
-            ->with($this->equalto($new_file),$this->equalTo(''))
+            ->with($this->equalto($new_file .'.php'),$this->equalTo(''))
             ->will($this->returnValue(false));
         
         $io->expects($this->once())
             ->method('write')
-            ->with($this->equalTo($new_file),
+            ->with($this->equalTo($new_file.'.php'),
                    $this->equalTo(''),
                    $this->equalTo(''),
                    $this->equalTo(false)
@@ -103,13 +103,13 @@ class WriterTest extends AbstractProject
                      
         $writer = new Writer($io,$file_name);
        
-        $this->assertFalse($writer->write($template),'Writer should have failed'); 
+        $this->assertFalse($writer->write($template,null),'Writer should have failed'); 
     }
    
     
     public function testWriterWrite()
     {
-        $new_file = '2011_01_12_MM_II_SS';
+        $new_file = '2011_01_12_mm_ii_ss';
    
         $template = $this->getMockBuilder('\Migration\Components\Templating\Template')
                         ->disableOriginalConstructor()
@@ -128,12 +128,12 @@ class WriterTest extends AbstractProject
         
         $io->expects($this->once())
             ->method('exists')
-            ->with($this->equalto($new_file),$this->equalTo(''))
+            ->with($this->equalto($new_file .'.php'),$this->equalTo(''))
             ->will($this->returnValue(false));
         
         $io->expects($this->once())
             ->method('write')
-            ->with($this->equalTo($new_file),
+            ->with($this->equalTo($new_file.'.php'),
                    $this->equalTo(''),
                    $this->equalTo(''),
                    $this->equalTo(false)
@@ -142,7 +142,7 @@ class WriterTest extends AbstractProject
             
         $io->expects($this->once())
            ->method('load')
-           ->with($this->equalTo($new_file),
+           ->with($this->equalTo($new_file.'.php'),
                   $this->equalTo(''),
                   $this->equalTo(true)
                   )
@@ -154,11 +154,12 @@ class WriterTest extends AbstractProject
        
         $file_name->expects($this->once())
                  ->method('generate')
+                 ->with($this->equalTo('mm ii ss'))
                  ->will($this->returnValue($new_file));
                      
         $writer = new Writer($io,$file_name);
        
-        $this->assertTrue($writer->write($template)); 
+        $this->assertTrue($writer->write($template,'mm ii ss')); 
     }     
      
      

@@ -1,19 +1,42 @@
 <?php
 namespace Migration\Command;
 
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
-use Migration\Command\Base\Command;
+use DateTime,
+    Symfony\Component\Console\Input\InputInterface,
+    Symfony\Component\Console\Output\OutputInterface,
+    Symfony\Component\Console\Input\InputArgument,
+    Symfony\Component\Console\Input\InputOption,
+    Migration\Command\Base\Command;
 
 class StatusCommand extends Command
 {
 
     protected function execute(InputInterface $input,OutputInterface $output)
     {
-        $output->writeln('Hello World!');
-
+       $project = $this->getApplication()->getProject();
+       $migrantion_manager = $project->getMigrationManager();
+       $collection = $migrantion_manager->getMigrationCollection();
+       
+       # fetch head
+       
+       $head = $collection->getLatestMigration();
+       
+       if($head === null || $head === false) {
+        
+            $output->writeln("\t".'There has been <info>no head </info>set run <comment>app:build</comment> or <comment>app:latest</comment> to apply all migrations.');
+        
+       } else {
+            $head_migration = $collection->get($head);
+            $stamp = $migrantion_manager->getFileNameParser()->parse($head_migration->getBasename('.php'));    
+            $stamp_dte = DateTime::createFromFormat('U',$stamp);
+            
+            $index = array_search($head,$collection->getMap()) +1;
+                       
+            $output->writeln("\t" .'Current Head Migration (last applied) Index <comment>'.$index.'</comment> Date Migration <comment>'.$stamp_dte->format(DATE_RSS).'</comment>');    
+       }
+        
+        
+        
     }
 
 
@@ -32,7 +55,7 @@ the date.
 
 Example
 
->> status
+>> app: status
 
 EOF
 );

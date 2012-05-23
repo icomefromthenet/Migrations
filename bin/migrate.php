@@ -33,17 +33,17 @@ if(strpos('@PHP-BIN@', '@PHP-BIN') === 0) {
 //
 //--------------------------------------------------------------------
 
-$project->getConsole()->add(new ConfigureCommand('configure'));
-$project->getConsole()->add(new DownCommand('down'));
-$project->getConsole()->add(new UpCommand('up'));
-$project->getConsole()->add(new LatestCommand('latest'));
-$project->getConsole()->add(new BuildCommand('build'));
-$project->getConsole()->add(new StatusCommand('status'));
-$project->getConsole()->add(new RunCommand('run'));
-$project->getConsole()->add(new ListCommand('show'));
-$project->getConsole()->add(new AddCommand('add'));
-$project->getConsole()->add(new InitProjectCommand('init'));
-$project->getConsole()->add(new InstallCommand('install'));
+$project->getConsole()->add(new ConfigureCommand('app:configure'));
+$project->getConsole()->add(new DownCommand('app:down'));
+$project->getConsole()->add(new UpCommand('app:up'));
+$project->getConsole()->add(new LatestCommand('app:latest'));
+$project->getConsole()->add(new BuildCommand('app:build'));
+$project->getConsole()->add(new StatusCommand('app:status'));
+$project->getConsole()->add(new RunCommand('app:run'));
+$project->getConsole()->add(new ListCommand('app:list'));
+$project->getConsole()->add(new AddCommand('app:add'));
+$project->getConsole()->add(new InitProjectCommand('app:init'));
+$project->getConsole()->add(new InstallCommand('app:install'));
 
 
 //--------------------------------------------------------------------

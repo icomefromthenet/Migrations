@@ -10,7 +10,7 @@ use Symfony\Component\Finder\Finder;
 class Io extends Base
 {
 
-    protected $dir = 'default';
+    protected $dir = 'migration';
 
     protected $test_data_fname = 'test_data.php';
 
@@ -24,7 +24,6 @@ class Io extends Base
     public function __construct($base_folder)
     {
         parent::__construct($base_folder);
-        $this->setProjectFolder('migration'. DIRECTORY_SEPARATOR. 'default');
     }
 
     //  -------------------------------------------------------------------------

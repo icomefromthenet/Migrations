@@ -63,7 +63,7 @@ database on the production server.
 
 Example:
 
->> build <comment> [no-arguments] </comment>
+>> app:build <comment> [no-arguments] </comment>
 
 <info>Need the following inormation </info>:
 Type of Database [mysql | oracle  | mssql]
