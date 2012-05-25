@@ -208,7 +208,7 @@ class EventHandlerTest extends AbstractProject
                    ->method('commit'); 
         
         $table->expects($this->once())
-               ->method('pop');
+               ->method('popAt');
                
                
         $handler = new Handler($table,$connection);   
@@ -258,7 +258,7 @@ class EventHandlerTest extends AbstractProject
                    ->method('rollback'); 
         
         $table->expects($this->once())
-               ->method('pop')
+               ->method('popAt')
                 ->will($this->throwException( new \Migration\Components\Migration\Exception('anexception'))); 
                
         $handler = new Handler($table,$connection);   

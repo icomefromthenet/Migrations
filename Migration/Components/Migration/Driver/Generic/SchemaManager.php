@@ -319,7 +319,7 @@ class SchemaManager implements SchemaInterface
     //  -------------------------------------------------------------------------
     # Build
 
-    public function build(MigrationFileInterface $schema, MigrationFileInterface $test_data, Collection $collection)
+    public function build(MigrationFileInterface $schema, Collection $collection,MigrationFileInterface $test_data = null)
     {
         
         # Start transaction
@@ -335,7 +335,7 @@ class SchemaManager implements SchemaInterface
         
            
             # Apply inital schema
-            $new_schema = $schema->getClass();
+            $new_schema = $schema->getEntity();
             $new_schema->up($this->database);
 
             # Apply Migration Table Schema
@@ -345,9 +345,11 @@ class SchemaManager implements SchemaInterface
             $collection->latest();
 
             # Apply Test Data
-            $new_test_data = $test_data->getClass();
-            $new_test_data->up($this->database);
-
+            if($test_data !== null) {
+		$new_test_data = $test_data->getEntity();
+		$new_test_data->up($this->database);
+	    }
+	    
             $this->database->commit();
             
         

@@ -14,7 +14,7 @@ class Io extends Base
 
     protected $test_data_fname = 'test_data.php';
 
-    protected $schema_fname = 'schema.php';
+    protected $schema_fname = 'init_schema.php';
 
     /*
      * __construct()

@@ -88,7 +88,7 @@ class Handler
             
             # remove from the state table
             
-            $this->migration->pop();
+            $this->migration->popAt($migration->getTimestamp());
             
             # mark the migration as not applied
             

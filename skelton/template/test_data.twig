@@ -2,12 +2,19 @@
 namespace Migration\Components\Migration\Entities;
 
 use Migration\Database\Handler,
-    Doctrine\DBAL\Schema\AbstractSchemaManager as Schema;
+    Doctrine\DBAL\Schema\AbstractSchemaManager as Schema,
+    Migration\Components\Migration\EntityInterface;
 
-class TestData
+class test_data implements implements EntityInterface
 {
+    
+    public function up(Connection $db, Schema $sc)
+    {
 
-    public function apply(Connection $db, Schema $sc)
+
+    }
+
+    public function down(Connection $db, Schema $sc)
     {
 
 

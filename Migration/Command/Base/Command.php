@@ -17,7 +17,6 @@ class Command extends BaseCommand
     protected function configure()
     {
 
-        $this->addOption('--mtable','', InputOption::VALUE_OPTIONAL,'the migration table to use',false);
         $this->addOption('--path','-p',     InputOption::VALUE_OPTIONAL,'the project folder path',false);
         
         # mysql://root:vagrant@tcp(localhost:3306)/sakila
@@ -57,7 +56,7 @@ class Command extends BaseCommand
         }
 
         # path exists does it have a project
-        if(Project::detect((string)$path) === false && $this->getName() !== 'init') {
+        if(Project::detect((string)$path) === false && $this->getName() !== 'app:init') {
             throw new MigrationException('Project Folder does not contain the correct folder heirarchy');
         }
 
@@ -68,12 +67,6 @@ class Command extends BaseCommand
             $project = $this->getApplication()->getProject();
 
             $project['dsn_command'] =  $input->getOption('dsn');
-        
-            if (false === $input->hasParameterOption(array('--mtable'))) {
-                throw new MigrationException('Must have a migration table set if schema is set');
-            }
-            
-            $project['schema_migration_table'] = $input->getOption('mtable');
         }
 
     }

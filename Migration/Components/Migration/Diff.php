@@ -1,8 +1,9 @@
 <?php
 namespace Migration\Components\Migration;
 
-use Migration\Components\Migration\Exception\RebuildOrDownException;
-use Migration\Components\Migration\Exception\RebuildRequiredException;
+use DateTime,
+    Migration\Components\Migration\Exception\RebuildOrDownException,
+    Migration\Components\Migration\Exception\RebuildRequiredException;
 
 /*
  * Class Diff this class will run test to find if the Database can by synced
@@ -87,7 +88,7 @@ class Diff
         
         if(count($diff) > 0) {
             # throw exception out of sync and can only rebuild.
-            throw new RebuildRequiredException('');
+            throw new RebuildRequiredException('Are Migrations Recorded in the Database but not found in the Project. Have you been deleting migrations?');
         }
         
         return true;
@@ -120,7 +121,18 @@ class Diff
             
             if(reset($diff) < end($this->database_list) === true) {
                 # out of sync but we can migrate down.
-                throw new RebuildOrDownException($this->findParent());
+                $msg = '';
+                $parent = $this->findParent();
+                if($parent === false) {
+                    $msg = 'There are not common parent please run build again to re-sync';
+                } 
+                else {
+                    $dte = new DateTime();
+                    $dte->setTimestamp($parent);
+                    $msg = 'Please migrate down to parent with Date of '. $dte->format('Y_m_d_H_i_s');
+                }
+                
+                throw new RebuildOrDownException($msg);
             }
             
         }
@@ -146,24 +158,26 @@ class Diff
     {
        $left  = $this->file_list;
        $right = $this->database_list;
-       $merge = $left +$right; 
+       $merge = $left + $right; 
        
        $diff =  array_diff($merge, array_intersect($left, $right));
        
        if(count($diff) > 0) { 
-        
-            $index = array_search(reset($diff),$merge,true) - 1;
             
-            if($index <= 0) {
-                return false;
-            }
+            # make sure the diff is ordered, might not be 
+            ksort($diff);
+            
+            # we looking for the migration before the first diff, ie the parent
+            $index = array_search(reset($diff),$merge,true) - 1;
         
-            return $merge[$index];
+            if($index > 0) {
+                return $merge[$index];
+            }
+            
         }
  
        # no parent found must be empty or different lists      
        return false;
-        
     }
     
 }

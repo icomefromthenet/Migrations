@@ -14,9 +14,13 @@ class ListCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         
-        $project = $this->getApplication()->getProject();
+        $project            = $this->getApplication()->getProject();
         $migrantion_manager = $project->getMigrationManager();
-        $collection = $migrantion_manager->getMigrationCollection();
+        $collection         = $migrantion_manager->getMigrationCollection();
+        $sanity             = $migrantion_manager->getSanityCheck();
+     
+        # check if that are migrations recorded in DB and not available on filesystem.
+        $sanity->diffBA(); 
         
         # test options
         if($input->getOption('all')) {

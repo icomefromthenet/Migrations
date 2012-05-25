@@ -32,15 +32,12 @@ class SchemaManagerFactory implements ExtensionInterface
       *  @var string[] list of SchemaManagers
       */
     protected static $drivers = array(
-        'mysql'  => 'Migration\Components\Migration\Driver\Mysql\SchemaManager',
-        'sqlite' => 'Migration\Components\Migration\Driver\Generic\SchemaManager' ,
-        'pgsql'  => 'Migration\Components\Migration\Driver\Generic\SchemaManager' ,
-        'oci'    => 'Migration\Components\Migration\Driver\Generic\SchemaManager' ,
-        'oci8'   => 'Migration\Components\Migration\Driver\Generic\SchemaManager' ,
-        'db2'    => 'Migration\Components\Migration\Driver\Generic\SchemaManager' ,
-        'ibm'    => 'Migration\Components\Migration\Driver\Generic\SchemaManager' ,
-        'sqlsrv' => 'Migration\Components\Migration\Driver\Generic\SchemaManager' ,
-        'mysqli' => 'Migration\Components\Migration\Driver\Generic\SchemaManager' 
+        'pdo_mysql'  => 'Migration\Components\Migration\Driver\Mysql\SchemaManager',
+        'pdo_sqlite' => 'Migration\Components\Migration\Driver\Generic\SchemaManager' ,
+        'pdo_pgsql'  => 'Migration\Components\Migration\Driver\Generic\SchemaManager' ,
+        'pdo_oci'    => 'Migration\Components\Migration\Driver\Generic\SchemaManager' ,
+        'oci8'        => 'Migration\Components\Migration\Driver\Generic\SchemaManager' ,
+        'pdo_sqlsrv' => 'Migration\Components\Migration\Driver\Generic\SchemaManager',
     );
    
     

@@ -68,7 +68,7 @@ class TableManager implements TableInterface
     /**
       *  Fetches a value from the top of stack , removing it 
       *
-      *  @return array
+      * @return boolean
       * @param \DateTime $timestamp 
       */
     public function pop()
@@ -88,6 +88,27 @@ class TableManager implements TableInterface
         
         return false;
     }
+    
+    /**
+      *  Removes a stamp at point x
+      *
+      *  @return boolean
+      *  @param integer $stamp a unix timestamp
+      */
+    public function popAt($stamp)
+    {
+        $table = $this->table;
+
+        # Delete the stamp
+        $affected = $this->database->executeUpdate(sprintf('DELETE FROM `%s` WHERE `timestamp` = ?',$table),array($stamp));
+        
+        if($affected > 0) {
+            return true;
+        }
+        
+        return false;
+    }
+    
     
     /**
       * Adds a value to the top of the stack

@@ -31,7 +31,7 @@ class AbstractProject extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $project = new Project($this->getMockedPath());
+        $project = $this->getProject();
 
         $io = $this->getSkeltonIO();
 

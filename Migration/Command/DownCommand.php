@@ -24,7 +24,10 @@ class DownCommand extends Command
      
        # check if that are new migrations under the head.
        # these are easy to miss since they are in the middle of the list
-       $sanity->diffAB(); 
+       $sanity->diffAB();
+       
+       # check if that are migrations recorded in DB and not available on filesystem.
+       $sanity->diffBA(); 
         
        # attach some event to output
        

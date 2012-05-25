@@ -24,9 +24,11 @@ class RunCommand extends Command
        # run sanity check 
        $sanity             = $migrantion_manager->getSanityCheck();
      
-       # check if that are new migrations under the head.
-       # these are easy to miss since they are in the middle of the list
-       $sanity->diffAB(); 
+       if($input->getOption('force') === false) {
+            # check if that are new migrations under the head.
+            # these are easy to miss since they are in the middle of the list
+            $sanity->diffAB(); 
+        } 
         
        # attach some event to output
        
@@ -71,6 +73,10 @@ use this command.
 Example 
 
 >> app:run <comment> 10 </comment>
+
+
+To Force a run and avoid the sanity check.
+>> app:run <comment> 10 </comment> --force
 
 EOF
 );

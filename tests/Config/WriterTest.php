@@ -21,8 +21,19 @@ class WriterTest extends AbstractProject
     
     public function testGoodConfig()
     {
+        $entity = new Entity();
+        $entity->setCharset('latin1');
+        $entity->setHost('localhost');
+        $entity->setMemory(':memory');
+        $entity->setMigrationTable('migrate');
+        $entity->setPassword('vagrant');
+        $entity->setPath('path/to/db/db.sqlite');
+        $entity->setPort('3306');
+        $entity->setSchema('sakila');
+        $entity->setType('pdo_mysql');
+        $entity->setUnixSocket('path/to/socker/socket.sock');
+        $entity->setUser('root');
         
-        $param = $this->getMockConfigEntityParm();
         $alias = 'default';
         
         $io = $this->getMockBuilder('\Migration\Components\Config\Io')->disableOriginalConstructor()->getMock();
@@ -32,7 +43,7 @@ class WriterTest extends AbstractProject
             ->with($this->equalTo($alias.'.php'),$this->equalTo(null),$this->isType('string'),$this->equalTo(false));
         
         $writer = new Writer($io);
-        $writer->write($param,$alias);
+        $writer->write($entity,$alias,false);
 
     }
 
@@ -40,7 +51,19 @@ class WriterTest extends AbstractProject
     public function testGoodConfigOverriteFlag()
     {
         
-        $param = $this->getMockConfigEntityParm();
+        $entity = new Entity();
+        $entity->setCharset('latin1');
+        $entity->setHost('localhost');
+        $entity->setMemory(':memory');
+        $entity->setMigrationTable('migrate');
+        $entity->setPassword('vagrant');
+        $entity->setPath('path/to/db/db.sqlite');
+        $entity->setPort('3306');
+        $entity->setSchema('sakila');
+        $entity->setType('pdo_mysql');
+        $entity->setUnixSocket('path/to/socker/socket.sock');
+        $entity->setUser('root');
+       
         $alias = 'default';
         
         $io = $this->getMockBuilder('\Migration\Components\Config\Io')->disableOriginalConstructor()->getMock();
@@ -50,7 +73,7 @@ class WriterTest extends AbstractProject
             ->with($this->equalTo($alias.'.php'),$this->equalTo(null),$this->isType('string'),$this->equalTo(true));
         
         $writer = new Writer($io);
-        $writer->write($param,$alias,true);
+        $writer->write($entity,$alias,true);
 
     }
     

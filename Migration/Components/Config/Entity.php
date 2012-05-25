@@ -1,101 +1,16 @@
 <?php
 namespace Migration\Components\Config;
 
-use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition,
-    Symfony\Component\Config\Definition\Builder\TreeBuilder,
-    Symfony\Component\Config\Definition\ConfigurationInterface,
-    Symfony\Component\Config\Definition\Processor,
-    Migration\Components\Config\InvalidConfigurationException;
+use Migration\Components\Config\InvalidConfigurationException,
+    Migration\Components\Config\EntityInterface;
 
 
-class Entity implements ConfigurationInterface
+class Entity implements EntityInterface
 {
-
-
-    //  -------------------------------------------------------------------------
-
-    /**
-     * Generates the configuration tree builder.
-     *
-     * @return \Symfony\Component\Config\Definition\Builder\TreeBuilder The tree builder
-     */
-    public function getConfigTreeBuilder()
-    {
-        try {
-
-            $treeBuilder = new TreeBuilder();
-            $rootNode = $treeBuilder->root('database');
-    
-            $rootNode
-                ->children()
-                ->scalarNode('db_type')->isRequired()
-                    ->validate()
-                        ->ifTrue(function($nodeValue) {
-                            $nodeValue = strtolower($nodeValue);
-                            if(in_array($nodeValue,array('pdo_mysql','pdo_sqlite','pdo_pgsql','pdo_sqlsrv','pdo_oci','oci8')) === FALSE) {
-                                return TRUE;
-                            }
-                            return FALSE;
-                        })
-                        ->then(function($value) {
-                            throw new \RuntimeException('Database is not a valid type');
-                        })
-                    ->end()
-                ->end()
-                ->scalarNode('db_schema')->isRequired()->end()
-                ->scalarNode('db_user')->isRequired()->end()
-                ->scalarNode('db_password')->isRequired()->end()
-                ->scalarNode('db_host')->defaultValue('localhost')->end()
-                ->scalarNode('db_port')->defaultValue(3306)->end()
-                ->scalarNode('db_migration_table')->defaultValue('migration_migrate')->end()
-                ->end();
-
-            } catch(\Exception $e) {
-                throw new InvalidConfigException($e->getMessage());
-            }
-        
-                
-        return $treeBuilder;
-    }
-
-    //  -------------------------------------------------------------------------
-
-    /**
-     * Merges the config array with the config tree
-     *
-     * @param array $configs
-     * @return boolean true if merge sucessful
-     */
-    public function merge(array $config)
-    {
-        try {
-            $processor = new Processor();
-            $configuration = $this;
-            $config = $processor->processConfiguration($configuration, array('database'=>$config));
-    
-            $this->dbhost = $config['db_host'];
-            $this->dbport = $config['db_port'];
-            $this->dbschema = $config['db_schema'];
-            $this->dbtype = $config['db_type'];
-            $this->dbuser = $config['db_user'];
-            $this->dbpassword = $config['db_password'];
-            $this->migrationtable =  $config['db_migration_table'];
-    
-        } catch(\Exception $e) {
-            throw new InvalidConfigException($e->getMessage());
-        }
-        
-        
-        return true;
-    }
-
 
     //  ----------------------------------------------------------------
     # Properties
 
-    /**
-      *  @var string the database schema name
-      */
     protected $dbschema;
 
     public function getSchema()
@@ -103,54 +18,56 @@ class Entity implements ConfigurationInterface
         return $this->dbschema;
     }
 
+    public function setSchema($schema)
+    {
+        $this->dbschema = $schema;
+    }
+    
+    
     //------------------------------------------------------------------------
 
-
-
-    /**
-      * @var string the database schema username
-      */
     protected $dbuser;
 
     public function getUser()
     {
         return $this->dbuser;
     }
+    
+    public function setUser($user)
+    {
+        $this->dbuser = $user;
+    }
 
     //------------------------------------------------------------------------
 
-
-
-    /**
-      * @var string database type
-      */
     protected $dbtype;
 
     public function getType()
     {
         return $this->dbtype;
     }
+    
+     public function setType($type)
+     {
+        $this->dbtype = $type;
+     }
 
     //------------------------------------------------------------------------
 
-
-
-    /**
-      * @var integer the database connection port
-      */
     protected $dbport;
 
     public function getPort()
     {
         return $this->dbport;
     }
+    
+    public function setPort($port)
+    {
+        $this->dbport = $port;
+    }
 
     //------------------------------------------------------------------------
 
-
-    /**
-      * @var the host name or ip
-      */
     protected $dbhost;
 
     public function getHost()
@@ -158,40 +75,97 @@ class Entity implements ConfigurationInterface
         return $this->dbhost;
     }
 
-
-
-
+    public function setHost($host)
+    {
+        $this->dbhost = $host;
+    }
 
     //------------------------------------------------------------------------
-    /**
-      *  @ar string the database password
-      */
+
     protected $dbpassword;
 
     public function getPassword()
     {
         return $this->dbpassword;
     }
+    
+    public function setPassword($password)
+    {
+        $this->dbpassword = $password;
+    }
 
 
     //------------------------------------------------------------------------
 
-    /**
-      *  @var string the name of the migration table
-      */
     protected $migrationtable;
 
-    /**
-    * function getMigrationTable
-    *
-    *  @return string the migration table
-    */
     public function getMigrationTable()
     {
         return $this->migrationtable;
     }
+    
+    public function setMigrationTable($table)
+    {
+        $this->migrationtable = $table;
+    }
 
     //---------------------------------------------------------------------
 
+    protected $dbmemory;
+    
+    public function getMemory()
+    {
+        return $this->dbmemory;
+    }
+    
+    public function setMemory($memory)
+    {
+        $this->dbmemory = $memory;
+    }
+    
+    //------------------------------------------------------------------
+
+    protected $dbsocket;
+
+    public function getUnixSocket()
+    {
+        return $this->dbsocket;
+    }
+    
+    public function setUnixSocket($socket)
+    {
+        $this->dbsocket = $socket;
+    }
+    
+    //------------------------------------------------------------------
+    
+    protected $dbpath;
+    
+    public function getPath()
+    {
+        return $this->dbpath;
+    }
+    
+    public function setPath($path)
+    {
+        $this->dbpath = $path;
+    }
+        
+    //------------------------------------------------------------------
+    
+    protected $dbcharset;
+    
+    public function getCharset()
+    {
+        return $this->dbcharset;
+    }
+    
+    public function setCharset($set)
+    {
+        $this->dbcharset = $set;
+    }
+    
+    //------------------------------------------------------------------
+    
 }
 /* End of File */

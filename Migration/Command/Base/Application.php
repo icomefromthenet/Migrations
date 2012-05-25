@@ -2,7 +2,6 @@
 namespace Migration\Command\Base;
 
 use Symfony\Component\Console\Application as BaseApplication,
-    Symfony\Component\Console\Shell,
     Symfony\Component\Console\Input\InputInterface,
     Symfony\Component\Console\Input\InputOption,
     Symfony\Component\Console\Input\ArgvInput,
@@ -66,10 +65,6 @@ class Application extends BaseApplication
 
         parent::__construct($name,$version);
 
-        $this->getDefinition()->addOptions(array(
-                new InputOption('--shell', '-s',   InputOption::VALUE_NONE, 'Launch the shell.'),
-        ));
-
         #set the references
         $this->setProject($project);
     }
@@ -85,16 +80,10 @@ class Application extends BaseApplication
      */
     public function doRun(InputInterface $input, OutputInterface $output)
     {
-        
+        # resume normal operation here
         $output->writeLn($this->getHeader());
         $name = $this->getCommandName($input);
         
-        if (true === $input->hasParameterOption(array('--shell', '-s'))) {
-            $shell = new Shell($this);
-            $shell->run();
-            return 0;
-        }
-
         if (true === $input->hasParameterOption(array('--ansi'))) {
             $output->setDecorated(true);
         } elseif (true === $input->hasParameterOption(array('--no-ansi'))) {

@@ -7,10 +7,18 @@ interface TableInterface
     /**
       *  Fetches a value from the top of stack , removing it 
       *
-      *  @return array
+      * @return boolean
       * @param \DateTime $timestamp 
       */
     public function pop();
+    
+    /**
+      *  Removes a stamp at point x
+      *
+      *  @return boolean
+      *  @param integer $stamp a unix timestamp
+      */
+    public function popAt($stamp);
     
     
     /**

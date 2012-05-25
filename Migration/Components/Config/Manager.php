@@ -79,6 +79,19 @@ class Manager implements ManagerInterface
     }
 
     //  -------------------------------------------------------------------------
-
+    
+    public function getCLIFactory()
+    {
+        return $this->project['config_cli_factory'];
+    }
+    
+    
+    public function getDSNFactory()
+    {
+        
+        return $this->project['config_dsn_factory'];
+    }
+    
+    //---------------------------------------------------------------------------
 }
 /* End of File */

@@ -242,13 +242,13 @@ interface SchemaInterface
       *   inital , migrations and test data
       *
       *   @param MigrationFileInterface $schema
-      *   @param MigrationFileInterface $test_data
       *   @param Collection $collection
+      *   @param MigrationFileInterface $test_data (optional)
       *   @return boolean
       *   @access public
       *   
       */
-    public function build(MigrationFileInterface $schema, MigrationFileInterface $test_data, Collection $collection);
+    public function build(MigrationFileInterface $schema, Collection $collection,MigrationFileInterface $test_data = null);
     
     
     //  -------------------------------------------------------------------------

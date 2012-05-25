@@ -16,6 +16,11 @@ class StatusCommand extends Command
        $project = $this->getApplication()->getProject();
        $migrantion_manager = $project->getMigrationManager();
        $collection = $migrantion_manager->getMigrationCollection();
+       $sanity             = $migrantion_manager->getSanityCheck();
+     
+       # check if that are migrations recorded in DB and not available on filesystem.
+       $sanity->diffBA(); 
+       
        
        # fetch head
        
@@ -28,7 +33,8 @@ class StatusCommand extends Command
        } else {
             $head_migration = $collection->get($head);
             $stamp = $migrantion_manager->getFileNameParser()->parse($head_migration->getBasename('.php'));    
-            $stamp_dte = DateTime::createFromFormat('U',$stamp);
+            $stamp_dte = new DateTime();
+            $stamp_dte->setTimestamp($stamp);
             
             $index = array_search($head,$collection->getMap()) +1;
                        

@@ -11,92 +11,40 @@ class EntityTest extends AbstractProject
     
     public function testProperties()
     {
-        $param = $this->getMockConfigEntityParm();
-
         $entity = new Entity();
-        $entity->merge($param);
-        $this->assertInstanceOf('\Migration\Components\Config\Entity',$entity);
+        
+        $this->assertInstanceOf('\Migration\Components\Config\EntityInterface',$entity);
+        
+        $entity->setCharset('latin1');
+        $entity->setHost('localhost');
+        $entity->setMemory(':memory');
+        $entity->setMigrationTable('migrate');
+        $entity->setPassword('vagrant');
+        $entity->setPath('path/to/db/db.sqlite');
+        $entity->setPort('3306');
+        $entity->setSchema('sakila');
+        $entity->setType('pdo_mysql');
+        $entity->setUnixSocket('path/to/socker/socket.sock');
+        $entity->setUser('root');
 
         # test properties
-        $this->assertEquals($entity->getHost(),$param['db_host']);
-        $this->assertEquals($entity->getPort(),$param['db_port']);
-        $this->assertEquals($entity->getUser(),$param['db_user']);
-        $this->assertEquals($entity->getPassword(),$param['db_password']);
-        $this->assertEquals($entity->getSchema(),$param['db_schema']);
-        $this->assertEquals($entity->getType(),$param['db_type']);
-
-    }
-
-    /**
-     *  @expectedException Migration\Components\Config\InvalidConfigException
-     */
-    public function testMergeBadDBType()
-    {
-        $param = $this->getMockConfigEntityParm();
-
-        $param['db_type'] = 'a bad type';
-
-        $entity = new Entity();
-        $entity->merge($param);
-    }
-
-    /**
-      * @expectedException Migration\Components\Config\InvalidConfigException
-      */
-    public function testConfigEntityMergeMissingSchema()
-    {
-        $param = $this->getMockConfigEntityParm();
-
-        unset($param['db_schema']);
-
-        $entity = new Entity();
-        $entity->merge($param);
-    }
-
-    /**
-      * @expectedException Migration\Components\Config\InvalidConfigException
-      */
-    public function testConfigEntityMergeMissingUser()
-    {
-        $param = $this->getMockConfigEntityParm();
-
-        unset($param['db_user']);
-
-        $entity = new Entity();
-        $entity->merge($param);
-
-    }
-
-    /**
-      * @expectedException Migration\Components\Config\InvalidConfigException
-      */
-    public function testConfigEntityMergeMissingPassword()
-    {
-        $param = $this->getMockConfigEntityParm();
-
-        unset($param['db_password']);
-
-        $entity = new Entity();
-        $entity->merge($param);
-
-    }
-
-    
-    public function testConfigEntityMergeDefaultValues()
-    {
-
-        $param = $this->getMockConfigEntityParm();
-
-        unset($param['db_host']);
-        unset($param['db_Faker_table']);
-        unset($param['db_port']);
-
-
-        $entity = new Entity();
-        $entity->merge($param);
-
+        $this->assertEquals($entity->getCharset(),'latin1');
         $this->assertEquals($entity->getHost(),'localhost');
-        $this->assertEquals($entity->getPort(),3306);
+        $this->assertEquals($entity->getMemory(),':memory');
+        $this->assertEquals($entity->getMigrationTable(),'migrate');
+        $this->assertEquals($entity->getPassword(),'vagrant');
+        $this->assertEquals($entity->getPath(),'path/to/db/db.sqlite');
+        $this->assertEquals($entity->getPort(),'3306');
+        $this->assertEquals($entity->getSchema(),'sakila');
+        $this->assertEquals($entity->getType(),'pdo_mysql');
+        $this->assertEquals($entity->getUnixSocket(),'path/to/socker/socket.sock');
+        $this->assertEquals($entity->getUser(),'root');
+        
+        
+        
+        
+        
+        
 
     }
     

@@ -93,6 +93,17 @@ class MysqlTableManagerTest extends AbstractProjectWithDb
     }
     
     
+    public function testPopAt()
+    {
+        $dte = new \DateTime();
+        $table = $this->table;
+        $this->assertTrue($table->push($dte));
+        
+        $this->assertTrue($table->popAt($dte->format('U')));
+        $this->assertFalse($table->popAt($dte->format('U')));
+        
+    }
+    
 
 }
 /* End of File */

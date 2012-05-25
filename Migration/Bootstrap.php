@@ -144,47 +144,22 @@ $project['config_file'] = $project->share(function($project){
     $entity = new \Migration\Components\Config\Entity();
     
     # is the dsn set
+    # e.g mysql://root:vagrant@localhost:3306/sakila?migration_table=migrations_data
     if(isset($project['dsn_command']) === true) {
-      $dsn             = $project['dsn_command'];
+      $dsn_parser      = new \Migration\Components\Config\DSNParser();
 
       # attempt to parse dsn for detials
-      $parsed          = $project->parseDSN($dsn);
-      /*$parsed = array(
-            'phptype'  => false,
-            'dbsyntax' => false,
-            'username' => false,
-            'password' => false,
-            'protocol' => false,
-            'hostspec' => false,
-            'port'     => false,
-            'socket'   => false,
-            'database' => false,
-        ); */
-      
+      $parsed          = $dsn_parser->parse($project['dsn_command']);
       $db_type         = ($parsed['phptype'] !== 'oci8') ? $parsed['phptype'] = 'pdo_' . $parsed['phptype'] : $parsed['phptype'];
-      $db_schema       = $parsed['database'];
-      $db_host         = $parsed['hostspec'];
-      $db_port         = ($parsed['port'] === false) ? 3306 : $parsed['port']; //could be false if not provided
-      
-      $user            = $parsed['username'];
-      $password        = $parsed['password'];
-      $migration_table = $project['schema_migration_table'];
+
+      # parse the dsn config data using the DSN driver.
+      $project['config_dsn_factory']->create($parsed['phptype'])->merge($entity,$parsed);
          
-      $entity->merge(array(
-         'db_type' => $db_type ,
-         'db_schema' => $db_schema,
-         'db_user' => $user ,
-         'db_password' => $password,
-         'db_host' => $db_host ,
-         'db_port' => $db_port,
-         'db_migration_table' => $migration_table,                         
-      ));
          
     } else {
 
        # if config name not set that we use the default
        $config_name = $project->getConfigName();
-    
     
         # check if we can load the config given
         if($config_manager->getLoader()->exists($config_name) === false) {
@@ -207,19 +182,46 @@ $project['config_file'] = $project->share(function($project){
 
 $project['database'] = $project->share(function($project){
 
-    $entity = $project['config_file'];
-
+   $entity   = $project['config_file'];
+   $platform = $project['platform_factory'];
+   
    $connectionParams = array(
-        'dbname' => $entity->getSchema(),
-        'user' => $entity->getUser(),
-        'password' => $entity->getPassword(),
-        'host' => $entity->getHost(),
-        'driver' => $entity->getType(),
+        'dbname'      => $entity->getSchema(),
+        'user'        => $entity->getUser(),
+        'password'    => $entity->getPassword(),
+        'host'        => $entity->getHost(),
+        'driver'      => $entity->getType(),
+        'platform'    => $platform->createFromDriver($entity->getType()),
    );
-    
+   
+   if($entity->getUnixSocket() != false) {
+      $connectionParams['unix_socket'] = $entity->getUnixSocket();
+   }
+   
+   if($entity->getCharset() != false) {
+      $connectionParams['charset']     = $entity->getCharset();
+   }
+   
+   if($entity->getPath() != false) {
+       $connectionParams['path']       = $entity->getPath();
+   }
+   
+   if($entity->getMemory() != false) {
+      $connectionParams['memory']     = $entity->getMemory();
+   }
+   
    return \Doctrine\DBAL\DriverManager::getConnection($connectionParams, new \Doctrine\DBAL\Configuration());
+   
 });
 
+$project['platform_factory'] = $project->share(function($project){
+   return new \Migration\PlatformFactory();
+});
+
+
+$project['column_factory'] = $project->share(function($project){
+   return new \Migration\ColumnTypeFactory();
+});
 
 //---------------------------------------------------------------
 // Setup Config Manager (lazy loaded)
@@ -233,6 +235,22 @@ $project['config_manager'] = $project->share(function($project){
 
     # instance the manager, no database needed here
     return new \Migration\Components\Config\Manager($io,$project);
+});
+
+//---------------------------------------------------------------
+//  Config CLI and DSN Driver Factories
+//
+//---------------------------------------------------------------
+
+$project['config_cli_factory'] = $project->share(function($project){
+
+    return new \Migration\Components\Config\Driver\CLIFactory();
+});
+
+
+$project['config_dsn_factory'] = $project->share(function($project){
+
+    return new \Migration\Components\Config\Driver\DsnFactory();
 });
 
 

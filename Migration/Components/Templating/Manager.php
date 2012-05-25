@@ -84,5 +84,19 @@ class Manager implements ManagerInterface
 
     //  -------------------------------------------------------------------------
 
+    
+    public function setIo(IoInterface $io)
+    {
+        $this->io = $io;    
+    }
+    
+    
+    public function getIo()
+    {
+        return $this->io;
+    }
+    
+    //  -------------------------------------------------------------------------
+    
 }
 /* End of File */
