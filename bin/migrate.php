@@ -16,6 +16,16 @@ use Migration\Project,
     Migration\Command\InitProjectCommand,
     Migration\Command\InstallCommand;
 
+//---------------------------------------------------------------
+// Setup Global Error Levels
+//
+//--------------------------------------------------------------
+
+error_reporting(E_ALL);
+
+ini_set('display_errors', 1);
+
+
 //---------------------------------------------------------------------
 // Set Pear Directories
 //
@@ -23,10 +33,10 @@ use Migration\Project,
 
 if(strpos('@PHP-BIN@', '@PHP-BIN') === 0) {
    set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
-   require 'Migration' . DIRECTORY_SEPARATOR .'Bootstrap.php';
-} else {
-   require 'Migration'. DIRECTORY_SEPARATOR .'Bootstrap.php';
-}
+} 
+
+$project = require 'Migration'. DIRECTORY_SEPARATOR .'Bootstrap.php';
+
 
 //---------------------------------------------------------------------
 // Inject out commands

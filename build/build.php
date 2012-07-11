@@ -8,6 +8,17 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 
+//---------------------------------------------------------------
+// Setup Global Error Levels
+//
+//--------------------------------------------------------------
+
+error_reporting(E_ALL);
+
+ini_set('display_errors', 1);
+
+
+
 # load the bootstrap file
 require __DIR__ .'/../Migration/Bootstrap.php';
 

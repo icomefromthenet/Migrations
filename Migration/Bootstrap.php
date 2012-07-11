@@ -9,425 +9,418 @@ use Migration\Command\Base\Application,
     Migration\Bootstrap\Database as BootDatabase,
     Migration\Autoload;
 
-//---------------------------------------------------------------
-// Setup Global Error Levels
-//
-//--------------------------------------------------------------
+return call_user_func(function() {    
 
-error_reporting(E_ALL);
-
-ini_set('display_errors', 1);
-
-
-//---------------------------------------------------------------
-// Setup Base Paths
-//
-//--------------------------------------------------------------
-
-
-define('COREPATH',   realpath(__DIR__. DIRECTORY_SEPARATOR . '..'    ) . DIRECTORY_SEPARATOR);
-define('VENDORPATH', realpath(__DIR__. DIRECTORY_SEPARATOR . 'Vendor') . DIRECTORY_SEPARATOR);
-
-
-//------------------------------------------------------------------------------
-// Load our Symfony Class Loader.
-//
-//------------------------------------------------------------------------------
-
-require_once VENDORPATH .'Symfony' . DIRECTORY_SEPARATOR . 'Component' . DIRECTORY_SEPARATOR . 'ClassLoader' . DIRECTORY_SEPARATOR .'UniversalClassLoader.php';
-require_once COREPATH   .'Migration'   . DIRECTORY_SEPARATOR . 'Autoload.php';
-
-$symfony_auto_loader = new Autoload();
-$symfony_auto_loader->registernamespaces(
-        array(
-          'Symfony'   => VENDORPATH,
-          'Monolog'   => VENDORPATH,
-          'Migration' => COREPATH,
-          'Doctrine'  => VENDORPATH,
-          'Zend'      => VENDORPATH,
-          
-));
-
-$symfony_auto_loader->registerPrefix('Twig_', VENDORPATH .'Symfony' . DIRECTORY_SEPARATOR);
-$symfony_auto_loader->useIncludePath(true);
-$symfony_auto_loader->register();
-
-
-
-//------------------------------------------------------------------------------
-// Load the DI Component  which is an Instance the /Migrations/Project
-//
-//------------------------------------------------------------------------------
-
-$project = new Project(new Path());
-
-
-
-//------------------------------------------------------------------------------
-// Setup the project extension directories.
-//
-// If project folder is set by cmd this path below is overriden in Command.php
-//------------------------------------------------------------------------------
-
-$symfony_auto_loader->setExtensionNamespace('Migration\\Components\\Extension', $project->getPath()->get());
-
-$symfony_auto_loader->setFilter(function($ns){
-   return  substr($ns,21); # remove 'Migrations/Components/' from namespace  
-});
-
-
-//------------------------------------------------------------------------------
-// Assign the autoloader to a DI container
-//
-//------------------------------------------------------------------------------
-
-$project['loader'] = $symfony_auto_loader;
-
-//------------------------------------------------------------------------------
-// Load the Symfony2 Cli Shell
-//
-//------------------------------------------------------------------------------
-
-$project['console'] = $project->share( function ($c) use ($project) {
-   return new \Migration\Command\Base\Application($project);
-});
-
-
-//---------------------------------------------------------------
-// Bootstrap the logs
-//
-//--------------------------------------------------------------
-
-
-$project['logger'] = $project->share(function($project){
-   // Create some handlers
-    $sysLog = new \Monolog\Handler\TestHandler();
-
-    // Create the main logger of the app
-    $logger = new \Monolog\Logger('error');
-    $logger->pushHandler($sysLog);
-
-    #assign the log to the project
-    return $logger;
-});
-
-
-//---------------------------------------------------------------
-// Set ErrorHandlers
-//
-//--------------------------------------------------------------
-
-$project['error'] = $project->share(function($project){
-    return new \Migration\Exceptions\ExceptionHandler($project->getLogger(),new \Symfony\Component\Console\Output\ConsoleOutput());
-});
-
-#set global error handlers
-set_error_handler(array($project['error'],'errorHandler'));
-
-#set global exception handler
-set_exception_handler(array($project['error'],'exceptionHandler'));
-
-//---------------------------------------------------------------
-// Get Config
-//
-//--------------------------------------------------------------
-
-
-$project['config_file'] = $project->share(function($project){
+   //---------------------------------------------------------------
+   // Setup Base Paths
+   //
+   //--------------------------------------------------------------
    
-   $config_manager = $project->getConfigManager();
-
-    if($config_manager === null) {
-        throw new \RuntimeException('Config Manager not loaded, must be loaded before booting the database');
-    }
-
-    $entity = new \Migration\Components\Config\Entity();
-    
-    # is the dsn set
-    # e.g mysql://root:vagrant@localhost:3306/sakila?migration_table=migrations_data
-    if(isset($project['dsn_command']) === true) {
-      $dsn_parser      = new \Migration\Components\Config\DSNParser();
-
-      # attempt to parse dsn for detials
-      $parsed          = $dsn_parser->parse($project['dsn_command']);
-      $db_type         = ($parsed['phptype'] !== 'oci8') ? $parsed['phptype'] = 'pdo_' . $parsed['phptype'] : $parsed['phptype'];
-
-      # parse the dsn config data using the DSN driver.
-      $project['config_dsn_factory']->create($parsed['phptype'])->merge($entity,$parsed);
-         
-         
-    } else {
-
-       # if config name not set that we use the default
-       $config_name = $project->getConfigName();
-    
-        # check if we can load the config given
-        if($config_manager->getLoader()->exists($config_name) === false) {
-           throw new \RuntimeException(sprintf('Missing database config at %s ',$config_name));
-        }
-
-        # load the config file
-        $config_manager->getLoader()->load($config_name,$entity);
-    }
-    
-    # store the global config for later access
-    return $entity;
-
-});
-
-//---------------------------------------------------------------
-// Setup Database (lazy loaded)
-//
-//--------------------------------------------------------------
-
-$project['database'] = $project->share(function($project){
-
-   $entity   = $project['config_file'];
-   $platform = $project['platform_factory'];
+   $COREPATH   =   __DIR__. DIRECTORY_SEPARATOR . '..'   . DIRECTORY_SEPARATOR;
+   $VENDORPATH =   __DIR__. DIRECTORY_SEPARATOR . 'Vendor' . DIRECTORY_SEPARATOR;
    
-   $connectionParams = array(
-        'dbname'      => $entity->getSchema(),
-        'user'        => $entity->getUser(),
-        'password'    => $entity->getPassword(),
-        'host'        => $entity->getHost(),
-        'driver'      => $entity->getType(),
-        'platform'    => $platform->createFromDriver($entity->getType()),
-   );
+   //------------------------------------------------------------------------------
+   // Load the composer autoloader
+   //
+   //------------------------------------------------------------------------------
    
-   if($entity->getUnixSocket() != false) {
-      $connectionParams['unix_socket'] = $entity->getUnixSocket();
-   }
+   $composer = require $VENDORPATH . 'autoload.php';
+
    
-   if($entity->getCharset() != false) {
-      $connectionParams['charset']     = $entity->getCharset();
-   }
+   //------------------------------------------------------------------------------
+   // Load the Extension Loader
+   //
+   //------------------------------------------------------------------------------
    
-   if($entity->getPath() != false) {
-       $connectionParams['path']       = $entity->getPath();
-   }
+   require __DIR__ . DIRECTORY_SEPARATOR . 'Autoload.php';
    
-   if($entity->getMemory() != false) {
-      $connectionParams['memory']     = $entity->getMemory();
-   }
+   $ext_loader = new  \Migration\Autoload();
+   $ext_loader->registerNamespaces(array(
+      'Migration' => $COREPATH
+   ));
    
-   return \Doctrine\DBAL\DriverManager::getConnection($connectionParams, new \Doctrine\DBAL\Configuration());
-   
-});
+   $ext_loader->register();
 
-$project['platform_factory'] = $project->share(function($project){
-   return new \Migration\PlatformFactory();
-});
-
-
-$project['column_factory'] = $project->share(function($project){
-   return new \Migration\ColumnTypeFactory();
-});
-
-//---------------------------------------------------------------
-// Setup Config Manager (lazy loaded)
-//
-//---------------------------------------------------------------
-
-$project['config_manager'] = $project->share(function($project){
-    # create the io dependency
-    $io = new \Migration\Components\Config\Io($project->getPath()->get());
-    $event = $project['event_dispatcher'];
-
-    # instance the manager, no database needed here
-    return new \Migration\Components\Config\Manager($io,$project);
-});
-
-//---------------------------------------------------------------
-//  Config CLI and DSN Driver Factories
-//
-//---------------------------------------------------------------
-
-$project['config_cli_factory'] = $project->share(function($project){
-
-    return new \Migration\Components\Config\Driver\CLIFactory();
-});
-
-
-$project['config_dsn_factory'] = $project->share(function($project){
-
-    return new \Migration\Components\Config\Driver\DsnFactory();
-});
-
-
-//---------------------------------------------------------------
-// Setup Migration Manager 
-//
-//---------------------------------------------------------------
-
-$project['migration_manager'] = $project->share(function($project){
-    $io = new \Migration\Components\Migration\Io($project->getPath()->get());
-    
-    $project['loader']->setMigrationPath($io->path(''));
-  
-    # instance the manager, no database needed here
-    return new \Migration\Components\Migration\Manager($io,$project);
-});
-
-//---------------------------------------------------------------
-// Migration Collection
-//
-//---------------------------------------------------------------
-
-$project['migration_collection'] = $project->share(function($project){
-   
-   $event             = $project['migration_event_dispatcher'];
-   $table_manager     = $project['migration_table_manager'];
-   $migration_manager = $project['migration_manager'];
    
    
-   # fetch the last applied stamp   
-   $stamp_collection = $table_manager->fill();
-   $latest = end($stamp_collection);
+   //------------------------------------------------------------------------------
+   // Load the DI Component  which is an Instance the /Migrations/Project
+   //
+   //------------------------------------------------------------------------------
    
-   # check for empty return from end
-   if($latest === false) {
-      $latest = null;
-   }
+   $project = new Project(new Path());
    
-   reset($stamp_collection);
    
-   # load the collection via the loader
-   $collection = new \Migration\Components\Migration\Collection($event,$latest);
-   $migration_manager->getLoader()->load($collection,$project['migration_filename_parser']);
    
-   # merge the collection together
-   foreach($stamp_collection as $stamp) {
+   //------------------------------------------------------------------------------
+   // Setup the project extension directories.
+   //
+   // If project folder is set by cmd this path below is overriden in Command.php
+   //------------------------------------------------------------------------------
+   
+   $symfony_auto_loader->setExtensionNamespace('Migration\\Components\\Extension', $project->getPath()->get());
+   
+   $symfony_auto_loader->setFilter(function($ns){
+      return  substr($ns,21); # remove 'Migrations/Components/' from namespace  
+   });
+   
+   
+   //------------------------------------------------------------------------------
+   // Assign the autoloader to a DI container
+   //
+   //------------------------------------------------------------------------------
+   
+   $project['loader'] = $symfony_auto_loader;
+   
+   //------------------------------------------------------------------------------
+   // Load the Symfony2 Cli Shell
+   //
+   //------------------------------------------------------------------------------
+   
+   $project['console'] = $project->share( function ($c) use ($project) {
+      return new \Migration\Command\Base\Application($project);
+   });
+   
+   
+   //---------------------------------------------------------------
+   // Bootstrap the logs
+   //
+   //--------------------------------------------------------------
+   
+   
+   $project['logger'] = $project->share(function($project){
+      // Create some handlers
+       $sysLog = new \Monolog\Handler\TestHandler();
+   
+       // Create the main logger of the app
+       $logger = new \Monolog\Logger('error');
+       $logger->pushHandler($sysLog);
+   
+       #assign the log to the project
+       return $logger;
+   });
+   
+   
+   //---------------------------------------------------------------
+   // Set ErrorHandlers
+   //
+   //--------------------------------------------------------------
+   
+   $project['error'] = $project->share(function($project){
+       return new \Migration\Exceptions\ExceptionHandler($project->getLogger(),new \Symfony\Component\Console\Output\ConsoleOutput());
+   });
+   
+   #set global error handlers
+   set_error_handler(array($project['error'],'errorHandler'));
+   
+   #set global exception handler
+   set_exception_handler(array($project['error'],'exceptionHandler'));
+   
+   //---------------------------------------------------------------
+   // Get Config
+   //
+   //--------------------------------------------------------------
+   
+   
+   $project['config_file'] = $project->share(function($project){
       
-      if($collection->exists($stamp) === true) {
-         $collection->get($stamp)->setApplied(true);   
+      $config_manager = $project->getConfigManager();
+   
+       if($config_manager === null) {
+           throw new \RuntimeException('Config Manager not loaded, must be loaded before booting the database');
+       }
+   
+       $entity = new \Migration\Components\Config\Entity();
+       
+       # is the dsn set
+       # e.g mysql://root:vagrant@localhost:3306/sakila?migration_table=migrations_data
+       if(isset($project['dsn_command']) === true) {
+         $dsn_parser      = new \Migration\Components\Config\DSNParser();
+   
+         # attempt to parse dsn for detials
+         $parsed          = $dsn_parser->parse($project['dsn_command']);
+         $db_type         = ($parsed['phptype'] !== 'oci8') ? $parsed['phptype'] = 'pdo_' . $parsed['phptype'] : $parsed['phptype'];
+   
+         # parse the dsn config data using the DSN driver.
+         $project['config_dsn_factory']->create($parsed['phptype'])->merge($entity,$parsed);
+            
+            
+       } else {
+   
+          # if config name not set that we use the default
+          $config_name = $project->getConfigName();
+       
+           # check if we can load the config given
+           if($config_manager->getLoader()->exists($config_name) === false) {
+              throw new \RuntimeException(sprintf('Missing database config at %s ',$config_name));
+           }
+   
+           # load the config file
+           $config_manager->getLoader()->load($config_name,$entity);
+       }
+       
+       # store the global config for later access
+       return $entity;
+   
+   });
+   
+   //---------------------------------------------------------------
+   // Setup Database (lazy loaded)
+   //
+   //--------------------------------------------------------------
+   
+   $project['database'] = $project->share(function($project){
+   
+      $entity   = $project['config_file'];
+      $platform = $project['platform_factory'];
+      
+      $connectionParams = array(
+           'dbname'      => $entity->getSchema(),
+           'user'        => $entity->getUser(),
+           'password'    => $entity->getPassword(),
+           'host'        => $entity->getHost(),
+           'driver'      => $entity->getType(),
+           'platform'    => $platform->createFromDriver($entity->getType()),
+      );
+      
+      if($entity->getUnixSocket() != false) {
+         $connectionParams['unix_socket'] = $entity->getUnixSocket();
       }
-   }
       
+      if($entity->getCharset() != false) {
+         $connectionParams['charset']     = $entity->getCharset();
+      }
+      
+      if($entity->getPath() != false) {
+          $connectionParams['path']       = $entity->getPath();
+      }
+      
+      if($entity->getMemory() != false) {
+         $connectionParams['memory']     = $entity->getMemory();
+      }
+      
+      return \Doctrine\DBAL\DriverManager::getConnection($connectionParams, new \Doctrine\DBAL\Configuration());
+      
+   });
    
-   return $collection;
-});
-
-
-
-
-//---------------------------------------------------------------
-// Migration Filename parser
-//
-//---------------------------------------------------------------
-
-$project['migration_filename_parser'] = $project->share(function($project){
-   return new \Migration\Components\Migration\FileName();
-});
-
-
-//---------------------------------------------------------------
-// Migration Event Dispatcher
-//
-//---------------------------------------------------------------
-
-$project['migration_event_dispatcher'] = $project->share(function($project){
-   $handler = $project['migration_event_handler'];
-   $event   = $project['event_dispatcher'];
+   $project['platform_factory'] = $project->share(function($project){
+      return new \Migration\PlatformFactory();
+   });
    
-   $event->addListener('migration.up',  array($handler,'handleUp'));
-   $event->addListener('migration.down',array($handler,'handleDown'));
    
-   return $event;
-});
-
-//---------------------------------------------------------------
-// Migration Event Handler
-//
-//---------------------------------------------------------------
-
-$project['migration_event_handler'] = $project->share(function($project){
-   return new \Migration\Components\Migration\Event\Handler($project['migration_table_manager'],$project['database']);
-});
-
-//---------------------------------------------------------------
-// Migration Table Manager Factory and the Manager
-//
-//---------------------------------------------------------------
-
-$project['migration_table_factory'] = $project->share(function($project){
-   return new \Migration\Components\Migration\Driver\TableManagerFactory($project['database'],$project['logger']);
-});
-
-$project['migration_table_manager'] = $project->share(function($project){
+   $project['column_factory'] = $project->share(function($project){
+      return new \Migration\ColumnTypeFactory();
+   });
    
-   # uses the config to derive a table manager
-   # config comes from the file setup in the configure command or a dsn passed via cli.
+   //---------------------------------------------------------------
+   // Setup Config Manager (lazy loaded)
+   //
+   //---------------------------------------------------------------
    
-   $factory       = $project['migration_table_factory'];
-   $config        = $project['config_file'];
-   return $factory->create($config->getType(),$config->getMigrationTable());
-});
-
-
-//---------------------------------------------------------------
-// Migration Schema Manager Factory and Manager
-//
-//---------------------------------------------------------------
-
-$project['migration_schema_factory'] = $project->share(function($project){
-   return new \Migration\Components\Migration\Driver\SchemaManagerFactory($project['logger'],$project['console_output'],$project['database']);
-});
-
-$project['migration_schema_manager'] = $project->share(function($project){
+   $project['config_manager'] = $project->share(function($project){
+       # create the io dependency
+       $io = new \Migration\Components\Config\Io($project->getPath()->get());
+       $event = $project['event_dispatcher'];
    
-   # uses the config to derive a schema manager
-   # config comes from the file setup in the configure command or a dsn passed via cli.
+       # instance the manager, no database needed here
+       return new \Migration\Components\Config\Manager($io,$project);
+   });
    
-   $factory       = $project['migration_schema_factory'];
-   $config        = $project['config_file'];
-   return $factory->create($config->getType());
-});
-
-//---------------------------------------------------------------
-// Migration Sanity Check
-//
-//---------------------------------------------------------------
-
-$project['migration_sanity_check'] = $project->share(function($project){
-
-   $migration_collection    = $project['migration_collection'];
-   $migration_table_manager = $project['migration_table_manager'];
-
-   return new \Migration\Components\Migration\Diff($migration_collection->getMap(),$migration_table_manager->fill());
-});
-
-//---------------------------------------------------------------
-// Setup Templating Manager (lazy loaded)
-//
-//---------------------------------------------------------------
-
-$project['template_manager'] = $project->share(function($project){
-    # create the io dependency
-
-    $io = new \Migration\Components\Templating\Io($project->getPath()->get());
-
-    # instance the manager, no database needed here
-    return new \Migration\Components\Templating\Manager($io,$project);
-
-});
-
-
-//---------------------------------------------------------------
-// Event Dispatcher
-//
-//---------------------------------------------------------------
-
-$project['event_dispatcher'] = $project->share(function($project){
+   //---------------------------------------------------------------
+   //  Config CLI and DSN Driver Factories
+   //
+   //---------------------------------------------------------------
    
-   return new \Symfony\Component\EventDispatcher\EventDispatcher();
-});
-
-
-//---------------------------------------------------------------
-// Console Output
-//
-//---------------------------------------------------------------
-$project['console_output'] = $project->share(function($project){
+   $project['config_cli_factory'] = $project->share(function($project){
    
-   return new \Symfony\Component\Console\Output\ConsoleOutput();
+       return new \Migration\Components\Config\Driver\CLIFactory();
+   });
+   
+   
+   $project['config_dsn_factory'] = $project->share(function($project){
+   
+       return new \Migration\Components\Config\Driver\DsnFactory();
+   });
+   
+   
+   //---------------------------------------------------------------
+   // Setup Migration Manager 
+   //
+   //---------------------------------------------------------------
+   
+   $project['migration_manager'] = $project->share(function($project){
+       $io = new \Migration\Components\Migration\Io($project->getPath()->get());
+       
+       $project['loader']->setMigrationPath($io->path(''));
+     
+       # instance the manager, no database needed here
+       return new \Migration\Components\Migration\Manager($io,$project);
+   });
+   
+   //---------------------------------------------------------------
+   // Migration Collection
+   //
+   //---------------------------------------------------------------
+   
+   $project['migration_collection'] = $project->share(function($project){
+      
+      $event             = $project['migration_event_dispatcher'];
+      $table_manager     = $project['migration_table_manager'];
+      $migration_manager = $project['migration_manager'];
+      
+      
+      # fetch the last applied stamp   
+      $stamp_collection = $table_manager->fill();
+      $latest = end($stamp_collection);
+      
+      # check for empty return from end
+      if($latest === false) {
+         $latest = null;
+      }
+      
+      reset($stamp_collection);
+      
+      # load the collection via the loader
+      $collection = new \Migration\Components\Migration\Collection($event,$latest);
+      $migration_manager->getLoader()->load($collection,$project['migration_filename_parser']);
+      
+      # merge the collection together
+      foreach($stamp_collection as $stamp) {
+         
+         if($collection->exists($stamp) === true) {
+            $collection->get($stamp)->setApplied(true);   
+         }
+      }
+         
+      
+      return $collection;
+   });
+   
+   
+   
+   
+   //---------------------------------------------------------------
+   // Migration Filename parser
+   //
+   //---------------------------------------------------------------
+   
+   $project['migration_filename_parser'] = $project->share(function($project){
+      return new \Migration\Components\Migration\FileName();
+   });
+   
+   
+   //---------------------------------------------------------------
+   // Migration Event Dispatcher
+   //
+   //---------------------------------------------------------------
+   
+   $project['migration_event_dispatcher'] = $project->share(function($project){
+      $handler = $project['migration_event_handler'];
+      $event   = $project['event_dispatcher'];
+      
+      $event->addListener('migration.up',  array($handler,'handleUp'));
+      $event->addListener('migration.down',array($handler,'handleDown'));
+      
+      return $event;
+   });
+   
+   //---------------------------------------------------------------
+   // Migration Event Handler
+   //
+   //---------------------------------------------------------------
+   
+   $project['migration_event_handler'] = $project->share(function($project){
+      return new \Migration\Components\Migration\Event\Handler($project['migration_table_manager'],$project['database']);
+   });
+   
+   //---------------------------------------------------------------
+   // Migration Table Manager Factory and the Manager
+   //
+   //---------------------------------------------------------------
+   
+   $project['migration_table_factory'] = $project->share(function($project){
+      return new \Migration\Components\Migration\Driver\TableManagerFactory($project['database'],$project['logger']);
+   });
+   
+   $project['migration_table_manager'] = $project->share(function($project){
+      
+      # uses the config to derive a table manager
+      # config comes from the file setup in the configure command or a dsn passed via cli.
+      
+      $factory       = $project['migration_table_factory'];
+      $config        = $project['config_file'];
+      return $factory->create($config->getType(),$config->getMigrationTable());
+   });
+   
+   
+   //---------------------------------------------------------------
+   // Migration Schema Manager Factory and Manager
+   //
+   //---------------------------------------------------------------
+   
+   $project['migration_schema_factory'] = $project->share(function($project){
+      return new \Migration\Components\Migration\Driver\SchemaManagerFactory($project['logger'],$project['console_output'],$project['database']);
+   });
+   
+   $project['migration_schema_manager'] = $project->share(function($project){
+      
+      # uses the config to derive a schema manager
+      # config comes from the file setup in the configure command or a dsn passed via cli.
+      
+      $factory       = $project['migration_schema_factory'];
+      $config        = $project['config_file'];
+      return $factory->create($config->getType());
+   });
+   
+   //---------------------------------------------------------------
+   // Migration Sanity Check
+   //
+   //---------------------------------------------------------------
+   
+   $project['migration_sanity_check'] = $project->share(function($project){
+   
+      $migration_collection    = $project['migration_collection'];
+      $migration_table_manager = $project['migration_table_manager'];
+   
+      return new \Migration\Components\Migration\Diff($migration_collection->getMap(),$migration_table_manager->fill());
+   });
+   
+   //---------------------------------------------------------------
+   // Setup Templating Manager (lazy loaded)
+   //
+   //---------------------------------------------------------------
+   
+   $project['template_manager'] = $project->share(function($project){
+       # create the io dependency
+   
+       $io = new \Migration\Components\Templating\Io($project->getPath()->get());
+   
+       # instance the manager, no database needed here
+       return new \Migration\Components\Templating\Manager($io,$project);
+   
+   });
+   
+   
+   //---------------------------------------------------------------
+   // Event Dispatcher
+   //
+   //---------------------------------------------------------------
+   
+   $project['event_dispatcher'] = $project->share(function($project){
+      
+      return new \Symfony\Component\EventDispatcher\EventDispatcher();
+   });
+   
+   
+   //---------------------------------------------------------------
+   // Console Output
+   //
+   //---------------------------------------------------------------
+   $project['console_output'] = $project->share(function($project){
+      
+      return new \Symfony\Component\Console\Output\ConsoleOutput();
+   });
+
+   return $project;
+
 });

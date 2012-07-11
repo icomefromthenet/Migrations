@@ -1,2 +1,4 @@
 test/myproject/
 bin/migrations
+Migration/vendor/*
+composer.phar

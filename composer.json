@@ -1,0 +1,25 @@
+{
+    
+    "config": {
+        "vendor-dir" : "Migration/Vendor",
+        "process-timeout" : "800"
+    },
+    "require": {
+        "monolog/monolog"           : "1.0.*",
+        "symfony/filesystem"        : "2.1.*",
+        "symfony/class-loader"      : "2.1.*",
+        "symfony/config"            : "2.1.*",
+        "symfony/console"           : "2.1.*",
+        "symfony/event-dispatcher"  : "2.1.*",
+        "symfony/finder"            : "2.1.*",
+        "symfony/yaml"              : "2.1.*",
+        "twig/twig"                 : "1.8.*",
+        "pimple/pimple"             : "1.0.*",
+        "doctrine/common"           : "2.3.*",
+        "doctrine/dbal"             : "2.3.*"
+    },
+    "autoload": {
+        
+    }
+    
+}
