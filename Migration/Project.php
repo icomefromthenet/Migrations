@@ -3,7 +3,7 @@ namespace Migration;
 
 use Symfony\Component\Console\Output\OutputInterface,
     Symfony\Component\Finder\Finder,
-    Symfony\Pimple\Pimple,
+    Pimple,
     Migration\Exception as MigrationException;
 
 class Project extends Pimple

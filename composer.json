@@ -2,21 +2,22 @@
     
     "config": {
         "vendor-dir" : "Migration/Vendor",
-        "process-timeout" : "800"
+        "process-timeout" : "800",
+        "minimum-stability": "dev" 
     },
     "require": {
-        "monolog/monolog"           : "1.0.*",
-        "symfony/filesystem"        : "2.1.*",
-        "symfony/class-loader"      : "2.1.*",
-        "symfony/config"            : "2.1.*",
-        "symfony/console"           : "2.1.*",
-        "symfony/event-dispatcher"  : "2.1.*",
-        "symfony/finder"            : "2.1.*",
-        "symfony/yaml"              : "2.1.*",
-        "twig/twig"                 : "1.8.*",
-        "pimple/pimple"             : "1.0.*",
-        "doctrine/common"           : "2.3.*",
-        "doctrine/dbal"             : "2.3.*"
+        "monolog/monolog"           : "dev-master",
+        "symfony/filesystem"        : "2.1.x-dev",
+        "symfony/class-loader"      : "2.1.x-dev",
+        "symfony/config"            : "2.1.x-dev",
+        "symfony/console"           : "2.1.x-dev",
+        "symfony/event-dispatcher"  : "2.1.x-dev",
+        "symfony/finder"            : "2.1.x-dev",
+        "symfony/yaml"              : "2.1.x-dev",
+        "twig/twig"                 : "dev-master",
+        "pimple/pimple"             : "1.0.x-dev",
+        "doctrine/common"           : "2.3.x-dev",
+        "doctrine/dbal"             : "2.3.x-dev"
     },
     "autoload": {
         

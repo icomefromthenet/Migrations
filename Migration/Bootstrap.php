@@ -40,7 +40,6 @@ return call_user_func(function() {
    ));
    
    $ext_loader->register();
-
    
    
    //------------------------------------------------------------------------------
@@ -49,8 +48,7 @@ return call_user_func(function() {
    //------------------------------------------------------------------------------
    
    $project = new Project(new Path());
-   
-   
+     
    
    //------------------------------------------------------------------------------
    // Setup the project extension directories.
@@ -58,19 +56,18 @@ return call_user_func(function() {
    // If project folder is set by cmd this path below is overriden in Command.php
    //------------------------------------------------------------------------------
    
-   $symfony_auto_loader->setExtensionNamespace('Migration\\Components\\Extension', $project->getPath()->get());
+   $ext_loader->setExtensionNamespace('Migration\\Components\\Extension', $project->getPath()->get());
    
-   $symfony_auto_loader->setFilter(function($ns){
+   $ext_loader->setFilter(function($ns){
       return  substr($ns,21); # remove 'Migrations/Components/' from namespace  
    });
-   
    
    //------------------------------------------------------------------------------
    // Assign the autoloader to a DI container
    //
    //------------------------------------------------------------------------------
    
-   $project['loader'] = $symfony_auto_loader;
+   $project['loader'] = $ext_loader;
    
    //------------------------------------------------------------------------------
    // Load the Symfony2 Cli Shell
