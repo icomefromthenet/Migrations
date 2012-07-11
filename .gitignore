@@ -1,4 +1,6 @@
 test/myproject/
 bin/migrations
-Migration/vendor/*
+bin/mig
+Migration/Vendor/*
 composer.phar
+composer.lock
