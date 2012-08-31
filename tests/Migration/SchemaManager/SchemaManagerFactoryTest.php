@@ -19,7 +19,11 @@ class SchemaManagerFactoryTest extends AbstractProject
                            ->disableOriginalConstructor()
                            ->getMock();
       
-        $factory = new SchemaManagerFactory($log,$out,$connection);
+        $table_manager = $this->getMockBuilder('Migration\Components\Migration\Driver\TableInterface')
+                               ->disableOriginalConstructor()
+                               ->getMock();
+      
+        $factory = new SchemaManagerFactory($log,$out,$connection,$table_manager);
         
         $this->assertInstanceOf('Migration\ExtensionInterface',$factory);
     }
@@ -35,8 +39,13 @@ class SchemaManagerFactoryTest extends AbstractProject
         $connection = $this->getMockBuilder('Doctrine\DBAL\Connection')
                            ->disableOriginalConstructor()
                            ->getMock();
+     
+       $table_manager = $this->getMockBuilder('Migration\Components\Migration\Driver\TableInterface')
+                               ->disableOriginalConstructor()
+                               ->getMock();
+     
       
-        $factory = new SchemaManagerFactory($log,$out,$connection);
+        $factory = new SchemaManagerFactory($log,$out,$connection,$table_manager);
         $manager_mysql = $factory->create('mysql');
        
         $this->assertInstanceOf('Migration\Components\Migration\Driver\Mysql\SchemaManager',$manager_mysql);
@@ -53,8 +62,15 @@ class SchemaManagerFactoryTest extends AbstractProject
                            ->disableOriginalConstructor()
                            ->getMock();
       
-        $factory = new SchemaManagerFactory($log,$out,$connection);
+        $table_manager = $this->getMockBuilder('Migration\Components\Migration\Driver\TableInterface')
+                               ->disableOriginalConstructor()
+                               ->getMock();
+     
+      
+        $factory = new SchemaManagerFactory($log,$out,$connection,$table_manager);
         $manager_mysql = $factory->create('MYSQL');
+       
+       
        
         $this->assertInstanceOf('Migration\Components\Migration\Driver\Mysql\SchemaManager',$manager_mysql);
     }
@@ -75,7 +91,12 @@ class SchemaManagerFactoryTest extends AbstractProject
                            ->disableOriginalConstructor()
                            ->getMock();
       
-        $factory = new SchemaManagerFactory($log,$out,$connection);
+        $table_manager = $this->getMockBuilder('Migration\Components\Migration\Driver\TableInterface')
+                               ->disableOriginalConstructor()
+                               ->getMock();
+     
+      
+        $factory = new SchemaManagerFactory($log,$out,$connection,$table_manager);
         $factory->create('bad');
             
     }

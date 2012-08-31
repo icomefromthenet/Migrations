@@ -26,7 +26,10 @@ class SchemaManagerFactory implements ExtensionInterface
       */
     protected $output;
     
-    
+    /**
+      *  @var TableInterface 
+      */
+    protected $table;
     
      /**
       *  @var string[] list of SchemaManagers
@@ -56,11 +59,12 @@ class SchemaManagerFactory implements ExtensionInterface
     
     //  -------------------------------------------------------------------------
 
-    public function __construct(Logger $log, Output $out, Connection $db)
+    public function __construct(Logger $log, Output $out, Connection $db, TableInterface $table)
     {
-        $this->logger = $log;
-        $this->output = $out;
+        $this->logger   = $log;
+        $this->output   = $out;
         $this->database = $db;
+        $this->table    = $table;
         
     }
    
@@ -74,7 +78,7 @@ class SchemaManagerFactory implements ExtensionInterface
             throw new MigrationException('Manager not found at '.$manager);
         }
     
-        return new self::$drivers[$manager]($this->logger,$this->output,$this->database);
+        return new self::$drivers[$manager]($this->logger,$this->output,$this->database,$this->table);
                              
     }
     

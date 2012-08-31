@@ -17,6 +17,14 @@ interface SchemaInterface
       */
     public function getDatabase();
 
+    /**
+      *  Fetch the table manager
+      *
+      *  @return \Migration\Components\Migration\Driver\TableInterface
+      *  @access public
+      */
+    public function getTableManager();
+    
     
     /**
       *  Disable Foreign Key Checks

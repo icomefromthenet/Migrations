@@ -11,6 +11,7 @@ use Migration\Components\Migration\MigrationFileInterface;
 use Migration\Components\Migration\Collection;
 use Migration\Components\Migration\Driver\SchemaInterface;
 use Migration\Components\Migration\Exception as MigrationException;
+use Migration\Components\Migration\Driver\TableInterface;
 
 class SchemaManager implements SchemaInterface
 {
@@ -30,6 +31,11 @@ class SchemaManager implements SchemaInterface
       */
     protected $logger;
 
+    /**
+      *  @var Migration\Components\Migration\Driver\TableInterface 
+      */
+    protected $table;
+    
     //  -------------------------------------------------------------------------
     # getDatabase
     
@@ -44,9 +50,20 @@ class SchemaManager implements SchemaInterface
         return $this->database;
     }
     
+    /**
+      *  Fetch the table manager
+      *
+      *  @return \Migration\Components\Migration\Driver\TableInterface
+      *  @access public
+      */
+    public function getTableManager()
+    {
+	return $this->table;
+    }
+    
 
     //  -------------------------------------------------------------------------
-    # Class constructr    
+    # Class constructor   
 
     /**
       *  Class Constructor
@@ -56,12 +73,14 @@ class SchemaManager implements SchemaInterface
       *  @param \Monolog\Logger the log class
       *  @param \Symfony\Component\Console\Output\OutputInterface the console output
       *  @param \Doctrine\DBAL\Connection the database
+      *  @param \Migration\Components\Migration\Driver\TableInterface
       */
-    public function __construct(Logger $log, Output $output, Connection $db)
+    public function __construct(Logger $log, Output $output, Connection $db, TableInterface $table)
     {
         $this->database = $db;
-        $this->output = $output;
-        $this->logger = $log;
+        $this->output   = $output;
+        $this->logger   = $log;
+	$this->table    = $table;
     }
 
     
@@ -489,8 +508,10 @@ class SchemaManager implements SchemaInterface
             $this->enableFK();
 
             # Apply inital schema
-            $new_schema = $schema->getClass();
-            $new_schema->up($this->database);
+            $new_schema = $schema->getEntity();
+            $new_schema->up($this->database,
+			    $this->database->getSchemaManager()
+			    );
 
             # Apply Migration Table Schema
             $this->apply();
@@ -500,8 +521,10 @@ class SchemaManager implements SchemaInterface
 
             # Apply Test Data
             if($test_data !== null) {
-		$new_test_data = $test_data->getClass();
-                $new_test_data->up($this->database);
+		$new_test_data = $test_data->getEntity();
+                $new_test_data->up($this->database,
+				   $this->database->getSchemaManager()
+				   );
 	    }
             
             $this->database->commit();

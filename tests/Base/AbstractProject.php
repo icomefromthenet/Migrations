@@ -13,11 +13,14 @@ class AbstractProject extends PHPUnit_Framework_TestCase
 {
 
 
-    protected $backupGlobalsBlacklist = array('project','symfony_auto_loader');
-
-
     protected $migration_dir = 'myproject';
 
+    /**
+      *  @var Faker\Project 
+      */
+    public static $project;
+
+    
 
     public function __construct()
     {
@@ -25,17 +28,21 @@ class AbstractProject extends PHPUnit_Framework_TestCase
         $path = '/var/tmp/' . $this->migration_dir;
 
         self::recursiveRemoveDirectory($path);
+        
+        $project = self::$project;
+        $project->setPath($this->getMockedPath());
+
+        $project['loader']->setExtensionNamespace(
+               'Migration\\Components\\Extension' , $project->getPath()->get()
+        );
+       
     }
 
 
 
     public function setUp()
     {
-        $project = $this->getProject();
-
-        $io = $this->getSkeltonIO();
-
-        $this->createProject($project,$io);
+      $this->createProject(self::$project,$this->getSkeltonIO());
     }
 
 
@@ -52,19 +59,9 @@ class AbstractProject extends PHPUnit_Framework_TestCase
 
     public function getProject()
     {
-        # project normally injected into application.
-        # but for testing its a global variable
-        global $project;
-
-        $path = $project->getPath()->parse('/var/tmp/'.$this->migration_dir);
-       
-        $project['loader']->setExtensionNamespace(
-               'Migration\\Components\\Extension' , $project->getPath()->get()
-        );
-       
-        return $project;
+        return self::$project;
+  
     }
-
 
     //  -------------------------------------------------------------------------
     # Skelton IO
@@ -72,8 +69,6 @@ class AbstractProject extends PHPUnit_Framework_TestCase
     public function getSkeltonIO()
     {
         $skelton = new Io(realpath(__DIR__.'/../../skelton'));
-
-
         return $skelton;
     }
 
@@ -84,19 +79,9 @@ class AbstractProject extends PHPUnit_Framework_TestCase
     public function createProject(Project $project,Io $skelton_folder)
     {
 
-
-        $path = '/var/tmp/'.$this->migration_dir;
-
-        # Setup new project folder since our build method does not
-        mkdir($path);
-
-        $project_folder = new Io($path);
-
-
+        mkdir($project->getPath()->get());
+        $project_folder = new Io($project->getPath()->get());
         $project->build($project_folder,$skelton_folder,new NullOutput());
-
-
-
     }
 
 
