@@ -51,9 +51,9 @@ class FilenameTest extends AbstractProject
     {
         $file = new \Migration\Components\Migration\FileName();
         $stamp = $file->generate();
-        $file_name = $file->parse($stamp);
-
-        $this->assertStringMatchesFormat('%d',$file_name);
+        $stamp = $file->parse($stamp);
+        $this->assertInternalType('integer',$stamp);
+        $this->assertGreaterThan(0,$stamp);
     }
     
     
@@ -62,9 +62,10 @@ class FilenameTest extends AbstractProject
         $file = new \Migration\Components\Migration\FileName();
         $stamp = $file->generate('Added Float Column To Table x');
         
-        $file_name = $file->parse($stamp);
+        $int_stamp_portion = $file->parse($stamp);
         
-        $this->assertStringMatchesFormat('%d',$file_name);
+        $this->assertInternalType('integer',$int_stamp_portion);
+        $this->assertGreaterThan(0,$int_stamp_portion);
     }
 
     /**

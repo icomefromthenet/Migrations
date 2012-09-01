@@ -26,6 +26,7 @@ class GenericSchemaManagerTest extends AbstractProjectWithDb
         parent::setUp();        
     }
     
+    
     public function tearDown()
     {
         unset($this->db_builder);
@@ -113,17 +114,22 @@ class GenericSchemaManagerTest extends AbstractProjectWithDb
         
     }
     
+    
     //  -------------------------------------------------------------------------
     # Get Builder
     
     
     protected function getDatabasebBuilder()
     {
-        $connection = $this->getDoctrineConnection();        
-        $output =  $this->getMockOuput();
-        $log    = $this->getMockLog();
+        $connection    = $this->getDoctrineConnection();        
+        $output        =  $this->getMockOuput();
+        $log           = $this->getMockLog();
+        $table_manager = $this->getMockBuilder('Migration\Components\Migration\Driver\TableInterface')
+                               ->disableOriginalConstructor()
+                               ->getMock();
+        
               
-        return new SchemaManager($log,$output,$connection);
+        return new SchemaManager($log,$output,$connection,$table_manager);
         
     }
 

@@ -4,7 +4,7 @@ namespace Migration\Tests\Migration\TableManager;
 use Migration\Components\Migration\Driver\TableManagerFactory,
     Migration\Tests\Base\AbstractProject;
 
-class SchemaManagerFactoryTest extends AbstractProject
+class TableManagerFactoryTest extends AbstractProject
 {
     
     public function testFactoryImplementsExtensionInterface()

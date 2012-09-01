@@ -169,8 +169,11 @@ class MysqlSchemaManagerTest extends AbstractProjectWithDb
         $connection = $this->getDoctrineConnection();        
         $output =  $this->getMockOuput();
         $log    = $this->getMockLog();
+        $table_manager = $this->getMockBuilder('Migration\Components\Migration\Driver\TableInterface')
+                               ->disableOriginalConstructor()
+                               ->getMock();
               
-        return new SchemaManager($log,$output,$connection);
+        return new SchemaManager($log,$output,$connection,$table_manager);
         
     }
 

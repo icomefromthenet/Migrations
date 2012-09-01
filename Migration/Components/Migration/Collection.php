@@ -23,7 +23,7 @@ use SplFileInfo,
 class Collection implements \Countable, \IteratorAggregate, CollectionInterface
 {
 
-  /**  The Event Dispatcher
+   /**  The Event Dispatcher
     *
     *  @var Symfony\Component\EventDispatcher\EventDispatcherInterface;
     */
@@ -32,16 +32,36 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
     /**
       *  Inner Queue
       *
-      *  array()
+      *  @var array()
       */
     protected $inner_queue = array();
 
     /**
-      *  Index map of the values 
+      *  Index map of the values
+      *  
+      *  @var array
       */
     protected $map = array();
 
+    /**
+     * The database holds the index of the currently applied (up)
+     * migration, this not always accurate especially when
+     * version control is involved
+     *
+     *
+     * @var integer
+     */
+    protected $latest_migration = null;
 
+  //  ----------------------------------------------------------------------------
+  
+   /**
+    *  Class Constructor
+    *
+    *  @param Event $event
+    *  @param integer $latest
+    *  @return void
+    */
     public function __construct(Event $event, $latest)
     {
       $this->latest_migration = $latest;
@@ -51,7 +71,7 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
     //  -------------------------------------------------------------------------
     # Countable Interface
 
-  /**
+   /**
     *  Returns the number of items in the collection
     *
     *  @access public
@@ -59,7 +79,7 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
     */
     public function count()
     {
-        return count($this->inner_queue);
+      return count($this->inner_queue);
     }
 
 
@@ -78,22 +98,8 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
     }
 
 
-
-    //--------------------------------------------------------------
-
-    /**
-     * The database holds the index of the currently applied (up)
-     * migration, this not always accurate especially when
-     * version control is involved
-     *
-     *
-     * @var integer
-     */
-    protected $latest_migration = null;
-
-
     //----------------------------------------------------------------
-    // Collection behaviours
+   
 
     public function insert(MigrationFileInterface  $migration, $stamp)
     {
@@ -114,7 +120,8 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
     //----------------------------------------------------------------
 
     
-    public function get($stamp) {
+    public function get($stamp)
+    {
       
       if(is_int($stamp) === false) {
           throw new MigrationException('Stamp must be an integer');
@@ -332,7 +339,28 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
 
     }
 
-   //  -------------------------------------------------------------------------
+  
+  //  ----------------------------------------------------------------------------
+
+    /**
+      *  Clear all migrations of their applied setting
+      *  Used after the migration table is cleared during build
+      *  
+      *  @access public
+      *  @return void
+      */    
+    public function clearApplied()
+    {
+      foreach($this->inner_queue as $migration) {
+         $migration->setApplied(false);
+      }
+      
+      # clear the head
+      $this->latest_migration = null;
+      
+    }
+  
+  //  -------------------------------------------------------------------------
    # Propeties for LatestMigration Index
    
    public function getLatestMigration()

@@ -20,7 +20,17 @@ class Project extends Pimple
          return $this['project_path'];
     }
 
-    
+    /**
+      *  Set the path object used in testing to set a mock path
+      *
+      *  @access public
+      *  @return void
+      *  @param Migration\Path $path
+      */
+    public function setPath(Path $path)
+    {
+          $this['project_path'] = $path;
+    }
     
 
     //  -------------------------------------------------------------------------

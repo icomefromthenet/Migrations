@@ -356,7 +356,7 @@ return call_user_func(function() {
    //---------------------------------------------------------------
    
    $project['migration_schema_factory'] = $project->share(function($project){
-      return new \Migration\Components\Migration\Driver\SchemaManagerFactory($project['logger'],$project['console_output'],$project['database']);
+      return new \Migration\Components\Migration\Driver\SchemaManagerFactory($project['logger'],$project['console_output'],$project['database'],$project['migration_table_manager']);
    });
    
    $project['migration_schema_manager'] = $project->share(function($project){

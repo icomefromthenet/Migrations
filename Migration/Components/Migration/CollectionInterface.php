@@ -90,6 +90,19 @@ interface CollectionInterface
       */
     public function dispatchEvent(BaseEvent $event);
    
+   
+    //  ----------------------------------------------------------------------------
+    # Clear Applied State
+    
+    /**
+      *  Clear all migrations of their applied setting
+      *  Used after the migration table is cleared during build
+      *  
+      *  @access public
+      *  @return void
+      */    
+    public function clearApplied();
+   
     //  -------------------------------------------------------------------------
     # Properties
     

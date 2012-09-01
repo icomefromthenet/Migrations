@@ -256,7 +256,7 @@ interface SchemaInterface
       *   @access public
       *   
       */
-    public function build(MigrationFileInterface $schema, Collection $collection,MigrationFileInterface $test_data = null);
+    public function build(MigrationFileInterface $schema, Collection $collection, MigrationFileInterface $test_data = null);
     
     
     //  -------------------------------------------------------------------------

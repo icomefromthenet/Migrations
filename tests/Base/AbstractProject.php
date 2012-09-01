@@ -12,7 +12,6 @@ use Migration\Project,
 class AbstractProject extends PHPUnit_Framework_TestCase
 {
 
-
     protected $migration_dir = 'myproject';
 
     /**
@@ -21,30 +20,42 @@ class AbstractProject extends PHPUnit_Framework_TestCase
     public static $project;
 
     
+    //  ----------------------------------------------------------------------------
 
     public function __construct()
     {
+        
+        self::$project->setPath($this->getMockedPath());
+        self::$project['loader']->setExtensionNamespace(
+                   'Migration\\Components\\Extension' , self::$project->getPath()->get()
+        );
+        
+        $this->processIsolation = true;
+        $this->preserveGlobalState = false;
+        
         # remove migration project directory
         $path = '/var/tmp/' . $this->migration_dir;
-
+        
         self::recursiveRemoveDirectory($path);
         
-        $project = self::$project;
-        $project->setPath($this->getMockedPath());
-
-        $project['loader']->setExtensionNamespace(
-               'Migration\\Components\\Extension' , $project->getPath()->get()
-        );
        
     }
+    
+    //  ----------------------------------------------------------------------------
+        
+    public function __destruct()
+    {
+        unset($this->project);
+    }
 
-
+    //  ----------------------------------------------------------------------------
 
     public function setUp()
     {
-      $this->createProject(self::$project,$this->getSkeltonIO());
+      $this->createProject($this->getProject(),$this->getSkeltonIO());
     }
-
+    
+    //  ----------------------------------------------------------------------------
 
     public function tearDown()
     {
@@ -56,11 +67,12 @@ class AbstractProject extends PHPUnit_Framework_TestCase
 
     }
 
+    //  ----------------------------------------------------------------------------
+    
 
     public function getProject()
     {
         return self::$project;
-  
     }
 
     //  -------------------------------------------------------------------------
@@ -189,7 +201,7 @@ class AbstractProject extends PHPUnit_Framework_TestCase
                         'default';
 
         if(is_dir($migration_path) === false) {
-            throw new RuntimeException('Schema folder is missing can not create test migrations');
+            throw new \RuntimeException('Schema folder is missing can not create test migrations');
         }
 
         # create the directories

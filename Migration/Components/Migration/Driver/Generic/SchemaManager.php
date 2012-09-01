@@ -301,8 +301,7 @@ class SchemaManager implements SchemaInterface
       */
     public function apply()
     {
-
-
+	$this->table->build();
     }
 
     //  -------------------------------------------------------------------------
@@ -359,6 +358,7 @@ class SchemaManager implements SchemaInterface
 
             # Apply Migration Table Schema
             $this->apply();
+	    $collection->clearApplied();
 
             # Apply Migrations
             $collection->latest();

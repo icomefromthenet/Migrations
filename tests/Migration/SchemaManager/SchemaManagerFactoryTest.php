@@ -46,7 +46,7 @@ class SchemaManagerFactoryTest extends AbstractProject
      
       
         $factory = new SchemaManagerFactory($log,$out,$connection,$table_manager);
-        $manager_mysql = $factory->create('mysql');
+        $manager_mysql = $factory->create('pdo_mysql');
        
         $this->assertInstanceOf('Migration\Components\Migration\Driver\Mysql\SchemaManager',$manager_mysql);
     }
@@ -68,7 +68,7 @@ class SchemaManagerFactoryTest extends AbstractProject
      
       
         $factory = new SchemaManagerFactory($log,$out,$connection,$table_manager);
-        $manager_mysql = $factory->create('MYSQL');
+        $manager_mysql = $factory->create('PDO_MYSQL');
        
        
        
@@ -100,8 +100,6 @@ class SchemaManagerFactoryTest extends AbstractProject
         $factory->create('bad');
             
     }
-    
-   
     
 }
 /* End of File */
