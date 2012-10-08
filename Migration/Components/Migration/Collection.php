@@ -142,7 +142,7 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
   
       $map = $this->getMap();
       $stamp_index = array_search($stamp,$map);
-      $head_index  = ($this->latest_migration === null) ? 0 : array_search($this->latest_migration,$map);
+      $head_index  = ($this->latest_migration === null) ? -1 : array_search($this->latest_migration,$map);
     
       # check for invalid up statement
       if($stamp_index < $head_index) {
@@ -202,7 +202,7 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
     
         # checking user error where the down stamp > then the current head (which is impossible movment)
         if($stamp_index > $head_index ) {
-          throw new MigrationException('Can not run down to given stamp %s as current head is lower, try running up first');
+          throw new MigrationException('Can not run down to given stamp as current head is lower, try running up first');
         }
       
                       

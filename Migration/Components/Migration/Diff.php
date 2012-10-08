@@ -88,7 +88,7 @@ class Diff
         
         if(count($diff) > 0) {
             # throw exception out of sync and can only rebuild.
-            throw new RebuildRequiredException('Are Migrations Recorded in the Database but not found in the Project. Have you been deleting migrations?');
+            throw new RebuildRequiredException('There migrations recorded in the Database but the files are not found in the Project. Have you been deleting migration files? Run app:build to refresh.');
         }
         
         return true;
@@ -124,7 +124,7 @@ class Diff
                 $msg = '';
                 $parent = $this->findParent();
                 if($parent === false) {
-                    $msg = 'There are not common parent please run build again to re-sync';
+                    $msg = 'There is no common parent please run build to rsync';
                 } 
                 else {
                     $dte = new DateTime();
