@@ -34,7 +34,7 @@
        
     },
     "bin": [
-            "bin/migrate.php"
+        "bin/migrate.php"
     ]
     
 }
