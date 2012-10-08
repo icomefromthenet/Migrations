@@ -44,7 +44,7 @@ if(strpos('@PHP-BIN@', '@PHP-BIN') === 0) {
 if(file_exists(__DIR__. DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'autoload.php')) {
    require __DIR__. DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'autoload.php';
 } else {
-   require __DIR__. DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+   require __DIR__. DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'autoload.php';
 }
 
 
