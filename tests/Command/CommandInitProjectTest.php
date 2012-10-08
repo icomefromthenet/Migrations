@@ -1,32 +1,13 @@
 <?php
+namespace Migration\Tests\Command;
 
-use Symfony\Component\Console\Tester\CommandTester;
-use Migration\Command\Base\Application;
-use Migration\Command\InitProjectCommand;
+use Symfony\Component\Console\Tester\CommandTester,
+    Migration\Tests\Base\AbstractProject,
+    Migration\Command\Base\Application,
+    Migration\Command\InitProjectCommand;
 
-require_once __DIR__ .'/../base/AbstractProject.php';
-
-class ListCommandTest extends \AbstractProject
+class CommandInitProjectTest extends AbstractProject
 {
-    
-    public function setUp()
-    {
-        $project_folder = '/tmp/mockproject';
-        self::recursiveRemoveDirectory($project_folder);
-        mkdir($project_folder);
-       
-        
-        parent::setUp();
-    }
-    
-    public function tearDown()
-    {
-        $project_folder = '/tmp/mockproject';
-        self::recursiveRemoveDirectory($project_folder);
-        
-        parent::tearDown();
-    }
-    
     
     /**
       *  @expectedException \Migration\Exception

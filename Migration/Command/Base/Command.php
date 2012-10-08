@@ -47,6 +47,7 @@ class Command extends BaseCommand
             $project['loader']->setExtensionNamespace(
                'Migration\\Components\\Extension' , $project->getPath()->get()
             );
+            
        }
 
         #try and detect if path exits

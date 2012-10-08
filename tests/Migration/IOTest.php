@@ -10,6 +10,7 @@ class MigrationIOTest extends AbstractProject
 
     public function testMigrationIO()
     {
+        
         $this->createMockMigrations();
         $io = new Io($this->getMockedPath()->get());
         $it = $io->iterator();
@@ -35,16 +36,13 @@ class MigrationIOTest extends AbstractProject
     public function testMigrationSchemaFile()
     {
        $this->createMockMigrations();
-
        $io = new Io($this->getMockedPath()->get());
        $this->assertInstanceOf('\SplFileInfo',$io->schema());        
-        
     }
     
     public function testMigrationIOTestDataFile()
     {
-        $this->createMockMigrations();
-
+       $this->createMockMigrations();
        $io = new Io($this->getMockedPath()->get());
        $this->assertInstanceOf('\SplFileInfo',$io->testData());        
     }

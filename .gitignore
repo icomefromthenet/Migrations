@@ -4,3 +4,7 @@ bin/mig
 Migration/Vendor/*
 composer.phar
 composer.lock
+faker/dump/*.sql
+faker/dump/*.xml
+faker/config/*.php
+.vagrant

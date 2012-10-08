@@ -178,7 +178,7 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
     public function down($stamp = null,$force = false)
     {
       
-        # check if stamp actually exists, exclude the 0 stamp from check
+        # check if stamp actually exists
         if($this->exists($stamp) === false && $stamp !== null) {
           throw new MigrationMissingException(sprintf('Migration with stamp %s can not be found',$stamp));
         }

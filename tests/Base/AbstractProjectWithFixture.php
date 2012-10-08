@@ -9,12 +9,12 @@ use Migration\Project,
     Symfony\Component\Finder\Finder,
     Symfony\Component\Filesystem\Filesystem,
     Migration\Components\Migration\Collection,
-    PHPUnit_Framework_TestCase;
+    \PHPUnit_Extensions_Database_TestCase,
+    \PDO;
 
-class AbstractProject extends PHPUnit_Framework_TestCase
+class AbstractProjectWithFixture extends PHPUnit_Extensions_Database_TestCase
 {
-
-    protected $migration_dir = 'myproject';
+     protected $migration_dir = 'myproject';
 
     /**
       *  @var Faker\Project 
@@ -53,6 +53,8 @@ class AbstractProject extends PHPUnit_Framework_TestCase
     public function setUp()
     {
       $this->createProject($this->getProject(),$this->getSkeltonIO());
+      
+      parent::setUp();
     }
     
 
@@ -61,6 +63,8 @@ class AbstractProject extends PHPUnit_Framework_TestCase
         #remove migration project directory
         $path = '/var/tmp/' . $this->migration_dir;
         $this->removeProject($path);
+        
+        parent::tearDown();
     }
 
     //  ----------------------------------------------------------------------------
@@ -70,7 +74,6 @@ class AbstractProject extends PHPUnit_Framework_TestCase
     {
         return self::$project;
     }
-
 
     public function getSkeltonIO()
     {
@@ -82,27 +85,11 @@ class AbstractProject extends PHPUnit_Framework_TestCase
     {
         return new Path('/var/tmp/'.$this->migration_dir);
     }
-    
-    
-    protected function getMockConfigEntityParm()
-    {
-        return array(
-            'db_type' => 'pdo_mysql' ,
-            'db_schema' => 'example' ,
-            'db_user' => 'bob' ,
-            'db_password' => 'pass',
-            'db_host' => 'localhost' ,
-            'db_port' => 3306 ,
-            'db_migration_table' => 'migrations_migrate',
-            );
-    }
-    
+       
     protected function getMockOuput()
     {
         return $this->getMock('\Symfony\Component\Console\Output\OutputInterface',array());
     }
-
-   
     
     protected function getMockLog()
     {
@@ -118,17 +105,6 @@ class AbstractProject extends PHPUnit_Framework_TestCase
     }
     
     
-    public function getMockCollection()
-    {
-        $log    = $this->getMockLog();
-        $io     = new \Migration\Components\Migration\Io($this->getMockedPath()->get());
-        $latest = null;
-        $event  = new EventDispatcher();
-        $output = $this->getMockOuput();
-
-        return new Collection($output,$log,$io,$event,$latest);
-    }
-
 
     //  ----------------------------------------------------------------------------
 
@@ -182,6 +158,57 @@ class AbstractProject extends PHPUnit_Framework_TestCase
         $fs->touch(new \ArrayIterator($migrations));
 
     }
+    
+    
+    //  ----------------------------------------------------------------------------
+    
+     
+    public function buildSchema()
+    {
+        exec('/usr/bin/mysql -u '. DEMO_DATABASE_USER . ' -p'.DEMO_DATABASE_PASSWORD .' < '.__DIR__ .'/sakila-schema.sql');  
+        exec('/usr/bin/mysql -u '. DEMO_DATABASE_USER . ' -p'.DEMO_DATABASE_PASSWORD .' < '.__DIR__ .'/Fixtures/migration-table.sql');  
+    }
+    
+    //  ----------------------------------------------------------------------------
+    
+    /**
+      *  @var PDO  only instantiate pdo once for test clean-up/fixture load
+      *  @access private
+      */ 
+    static private $pdo = null;
 
+    /**
+      *  @var PHPUnit_Extensions_Database_DB_IDatabaseConnection only instantiate once per test
+      *  @access private
+      */
+    private $conn = null;
+    
+    /**
+      *  Makes a connection to database
+      *  @access public
+      *  @return PHPUnit_Extensions_Database_DB_IDatabaseConnection
+      */
+    final public function getConnection()
+    {
+        if ($this->conn === null) {
+            if (self::$pdo == null) {
+                
+                $dsn = sprintf('mysql:host=%s;dbname=%s',DEMO_DATABASE_HOST,DEMO_DATABASE_SCHEMA);
+                
+                self::$pdo = new PDO($dsn, DEMO_DATABASE_USER, DEMO_DATABASE_PASSWORD );
+            }
+            $this->conn = $this->createDefaultDBConnection(self::$pdo, DEMO_DATABASE_SCHEMA);
+        }
+
+        return $this->conn;
+    }
+    
+    //  ----------------------------------------------------------------------------
+    
+    public function getDataSet()
+    {
+        throw new \RuntimeException('Get Data set not implemented on child class');
+    }
+    
 }
 /* End of File */

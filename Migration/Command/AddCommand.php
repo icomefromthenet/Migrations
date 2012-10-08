@@ -19,7 +19,7 @@ class AddCommand extends Command
            
            $migration_template = $template_manager->getLoader()->load('migration_template.twig',array());
            
-           $migration_file = $migration_manager->getWriter()->write($migration_template,$input->getArgument('migration_suffix'));
+           $migration_file = $migration_manager->getWriter()->write($migration_template,$input->getArgument('migration_prefix'));
          
            $output->writeLn('Finished Writing new Migration: <comment>'. $migration_file->getFileName() .'</comment>');
       
@@ -35,13 +35,13 @@ Will <info>Add new migration file</info> using the template.
 This should be run to create new migration files, Open and implement
 the Up and Down methods.
 
-You may pass in an optional <comment>Alpha Numeric suffix.</comment>
+You may pass in an optional <comment>Alpha Numeric prefix.</comment>
 
-<comment>Example (Default suffix):</comment>
+<comment>Example (Default prefix):</comment>
 
 >> app:add
 
-<comment>Example (Custom suffix): </comment>
+<comment>Example (Custom prefix): </comment>
 
 >> app:add 'added currency column to table x'
 
@@ -58,7 +58,7 @@ EOF
 
           $this->setDefinition(array(
             new InputArgument(
-                    'migration_suffix',
+                    'migration_prefix',
                     InputArgument::OPTIONAL,
                     'suffix to attach to file',
                     NULL

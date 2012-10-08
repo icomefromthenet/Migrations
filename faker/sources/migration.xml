@@ -1,0 +1,13 @@
+<schema name="sakila">
+    <writer platform="mysql" format="phpunit" outFileFormat="{prefix}_{body}_{suffix}.{ext}" />
+    
+    <table name="migrations_data" generate="4">
+        <column name="timestamp" type="integer">
+            <datatype name="unix-timestamp">
+                <option name="start"  value="today" />
+                <option name="modify" value="+1 week" />    
+            </datatype>
+        </column>
+    </table>
+    
+</schema>

@@ -75,11 +75,11 @@ $pear_task->setCode(function(InputInterface $input, ConsoleOutputInterface $outp
     $pack->setChannel('icomefromthenet.github.com/pear');
     $pack->setPackageType('php'); // this is a PEAR-style php script package
     
-    $pack->setReleaseVersion('0.1');
-    $pack->setAPIVersion('0.1');
+    $pack->setReleaseVersion('1.0.2');
+    $pack->setAPIVersion('1.0.2');
     
-    $pack->setReleaseStability('alpha');
-    $pack->setAPIStability('alpha');
+    $pack->setReleaseStability('beta');
+    $pack->setAPIStability('beta');
     
     $pack->setNotes('
     * The first public release of SQL Migrations for  PHP 5.3.x
@@ -96,30 +96,10 @@ $pear_task->setCode(function(InputInterface $input, ConsoleOutputInterface $outp
     $pack->setPearinstallerDep('1.4.6');
     
     // package dependencies
-    #none;
-    
-    $pack->addReplacement('bin/phrozn.php', 'pear-config', '/usr/bin/env php', 'php_bin');
-    $pack->addReplacement('bin/phrozn.php', 'pear-config', '@PHP-BIN@', 'php_bin');
-    $pack->addReplacement('bin/phrozn.php', 'pear-config', '@DATA-DIR@', 'data_dir');
-    $pack->addReplacement('bin/phrozn.php', 'pear-config', '@PEAR-DIR@', 'php_dir');
-    
-    $pack->addReplacement('bin/migrate-init.php', 'pear-config', '/opt/lampp/bin/php', 'php_bin');
-    $pack->addReplacement('bin/migrate-shell.php', 'pear-config', '/opt/lampp/bin/php', 'php_bin');
-    
-    
-    $pack->addReplacement('bin/migrate-init.php', 'pear-config', '@PHP-BIN@', 'php_bin');
-    $pack->addReplacement('bin/migrate-shell.php', 'pear-config', '@PHP-BIN@', 'php_bin');
-    
-    $pack->addReplacement('bin/migrate-init.php', 'pear-config', '@PEAR-DIR@', 'php_dir');
-    $pack->addReplacement('bin/migrate-shell.php', 'pear-config', '@PEAR-DIR@', 'php_dir');
-    
+    $pack->addReplacement('bin/migrate.php', 'pear-config', '@PHP-BIN@', 'php_bin');
+    $pack->addReplacement('bin/migrate.php', 'pear-config', '@PEAR-DIR@', 'php_dir');
     $pack->addReplacement('Migration/Command/InitProject.php'. 'pear-config','@PHP-BIN@','php_bin');
-    $pack->addReplacement('Migration/Command/InitProject.php'. 'pear-config','@DATA-DIR@','data_dir');
-    
-    
-    $pack->addReplacement('Phrozn/Autoloader.php', 'pear-config', '@PHP-BIN@', 'php_bin');
-    $pack->addReplacement('Phrozn/Autoloader.php', 'pear-config', '@DATA-DIR@', 'data_dir');
-    $pack->addReplacement('Phrozn/Autoloader.php', 'pear-config', '@PEAR-DIR@', 'php_dir');
+    $pack->addReplacement('Migration/Command/InitProject.php'. 'pear-config','@PEAR-DATA@','data_dir');
     
     $pack->generateContents();
     

@@ -1,0 +1,31 @@
+<!--
+== Migrations Faker Dump
+== version 1.0.3
+== https://github.com/icomefromthenet/Faker
+==
+== Host: localhost
+== Generation Time: 2012-09-04T06:31:23+00:00
+== PHP Version: 5.3.10-1ubuntu3.2
+== Platform: mysql
+
+==
+== Database: sakila
+==
+-->
+<dataset>
+    <table name="migrations_data">
+        <column>timestamp</column>
+        <row>
+            <value>1347321600</value>
+        </row>
+        <row>
+            <value>1347926400</value>
+        </row>
+        <row>
+            <value>1348531200</value>
+        </row>
+        <row>
+            <value>1349136000</value>
+        </row>
+    </table>
+</dataset>

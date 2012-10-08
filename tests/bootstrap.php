@@ -44,7 +44,8 @@ return call_user_func(function() {
     //
     //------------------------------------------------------------------------------
     
-    \Migration\Tests\Base\AbstractProject::$project = $project;
+    \Migration\Tests\Base\AbstractProject::$project            = $project;
+    \Migration\Tests\Base\AbstractProjectWithFixture::$project = $project;
 
 });
 /* End of File */

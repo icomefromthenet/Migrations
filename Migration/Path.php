@@ -1,6 +1,9 @@
 <?php
 namespace Migration;
 
+use Migration\Exception as MigrationException,
+    Symfony\Component\Filesystem\Filesystem;
+
 class Path
 {
 
@@ -65,37 +68,51 @@ class Path
       */
     public function parse($project_folder)
     {
-
-        # Step 1. Check for empty path or dot operator.
-
-        if ($project_folder === '.' || $project_folder === '') {
+        $fs = new Filesystem();
+        
+        # Step 1. Check for empty path.
+        if ($project_folder === '') {
             // must mean use current directory
-            $project_folder = rtrim(getcwd(),'/') . DIRECTORY_SEPARATOR;
+            $project_folder = getcwd() . DIRECTORY_SEPARATOR;
         }
 
         # Step 2. check if path is absolute or relative
 
-        if(strpos('../',$project_folder) == 0) {
-
+        if($fs->isAbsolutePath($project_folder) === false) {
             $project_folder =  realpath($project_folder);
-
         }
         elseif(is_dir($project_folder) === false) {
            #if where still false lets append cwd to what we have
-           $project_folder = is_dir(rtrim(getcwd(),'/') . DIRECTORY_SEPARATOR . rtrim(ltrim($project_folder,'/'),'/'));
+           $project_folder = getcwd(). DIRECTORY_SEPARATOR . rtrim(ltrim($project_folder,DIRECTORY_SEPARATOR),DIRECTORY_SEPARATOR);
         }
 
         $this->path = $project_folder;
 
 
         # load the extension bootstrap file
-
-        $extension_bootstrap = $this->path . DIRECTORY_SEPARATOR . 'extension'. DIRECTORY_SEPARATOR .'bootstrap.php';
-        if(is_file($extension_bootstrap)) {
-            require $extension_bootstrap;
-        }
+        $this->loadExtensionBootstrap();
+       
         
         return $this->path;
     }
+    
+    /**
+      *  Require the extension bootstrap file
+      *
+      *  @access public
+      *  @return void
+      *  @throws Migration/Exception 
+      */
+    public function loadExtensionBootstrap()
+    {
+        $extension_bootstrap = $this->path . DIRECTORY_SEPARATOR . 'extension'. DIRECTORY_SEPARATOR .'bootstrap.php';
+        
+        if(is_file($extension_bootstrap) === false) {
+            throw new MigrationException(__CLASS__.'::'.__METHOD__.':: extension bootstrap file not found at '.$extension_bootstrap);    
+        }
+        
+        require $extension_bootstrap;
+    }
+    
 }
 /* End of File */

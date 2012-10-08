@@ -1,50 +1,30 @@
 <?php
+namespace Migration\Tests\Command;    
+
 use Symfony\Component\Console\Tester\CommandTester,
+    Symfony\Component\Finder\Finder,
+    Symfony\Component\Filesystem\Filesystem,
     Migration\Command\Base\Application,
     Migration\Command\AddCommand,
     Migration\Command\InitProjectCommand,
-    Migration\Tests\Base\AbstractProject;
+    Migration\Tests\Base\AbstractProjectWithFixture;
 
-class ListCommandTest extends AbstractProject
+class ListCommandTest extends AbstractProjectWithFixture
 {
     
-    public function setUp()
+    
+    public function getDataset()
     {
-        $project_folder = '/tmp/mockproject';
-        self::recursiveRemoveDirectory($project_folder);
-        mkdir($project_folder);
-        
-        $project = $this->getProject();
-        $project->getPath()->parse($project_folder);
-           
-        $application = new Application($project);
-        $application->add(new InitProjectCommand('project'));
-
-        $command = $application->find('project');
-        $commandTester = new CommandTester($command);
-        
-        $commandTester->execute(
-            array('command' => $command->getName())
-        );
-        
-        parent::setUp();
+        $this->buildSchema();
+        return $this->createXmlDataSet( __DIR__ . DIRECTORY_SEPARATOR .'..'. DIRECTORY_SEPARATOR .'Base' . DIRECTORY_SEPARATOR .'Fixtures' . DIRECTORY_SEPARATOR .'migration-table-fixture.xml');
     }
     
-    public function tearDown()
-    {
-        $project_folder = '/tmp/mockproject';
-        self::recursiveRemoveDirectory($project_folder);
-        
-        parent::tearDown();
-    }
+    //  ----------------------------------------------------------------------------
+    
     
     public function testAddMigration()
     {
-        $project_folder = '/tmp/mockproject';
-        $project = $this->getProject();
-        $project->getPath()->parse($project_folder);
-        
-        $application = new Application($project);
+        $application = new Application($this->getProject());
         $application->add(new AddCommand('add'));
         $command = $application->find('add');
         $commandTester = new CommandTester($command);
@@ -54,6 +34,84 @@ class ListCommandTest extends AbstractProject
         );
         
         $this->assertRegExp('/Finished Writing new Migration:/',$commandTester->getDisplay());
+    }
+    
+    
+    public function testAddMigrationWithPrefix()
+    {
+        $application = new Application($this->getProject());
+        $application->add(new AddCommand('add'));
+        $command = $application->find('add');
+        $commandTester = new CommandTester($command);
+        
+        $commandTester->execute(
+            array('command' => $command->getName(),'migration_prefix' => 'setup new db table')
+            
+            
+        );
+        
+        $this->assertRegExp('/Finished Writing new Migration:/',$commandTester->getDisplay());
+        $this->assertRegExp('/setup_new_db_table_/',$commandTester->getDisplay());
+    }
+    
+    public function testAddMigrationConvertsUCasePrefix()
+    {
+        $application = new Application($this->getProject());
+        $application->add(new AddCommand('add'));
+        $command = $application->find('add');
+        $commandTester = new CommandTester($command);
+        
+        $commandTester->execute(
+            array('command' => $command->getName(),'migration_prefix' => 'SETUP NEW DB TABLE')
+            
+            
+        );
+        
+        $this->assertRegExp('/Finished Writing new Migration:/',$commandTester->getDisplay());
+        $this->assertRegExp('/setup_new_db_table_/',$commandTester->getDisplay());
+        
+        
+    }
+    
+    public function testAddMigrationAlphanumericPrefix()
+    {
+         $application = new Application($this->getProject());
+        $application->add(new AddCommand('add'));
+        $command = $application->find('add');
+        $commandTester = new CommandTester($command);
+        
+        $commandTester->execute(
+            array('command' => $command->getName(),'migration_prefix' => 'SETUP NEW DB TABLE 011')
+            
+            
+        );
+        
+        $this->assertRegExp('/Finished Writing new Migration:/',$commandTester->getDisplay());
+        $this->assertRegExp('/setup_new_db_table_011_/',$commandTester->getDisplay());
+        
+        
+    }
+    
+    
+    /**
+      *  @expectedException Migration\Components\Migration\Exception
+      *  @expectedExceptionMessage Prefix must be a valid alphanumeric string and start with a character a-z|A-Z
+      */
+    public function testAddMigrationBadPrefix()
+    {
+        
+        $application = new Application($this->getProject());
+        $application->add(new AddCommand('add'));
+        $command = $application->find('add');
+        $commandTester = new CommandTester($command);
+        
+        $commandTester->execute(
+            array('command' => $command->getName(),'migration_prefix' => 09877)
+            
+            
+        );
+        
+        
     }
     
 }

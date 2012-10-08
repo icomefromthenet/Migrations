@@ -289,7 +289,7 @@ class CollectionTest extends AbstractProject
     
     /**
       *  @expectedException \Migration\Components\Migration\Exception
-      *  @expectedExceptionMessage Can not run up to given stamp
+      *  @expectedExceptionMessage Can't run up to given migration as current head is higher, try running down first
       */
     public function testUpTryMovingtoAppliedMigration()
     {
@@ -555,7 +555,8 @@ class CollectionTest extends AbstractProject
     
     
     /**
-      *  @expectedException \Migration\Components\Migration\Exception\MigrationAppliedException 
+      *  @expectedException \Migration\Components\Migration\Exception
+      *  @expectedExceptionMessage Can not run down to given stamp %s as current head is lower, try running up first
       */
     public function testDownInvalidDirection()
     {
@@ -586,7 +587,7 @@ class CollectionTest extends AbstractProject
         $collection->insert($migration_two,$stamp_two);
         $collection->insert($migration_three,$stamp_three);
         
-        $collection->down($stamp_three,true);
+        $collection->down($stamp_three,false);
         
         
     }
@@ -623,7 +624,7 @@ class CollectionTest extends AbstractProject
         $collection->insert($migration_two,$stamp_two);
         $collection->insert($migration_three,$stamp_three);
         
-        $collection->down($stamp_three,true);
+        $collection->down($stamp_three,false);
         
     }
     
