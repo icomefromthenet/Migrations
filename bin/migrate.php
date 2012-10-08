@@ -35,6 +35,19 @@ if(strpos('@PHP-BIN@', '@PHP-BIN') === 0) {
    set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
 } 
 
+   
+//------------------------------------------------------------------------------
+// Load the composer autoloader
+//
+//------------------------------------------------------------------------------
+
+if(file_exists(__DIR__. DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'autoload.php')) {
+   require __DIR__. DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'autoload.php';
+} else {
+   require __DIR__. DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+}
+
+
 $project = require 'Migration'. DIRECTORY_SEPARATOR .'Bootstrap.php';
 
 

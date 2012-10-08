@@ -13,8 +13,6 @@
         }
     ],
     "config": {
-        "vendor-dir" : "Migration/Vendor",
-        "process-timeout" : "800",
         "minimum-stability": "dev" 
     },
     "require": {
@@ -36,7 +34,7 @@
        
     },
     "bin": [
-            'bin/migrate.php'
+            "bin/migrate.php"
     ]
     
 }

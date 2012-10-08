@@ -1,7 +1,7 @@
 test/myproject/
 bin/migrations
 bin/mig
-Migration/Vendor/*
+vendor
 composer.phar
 composer.lock
 faker/dump/*.sql

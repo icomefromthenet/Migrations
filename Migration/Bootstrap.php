@@ -17,16 +17,7 @@ return call_user_func(function() {
    //--------------------------------------------------------------
    
    $COREPATH   =   __DIR__. DIRECTORY_SEPARATOR . '..'   . DIRECTORY_SEPARATOR;
-   $VENDORPATH =   __DIR__. DIRECTORY_SEPARATOR . 'Vendor' . DIRECTORY_SEPARATOR;
-   
-   //------------------------------------------------------------------------------
-   // Load the composer autoloader
-   //
-   //------------------------------------------------------------------------------
-   
-   $composer = require $VENDORPATH . 'autoload.php';
-
-   
+      
    //------------------------------------------------------------------------------
    // Load the Extension Loader
    //
