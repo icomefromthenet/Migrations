@@ -3,6 +3,7 @@
 namespace Migration;
 
 use Migration\Project,
+    Migration\Bootstrap,
     Migration\Command\Application,
     Migration\Command\DownCommand,
     Migration\Command\UpCommand,
@@ -26,30 +27,27 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 
-//---------------------------------------------------------------------
-// Set Pear Directories
-//
-//--------------------------------------------------------------------
-
-if(strpos('@PHP-BIN@', '@PHP-BIN') === 0) {
-   set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
-} 
-
-   
 //------------------------------------------------------------------------------
 // Load the composer autoloader
 //
 //------------------------------------------------------------------------------
 
-if(file_exists(__DIR__. DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'autoload.php')) {
-   require __DIR__. DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'autoload.php';
-} else {
-   require __DIR__. DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'autoload.php';
+if (is_dir($vendor = __DIR__.'/../vendor')) {
+  $composer =  require($vendor.'/autoload.php');
+} elseif (is_dir($vendor = __DIR__.'/../../../../vendor')) {
+  $composer = require($vendor.'/autoload.php');
+} 
+else {
+    die(
+        'You must set up the project dependencies, run the following commands:'.PHP_EOL.
+        'curl -s http://getcomposer.org/installer | php'.PHP_EOL.
+        'php composer.phar install'.PHP_EOL
+    );
 }
 
 
-$project = require 'Migration'. DIRECTORY_SEPARATOR .'Bootstrap.php';
-
+$boot = new Bootstrap();
+$project = $boot->boot('1.0.0',$composer);
 
 //---------------------------------------------------------------------
 // Inject out commands

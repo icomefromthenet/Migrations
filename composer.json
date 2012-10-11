@@ -15,6 +15,9 @@
     "config": {
         "minimum-stability": "dev" 
     },
+    "require-dev": {
+        "icomefromthenet/faker" : "dev-master" 
+    },
     "require": {
         "php": ">=5.3.0",
         "monolog/monolog"           : "1.2.1",
@@ -28,10 +31,12 @@
         "twig/twig"                 : "1.10.0",
         "pimple/pimple"             : "1.0.0",
         "doctrine/common"           : "2.3.0",
-        "doctrine/dbal"             : "2.3.0"
+        "doctrine/dbal"             : "2.3.0",
+        "ext-spl"                   : "*",
+        "ext-pcre"                  : "*"
     },
     "autoload": {
-       
+       "psr-0": {"Migration": "src/"}
     },
     "bin": [
         "bin/migrate.php"

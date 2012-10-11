@@ -2,6 +2,7 @@
 namespace Migration\Tests\Base;
 
 use Migration\Project,
+    Migration\Bootstrap, 
     Migration\Io\Io,
     Migration\Path,
     Symfony\Component\Console\Output\NullOutput,
@@ -27,10 +28,12 @@ class AbstractProjectWithFixture extends PHPUnit_Extensions_Database_TestCase
     public function __construct()
     {
         
-        self::$project->setPath($this->getMockedPath());
+        $project = $this->getProject();
         
-        self::$project['loader']->setExtensionNamespace(
-                   'Migration\\Components\\Extension' , self::$project->getPath()->get()
+        $project->setPath($this->getMockedPath());
+        
+        $project['loader']->setExtensionNamespace(
+                   'Migration\\Components\\Extension' , $project->getPath()->get()
         );
         
         $this->processIsolation = true;
@@ -72,12 +75,17 @@ class AbstractProjectWithFixture extends PHPUnit_Extensions_Database_TestCase
 
     public function getProject()
     {
+         if(self::$project === null) {
+            $boot = new Bootstrap();
+            self::$project = $boot->boot('1.0.0-dev',null);
+        }
+        
         return self::$project;
     }
 
     public function getSkeltonIO()
     {
-        $skelton = new Io(realpath(__DIR__.'/../../skelton'));
+        $skelton = new Io(realpath(__DIR__.'/../../../../skelton'));
         return $skelton;
     }
     

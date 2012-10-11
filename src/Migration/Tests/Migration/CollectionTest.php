@@ -556,7 +556,7 @@ class CollectionTest extends AbstractProject
     
     /**
       *  @expectedException \Migration\Components\Migration\Exception
-      *  @expectedExceptionMessage Can not run down to given stamp %s as current head is lower, try running up first
+      *  @expectedExceptionMessage Can not run down to given stamp as current head is lower, try running up first
       */
     public function testDownInvalidDirection()
     {

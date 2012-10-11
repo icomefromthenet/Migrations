@@ -9,7 +9,7 @@ use Symfony\Component\Console\Tester\CommandTester,
     Migration\Command\InitProjectCommand,
     Migration\Tests\Base\AbstractProjectWithFixture;
 
-class ListCommandTest extends AbstractProjectWithFixture
+class CommandAddTest extends AbstractProjectWithFixture
 {
     
     

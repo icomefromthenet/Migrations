@@ -7,7 +7,7 @@ Vagrant::Config.run do |config|
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "precise64"
+  config.vm.box = "precise32"
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
@@ -59,17 +59,17 @@ Vagrant::Config.run do |config|
   #   puppet.manifest_file  = "base.pp"
   # end
   
-  # Provisioning.
-  Vagrant::Config.run do |config|
-    config.vm.provision :shell, :inline => "apt-get update"
-    config.vm.provision :shell, :path => "manifests/apache2.sh"
-    config.vm.provision :shell, :path => "manifests/php5.sh"
-    config.vm.provision :shell, :path => "manifests/php5-qa.sh"
-    config.vm.provision :shell, :path => "manifests/php5-tools.sh"
-    config.vm.provision :shell, :path => "manifests/db-mysql.sh"
-    config.vm.provision :shell, :path => "manifests/dev-tools.sh"
-    config.vm.provision :shell, :inline => "apt-get -y upgrade"
+  # Provision with Assimble plugin
+  config.vm.provision :ansible do |ansible|
+    # point Vagrant at the location of your playbook you want to run
+    ansible.playbook = "manifests/acme/dev.yml"
+
+    # the Vagrant VM will be put in this host group change this should
+    # match the host group in your playbook you want to test
+    ansible.hosts = "webserver"
   end
+
+
 
   # Enable provisioning with chef solo, specifying a cookbooks path, roles
   # path, and data_bags path (all relative to this Vagrantfile), and adding 

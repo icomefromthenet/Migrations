@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit colors="true" stopOnFailure="false" bootstrap="bootstrap.php">
+<phpunit colors="true" stopOnFailure="false" bootstrap="vendor/autoload.php">
     <testsuites>
         <testsuite>
-            <directory>.</directory>
+            <directory>src/Migration/Tests</directory>
             <exclude>
-                <directory>base</directory>
-                <directory>myproject</directory>
+                <directory>src/Migration/Tests/Base</directory>
             </exclude>
         </testsuite>
   </testsuites>

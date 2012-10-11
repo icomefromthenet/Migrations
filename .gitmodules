@@ -28,3 +28,6 @@
 
 
 
+[submodule "manifests"]
+	path = manifests
+	url = git@github.com:icomefromthenet/PHPAnsiblePlaybooks.git

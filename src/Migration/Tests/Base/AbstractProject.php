@@ -2,6 +2,7 @@
 namespace Migration\Tests\Base;
 
 use Migration\Project,
+    Migration\Bootstrap,
     Migration\Io\Io,
     Migration\Path,
     Symfony\Component\Console\Output\NullOutput,
@@ -26,11 +27,12 @@ class AbstractProject extends PHPUnit_Framework_TestCase
 
     public function __construct()
     {
+        $project = $this->getProject();
         
-        self::$project->setPath($this->getMockedPath());
+        $project->setPath($this->getMockedPath());
         
-        self::$project['loader']->setExtensionNamespace(
-                   'Migration\\Components\\Extension' , self::$project->getPath()->get()
+        $project['loader']->setExtensionNamespace(
+                   'Migration\\Components\\Extension' , $project->getPath()->get()
         );
         
         $this->processIsolation = true;
@@ -38,7 +40,7 @@ class AbstractProject extends PHPUnit_Framework_TestCase
         
         # remove migration project directory
         $path = '/var/tmp/' . $this->migration_dir;
-        $this->removeProject($path);
+        $this->removeProjectFolder($path);
        
     }
     
@@ -60,7 +62,7 @@ class AbstractProject extends PHPUnit_Framework_TestCase
     {
         #remove migration project directory
         $path = '/var/tmp/' . $this->migration_dir;
-        $this->removeProject($path);
+        $this->removeProjectFolder($path);
     }
 
     //  ----------------------------------------------------------------------------
@@ -68,13 +70,18 @@ class AbstractProject extends PHPUnit_Framework_TestCase
 
     public function getProject()
     {
+        if(self::$project === null) {
+            $boot = new Bootstrap();
+            self::$project = $boot->boot('1.0.0-dev',null);
+        }
+        
         return self::$project;
     }
 
 
     public function getSkeltonIO()
     {
-        $skelton = new Io(realpath(__DIR__.'/../../skelton'));
+        $skelton = new Io(realpath(__DIR__.'/../../../../skelton'));
         return $skelton;
     }
     
@@ -132,7 +139,7 @@ class AbstractProject extends PHPUnit_Framework_TestCase
 
     //  ----------------------------------------------------------------------------
 
-    public function removeProject($path)
+    public function removeProjectFolder($path)
     {
         $finder = new Finder();
         $fs     = new Filesystem();
