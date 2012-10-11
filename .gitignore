@@ -8,3 +8,4 @@ faker/dump/*.sql
 faker/dump/*.xml
 faker/config/*.php
 .vagrant
+*.komodoproject
