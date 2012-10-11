@@ -26,7 +26,7 @@ Create composer.json add add the following.
 
 ```json
 {
-    require {
+    require : {
     },
     "require-dev" : {
         "icomefromthenet/migration" : "dev-master" 
