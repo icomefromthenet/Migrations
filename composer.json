@@ -29,7 +29,7 @@
         "symfony/finder"            : "2.1.*",
         "symfony/yaml"              : "2.1.*",
         "twig/twig"                 : "1.11.*",
-        "pimple/pimple"             : "1.0.0",
+        "pimple/pimple"             : "1.0.*",
         "doctrine/dbal"             : "2.3.*",
         "ext-spl"                   : "*",
         "ext-pcre"                  : "*"
