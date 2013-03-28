@@ -9,3 +9,4 @@ faker/dump/*.xml
 faker/config/*.php
 .vagrant
 *.komodoproject
+mainifests
