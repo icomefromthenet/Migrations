@@ -1,6 +1,6 @@
 <?php
 
-namespace Migration\Components\Migration\Driver\Generic;
+namespace Migration\Components\Migration\Driver\SQLite;
 
 use Monolog\Logger as Logger;
 use Doctrine\DBAL\Connection;
@@ -16,7 +16,7 @@ use Migration\Components\Migration\Exception as MigrationException;
 
 /**
   *  Class Contains the Database logic for the Migrations Database Table
-  *  Currently written for mysql
+  *  Currently written for sqlite
   *
   *  Consider this table to be a Stack (LIFO) http://en.wikipedia.org/wiki/Stack_(data_structure)
   *  

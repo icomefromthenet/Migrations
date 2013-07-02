@@ -1,5 +1,5 @@
 <?php
-namespace Migration\Components\Migration\Driver\Generic;
+namespace Migration\Components\Migration\Driver\SQLite;
 
 use Monolog\Logger as Logger;
 use Symfony\Component\Console\Output\OutputInterface as Output;
@@ -12,6 +12,13 @@ use Migration\Components\Migration\Driver\SchemaInterface;
 use Migration\Components\Migration\Exception as MigrationException;
 use Migration\Components\Migration\Driver\TableInterface;
 
+/**
+  *  Class Contains the Database logic for schema actions  for sqlite
+  *
+  *  @author Lewis Dyer  <getintouch@icomefromthenet.com>
+  *  @since 1.0.0
+  *  
+  */
 class SchemaManager implements SchemaInterface
 {
 
@@ -315,23 +322,43 @@ class SchemaManager implements SchemaInterface
       */
     public function clean()
     {
-        $manager = $this->database->getSchemaManager();
-        $database = $this->database->getDatabase();
+        # drop functions and procedures
+        $procedures = $this->listProcedures();
+        
+        foreach($procedures as $procedure) {
+            $result = $this->dropProcedure($procedure);
+        }
+        
+        $functions = $this->listFunctions();
+        
+        foreach($functions as $function) {
+            $this->dropFunction($function);
+        }
+        
+        # drop triggers
+        $triggers = $this->listTriggers();
+        
+        foreach($triggers as $trigger) {
+            $this->dropTrigger($trigger);
+        }
+        
+        # drop the views
+        $views = $this->listViews();
+        
+        foreach($views as $view) {
+            $this->dropView($view);
+        }
+        
+        # drop the tables
+        $tables = $this->listTables();
+    
+        # Drop Each Table
+        foreach($tables as $table) {
+            $this->dropTable($table);
+        }
 	
-	if($database === null) {
-	    throw new MigrationException("Database has no name, unable to drop it");
-	}
 	
-	# Drop the schema
 	
-	$manager->dropDatabase($database);
-	
-	# Create the schema
-	
-	$manager->createDatabase($database);
-	
-	# try and connect to new database instance.
-	$this->database->connect();
 	
 	return true;
     }

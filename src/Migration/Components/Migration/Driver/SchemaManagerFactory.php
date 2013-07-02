@@ -36,7 +36,7 @@ class SchemaManagerFactory implements ExtensionInterface
       */
     protected static $drivers = array(
         'pdo_mysql'  => 'Migration\Components\Migration\Driver\Mysql\SchemaManager',
-        'pdo_sqlite' => 'Migration\Components\Migration\Driver\Generic\SchemaManager' ,
+        'pdo_sqlite' => 'Migration\Components\Migration\Driver\SQLite\SchemaManager' ,
         'pdo_pgsql'  => 'Migration\Components\Migration\Driver\Generic\SchemaManager' ,
         'pdo_oci'    => 'Migration\Components\Migration\Driver\Generic\SchemaManager' ,
         'oci8'        => 'Migration\Components\Migration\Driver\Generic\SchemaManager' ,

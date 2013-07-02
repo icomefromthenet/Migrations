@@ -26,7 +26,7 @@ class TableManagerFactory implements ExtensionInterface
       */
     protected static $drivers = array(
         'pdo_mysql'   => 'Migration\Components\Migration\Driver\Mysql\TableManager',
-        'pdo_sqlite'  => 'Migration\Components\Migration\Driver\Generic\TableManager',
+        'pdo_sqlite'  => 'Migration\Components\Migration\Driver\SQLite\TableManager',
         'pdo_pgsql'   => 'Migration\Components\Migration\Driver\Generic\TableManager',
         'pdo_oci'     => 'Migration\Components\Migration\Driver\Generic\TableManager',
         'oci8'        => 'Migration\Components\Migration\Driver\Generic\TableManager',
