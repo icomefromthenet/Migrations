@@ -95,12 +95,12 @@ class SchemaManager implements SchemaInterface
 
     public function disableFK()
     {
-        throw new MigrationException('not implemented'); 
+        $this->database->exec("PRAGMA foreign_keys = OFF");
     }
 
     public function enableFK()
     {
-       throw new MigrationException('not implemented');    
+       $this->database->exec("PRAGMA foreign_keys = ON");
     }
     
     //  -------------------------------------------------------------------------
@@ -180,7 +180,24 @@ class SchemaManager implements SchemaInterface
     
     public function listTriggers()
     {
-	 throw new MigrationException('not implemented'); 	      
+	$short = array();
+	
+	try {
+	
+	    $triggers = $this->database->fetchAll("SELECT name FROM sqlite_master WHERE type = 'trigger'");
+	    
+	    
+	    
+	    foreach($triggers as $trigger) {
+		$short[] = $trigger[name];
+	    }
+	
+	}
+	catch(DBALException $exception) {
+	    #sollow not support exception    
+	}
+	
+	return $short;	      
     }
     
     
@@ -252,7 +269,8 @@ class SchemaManager implements SchemaInterface
       */
     public function dropForeignKey($name, $table)
     {
-        return $this->getDatabase()->getSchemaManager()->dropForeignKey($name,$table);
+        # sqlite not support drop FK on tables
+	return null;
     }
     
    
@@ -282,18 +300,19 @@ class SchemaManager implements SchemaInterface
  
     public function dropProcedure($name)
     {
-        throw new MigrationException('not implemented');
+        return null;
     }
     
     public function dropFunction($name)
     {
-        throw new MigrationException('not implemented');
+        return null;
     }
  
     
     public function dropTrigger($name)
     {
-       throw new MigrationException('not implemented');
+	# return the number of rows affected	       
+       return $this->database->exec("DROP TRIGGER $name");
     }
     
     
@@ -322,26 +341,12 @@ class SchemaManager implements SchemaInterface
       */
     public function clean()
     {
-        # drop functions and procedures
-        $procedures = $this->listProcedures();
-        
-        foreach($procedures as $procedure) {
-            $result = $this->dropProcedure($procedure);
-        }
-        
-        $functions = $this->listFunctions();
-        
-        foreach($functions as $function) {
-            $this->dropFunction($function);
-        }
-        
-        # drop triggers
-        $triggers = $this->listTriggers();
-        
-        foreach($triggers as $trigger) {
+	$triggers = $this->listTriggers();
+	
+	foreach($triggers as $trigger) {
             $this->dropTrigger($trigger);
         }
-        
+	
         # drop the views
         $views = $this->listViews();
         
@@ -354,7 +359,17 @@ class SchemaManager implements SchemaInterface
     
         # Drop Each Table
         foreach($tables as $table) {
-            $this->dropTable($table);
+            
+	    # drop FK
+	    #$costraints = $this->database->listTableForeignKeys($table);
+	    
+	    
+	    
+	    
+	    # drop Indexed
+	    
+	    $this->dropTable($table);
+	    
         }
 	
 	
@@ -377,7 +392,7 @@ class SchemaManager implements SchemaInterface
             # Print a list of tables to drop
             $this->show();
 
-	    # drop the schema
+	    # clear the schema
             $this->clean();
 	    
 	    # Apply Migration Table so we can migrate later Schema

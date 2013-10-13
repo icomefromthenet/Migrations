@@ -15,7 +15,7 @@ use Migration\Project,
 
 class AbstractProjectWithFixture extends PHPUnit_Extensions_Database_TestCase
 {
-     protected $migration_dir = 'myproject';
+    protected $migration_dir = 'myproject';
 
     /**
       *  @var Faker\Project 
@@ -28,12 +28,12 @@ class AbstractProjectWithFixture extends PHPUnit_Extensions_Database_TestCase
     public function __construct()
     {
         
-        $project = $this->getProject();
+        self::$project = $this->getProject();
         
-        $project->setPath($this->getMockedPath());
+        self::$project->setPath($this->getMockedPath());
         
-        $project['loader']->setExtensionNamespace(
-                   'Migration\\Components\\Extension' , $project->getPath()->get()
+        self::$project['loader']->setExtensionNamespace(
+                   'Migration\\Components\\Extension' , self::$project->getPath()->get()
         );
         
         $this->processIsolation = true;
@@ -42,20 +42,20 @@ class AbstractProjectWithFixture extends PHPUnit_Extensions_Database_TestCase
         # remove migration project directory
         $path = '/var/tmp/' . $this->migration_dir;
         $this->removeProject($path);
+        
+        
        
     }
     
         
-    public function __destruct()
-    {
-        unset($this->project);
-    }
-
     //  ----------------------------------------------------------------------------
 
     public function setUp()
     {
       $this->createProject($this->getProject(),$this->getSkeltonIO());
+      
+      # set error level
+      error_reporting(E_ERROR);
       
       parent::setUp();
     }

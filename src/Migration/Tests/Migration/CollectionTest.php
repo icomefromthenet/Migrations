@@ -1,9 +1,10 @@
 <?php
 namespace Migration\Tests\Migration;
 
-use Migration\Components\Migration\Collection,
-    DateTime,
-    Migration\Tests\Base\AbstractProject;
+use Migration\Components\Migration\Collection;
+use DateTime;
+use Migration\Tests\Base\AbstractProject;
+use Migration\Exception;
 
 class CollectionTest extends AbstractProject
 {
@@ -55,7 +56,7 @@ class CollectionTest extends AbstractProject
     }
     
     /**
-      *  @expectedException \ErrorException
+      *  @expectedException Migration\Exception
       
       */
     public function testDispatchBadEvent()

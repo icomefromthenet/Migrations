@@ -10,3 +10,4 @@ faker/config/*.php
 .vagrant
 *.komodoproject
 mainifests
+vagrant

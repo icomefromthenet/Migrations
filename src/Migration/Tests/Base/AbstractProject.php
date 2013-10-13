@@ -47,7 +47,7 @@ class AbstractProject extends PHPUnit_Framework_TestCase
         
     public function __destruct()
     {
-        unset($this->project);
+        self::$project = null;
     }
 
     //  ----------------------------------------------------------------------------
