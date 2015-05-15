@@ -43,7 +43,7 @@ class WriterTest extends AbstractProject
             ->with($this->equalTo($alias.'.php'),$this->equalTo(null),$this->isType('string'),$this->equalTo(false));
         
         $writer = new Writer($io);
-        $writer->write($entity,$alias,false);
+        $writer->write(array($entity),$alias,false);
 
     }
 
@@ -73,7 +73,7 @@ class WriterTest extends AbstractProject
             ->with($this->equalTo($alias.'.php'),$this->equalTo(null),$this->isType('string'),$this->equalTo(true));
         
         $writer = new Writer($io);
-        $writer->write($entity,$alias,true);
+        $writer->write(array($entity),$alias,true);
 
     }
     

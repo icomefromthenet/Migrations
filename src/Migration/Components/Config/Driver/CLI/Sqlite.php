@@ -49,6 +49,7 @@ class Sqlite implements ConfigInterface
                 ->scalarNode('path')->defaultValue(false)->end()
                 ->scalarNode('memory')->defaultValue(false)->end()
                 ->scalarNode('migration_table')->isRequired()->end()
+                ->scalarNode('connectionName')->isRequired()->end()
                 ->end();
 
             } catch(\Exception $e) {
@@ -84,6 +85,7 @@ class Sqlite implements ConfigInterface
             
             $entity->setType($config['type']);
             $entity->setMigrationTable($config['migration_table']);
+            $entity->setConnectionName($config['connectionName']);
     
         } catch(\Exception $e) {
             throw new InvalidConfigException($e->getMessage());
@@ -111,6 +113,10 @@ class Sqlite implements ConfigInterface
             #Database path
             $answers['path'] =  $dialog->ask($output,'<question>What is the Database path relative to project root? : </question>',false);
         }
+        
+        #Get connection name
+        $answers['connectionName'] =  $dialog->ask($output,'<question>A unique name for this connection?: </question>',false);
+       
         
         return $answers;
         

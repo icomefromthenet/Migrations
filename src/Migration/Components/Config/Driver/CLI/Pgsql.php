@@ -50,6 +50,7 @@ class Pgsql implements ConfigInterface
                 ->scalarNode('port')->defaultValue(3306)->end()
                 ->scalarNode('schema')->isRequired()->end()
                 ->scalarNode('migration_table')->isRequired()->end()
+                ->scalarNode('connectionName')->isRequired()->end()
                 ->end();
 
             } catch(\Exception $e) {
@@ -77,6 +78,7 @@ class Pgsql implements ConfigInterface
             $entity->setPort($config['port']);
             $entity->setHost($config['host']);
             $entity->setMigrationTable($config['migration_table']);
+            $entity->setConnectionName($config['connectionName']);
     
         } catch(\Exception $e) {
             throw new InvalidConfigException($e->getMessage());
@@ -104,6 +106,10 @@ class Pgsql implements ConfigInterface
 
         #Database port
         $answers['port']     =  $dialog->ask($output,'<question>What is the Database port? [3306] : </question>',3306);
+        
+        #Get connection name
+        $answers['connectionName'] =  $dialog->ask($output,'<question>A unique name for this connection?: </question>',false);
+       
         
         return $answers;
     }

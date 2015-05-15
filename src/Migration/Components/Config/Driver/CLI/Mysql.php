@@ -52,6 +52,7 @@ class Mysql implements ConfigInterface
                 ->scalarNode('schema')->isRequired()->end()
                 ->scalarNode('charset')->defaultValue(false)->end()
                 ->scalarNode('migration_table')->isRequired()->end()
+                ->scalarNode('connectionName')->isRequired()->end()
                 ->end();
 
             } catch(\Exception $e) {
@@ -81,6 +82,7 @@ class Mysql implements ConfigInterface
             $entity->setUnixSocket($config['socket']);
             $entity->setCharset($config['charset']);
             $entity->setMigrationTable($config['migration_table']);
+            $entity->setConnectionName($config['connectionName']);
     
         } catch(\Exception $e) {
             throw new InvalidConfigException($e->getMessage());
@@ -116,6 +118,10 @@ class Mysql implements ConfigInterface
         
         #Database port
         $answers['charset']   =  $dialog->ask($output,'<question>Connect with different character set? [false] : </question>',false);
+        
+        #Get connection name
+        $answers['connectionName'] =  $dialog->ask($output,'<question>A unique name for this connection?: </question>',false);
+       
         
         return $answers;
     }

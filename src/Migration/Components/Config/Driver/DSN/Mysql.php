@@ -54,6 +54,7 @@ class Mysql implements ConfigInterface
                 ->scalarNode('database')->isRequired()->end()
                 ->scalarNode('migration_table')->isRequired()->end()
                 ->scalarNode('charset')->defaultValue(false)->end()
+                ->scalarNode('connectionName')->defaultValue('default')->end()
                 ->end();
 
             } catch(\Exception $e) {
@@ -83,6 +84,7 @@ class Mysql implements ConfigInterface
             $entity->setUnixSocket($config['socket']);
             $entity->setCharset($config['charset']);
             $entity->setMigrationTable($config['migration_table']);
+            $entity->setConnectionName($config['connectionName']);
     
         } catch(\Exception $e) {
             throw new InvalidConfigException($e->getMessage());

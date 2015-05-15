@@ -38,6 +38,7 @@ class MysqlTest extends AbstractProject
         $entity->expects($this->once())->method('setUnixSocket')->with($this->equalTo(false));
         $entity->expects($this->once())->method('setMigrationTable')->with($this->equalTo('migrate'));
         $entity->expects($this->once())->method('setCharset')->with($this->equalTo(false));
+         $entity->expects($this->once())->method('setConnectionName')->with($this->equalTo('default'));
         
         $dsn = new Mysql();
         $dsn->merge($entity,$parsed);

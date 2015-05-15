@@ -53,6 +53,7 @@ class Pgsql implements ConfigInterface
                 ->scalarNode('socket')->end()
                 ->scalarNode('database')->isRequired()->end()
                 ->scalarNode('migration_table')->isRequired()->end()
+                ->scalarNode('connectionName')->defaultValue('default')->end()
                 ->end();
 
             } catch(\Exception $e) {
@@ -80,6 +81,7 @@ class Pgsql implements ConfigInterface
             $entity->setHost($config['hostspec']);
             $entity->setPassword($config['password']);
             $entity->setMigrationTable($config['migration_table']);
+           $entity->setConnectionName($config['connectionName']);
     
         } catch(\Exception $e) {
             throw new InvalidConfigException($e->getMessage());

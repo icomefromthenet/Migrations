@@ -35,6 +35,7 @@ class SqliteTest extends AbstractProject
         $entity->expects($this->once())->method('setMigrationTable')->with($this->equalTo('migrate'));
         $entity->expects($this->once())->method('setPath')->with($this->equalTo('mydb.sqlite'));
         $entity->expects($this->once())->method('setMemory')->with($this->equalTo(false));
+        $entity->expects($this->once())->method('setConnectionName')->with($this->equalTo('default'));
         
         $dsn = new Sqlite();
         $dsn->merge($entity,$parsed);
@@ -67,6 +68,7 @@ class SqliteTest extends AbstractProject
         $entity->expects($this->once())->method('setMigrationTable')->with($this->equalTo('migrate'));
         $entity->expects($this->once())->method('setPath')->with($this->equalTo(false));
         $entity->expects($this->once())->method('setMemory')->with($this->equalTo(':memory'));
+        $entity->expects($this->once())->method('setConnectionName')->with($this->equalTo('default'));
         
         $dsn = new Sqlite();
         $dsn->merge($entity,$parsed);
@@ -99,6 +101,7 @@ class SqliteTest extends AbstractProject
         $entity->expects($this->once())->method('setMigrationTable')->with($this->equalTo('migrate'));
         $entity->expects($this->once())->method('setPath')->with($this->equalTo(false));
         $entity->expects($this->once())->method('setMemory')->with($this->equalTo(':memory'));
+        $entity->expects($this->once())->method('setConnectionName')->with($this->equalTo('default'));
         
         $dsn = new Sqlite();
         $dsn->merge($entity,$parsed);

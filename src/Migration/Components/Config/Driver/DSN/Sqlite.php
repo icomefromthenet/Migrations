@@ -54,6 +54,7 @@ class Sqlite implements ConfigInterface
                 ->scalarNode('database')->isRequired()->end()
                 ->scalarNode('migration_table')->isRequired()->end()
                 ->scalarNode('memory')->defaultValue(false)->end()
+                ->scalarNode('connectionName')->defaultValue('default')->end()
                 ->end();
 
             } catch(\Exception $e) {
@@ -80,6 +81,7 @@ class Sqlite implements ConfigInterface
             $entity->setType($config['phptype']);
             $entity->setMemory($config['memory']);
             $entity->setMigrationTable($config['migration_table']);
+            $entity->setConnectionName($config['connectionName']);
     
         } catch(\Exception $e) {
             throw new InvalidConfigException($e->getMessage());

@@ -19,7 +19,8 @@ class SqlsrvTest extends AbstractProject
             'host' => 'localhost',
             'port'     => 3306,
             'schema' => 'sakila',
-            'migration_table' => 'migrate'
+            'migration_table' => 'migrate',
+            'connectionName'  => 'connect1'
         );
         
         
@@ -33,6 +34,7 @@ class SqlsrvTest extends AbstractProject
         $entity->expects($this->once())->method('setHost')->with($this->equalTo('localhost'));
         $entity->expects($this->once())->method('setPassword')->with($this->equalTo('vagrant'));
         $entity->expects($this->once())->method('setMigrationTable')->with($this->equalTo('migrate'));
+        $entity->expects($this->once())->method('setConnectionName')->with($this->equalTo('connect1'));
         
         $dsn = new Sqlsrv();
         $dsn->merge($entity,$parsed);
@@ -53,7 +55,8 @@ class SqlsrvTest extends AbstractProject
             'host' => 'localhost',
             'port'     => 3306,
             'schema' => 'sakila',
-            'migration_table' => 'migrate'
+            'migration_table' => 'migrate',
+            'connectionName'  => 'connect1'
         );
         
         $entity = $this->getMockBuilder('\Migration\Components\Config\EntityInterface')->getMock();
@@ -75,6 +78,7 @@ class SqlsrvTest extends AbstractProject
             'host' => 'localhost',
             'port'     => 3306,
             'schema' => 'sakila',
+            'connectionName'  => 'connect1'
         );
         
         $entity = $this->getMockBuilder('\Migration\Components\Config\EntityInterface')->getMock();
@@ -83,7 +87,27 @@ class SqlsrvTest extends AbstractProject
         $dsn->merge($entity,$parsed);
     }
     
-    
+     /**
+      *  @expectedException \Migration\Components\Config\InvalidConfigException
+      *  @expectedExceptionMessage The child node "connectionName" at path "database" must be configured
+      */
+    public function testParseMissingConnectionNameConfig()
+    {
+        $parsed = array(
+            'type'  => 'pdo_sqlsrv',
+            'username' => 'root',
+            'password' => 'vagrant',
+            'host' => 'localhost',
+            'port'     => 3306,
+            'schema' => 'sakila',
+             'migration_table' => 'migrate',
+        );
+        
+        $entity = $this->getMockBuilder('\Migration\Components\Config\EntityInterface')->getMock();
+       
+        $dsn = new Sqlsrv();
+        $dsn->merge($entity,$parsed);
+    }
     
 }
 /* End of File MysqlTest.php */

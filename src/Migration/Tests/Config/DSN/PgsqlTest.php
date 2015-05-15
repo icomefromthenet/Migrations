@@ -36,6 +36,7 @@ class PgSqlTest extends AbstractProject
         $entity->expects($this->once())->method('setHost')->with($this->equalTo('localhost'));
         $entity->expects($this->once())->method('setPassword')->with($this->equalTo('vagrant'));
         $entity->expects($this->once())->method('setMigrationTable')->with($this->equalTo('migrate'));
+        $entity->expects($this->once())->method('setConnectionName')->with($this->equalTo('default'));
         
         $dsn = new Pgsql();
         $dsn->merge($entity,$parsed);

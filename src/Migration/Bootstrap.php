@@ -102,10 +102,18 @@ class Bootstrap
       //
       //--------------------------------------------------------------
       
+      $project['connection_pool'] = $project->share(function($project){
+            
+            $platform = $project['platform_factory'];
+            $pool = new \Migration\Components\Config\ConnectionPool($platform);
+            
+            return $pool;
+      });
       
       $project['config_file'] = $project->share(function($project){
          
-         $config_manager = $project->getConfigManager();
+          $config_manager = $project->getConfigManager();
+          $pool           = $project->getConnectionPool();
       
           if($config_manager === null) {
               throw new \RuntimeException('Config Manager not loaded, must be loaded before booting the database');
@@ -137,11 +145,27 @@ class Bootstrap
               }
       
               # load the config file
-              $config_manager->getLoader()->load($config_name,$entity);
+              $entityStack = $config_manager->getLoader()->load($config_name);
+              
+              
+              # push the connection into the pool   
+              foreach($entityStack as $config) {
+                 $pool->addExtraConnection($config->getConnectionName(),$config);
+              }
+              
+              # assign default as the active (internal) connection
+              if($pool->hasExtraConnection('default')) {
+                 $pool->setInternalConnection($pool->getConnectionName('default'));
+              }
+              else {
+                 $connections = $pool->getExtraConnections();
+                 $pool->setInternalConnection($connections[0]);
+              }
+              
           }
           
           # store the global config for later access
-          return $entity;
+          return $pool;
       
       });
       
@@ -150,38 +174,19 @@ class Bootstrap
       //
       //--------------------------------------------------------------
       
-      $project['database'] = $project->share(function($project){
-      
-         $entity   = $project['config_file'];
-         $platform = $project['platform_factory'];
+      $project['database'] = $project->share(function($project)
+      {
+         # bootstrap the database configs via the connections pool
+         $project['config_file'];
          
-         $connectionParams = array(
-              'dbname'      => $entity->getSchema(),
-              'user'        => $entity->getUser(),
-              'password'    => $entity->getPassword(),
-              'host'        => $entity->getHost(),
-              'driver'      => $entity->getType(),
-              'platform'    => $platform->createFromDriver($entity->getType()),
-         );
+         # hand back the internal database as its always going to exists
+         # database user need to select the necessary connection later
+         $connection = $project['connection_pool']->fetchInternalConnection();
          
-         if($entity->getUnixSocket() != false) {
-            $connectionParams['unix_socket'] = $entity->getUnixSocket();
-         }
+         # assign the default connection to the doctrine helper   
+         $project['console']->getHelperSet()->set(new \Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper($connection), 'db');
          
-         if($entity->getCharset() != false) {
-            $connectionParams['charset']     = $entity->getCharset();
-         }
-         
-         if($entity->getPath() != false) {
-             $connectionParams['path']       = $entity->getPath();
-         }
-         
-         if($entity->getMemory() != false) {
-            $connectionParams['memory']     = $entity->getMemory();
-         }
-         
-         return \Doctrine\DBAL\DriverManager::getConnection($connectionParams, new \Doctrine\DBAL\Configuration());
-         
+         return $connection;
       });
       
       $project['platform_factory'] = $project->share(function($project){

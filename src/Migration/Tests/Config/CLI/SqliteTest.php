@@ -18,7 +18,8 @@ class SqliteTest extends AbstractProject
             'password' => 'vagrant',
             'path' => 'mydb.sqlite',
             'migration_table' => 'migrate',
-            'memory' => false
+            'memory' => false,
+            'connectionName'  => 'connect1'
         );
         
         
@@ -30,6 +31,7 @@ class SqliteTest extends AbstractProject
         $entity->expects($this->once())->method('setPassword')->with($this->equalTo('vagrant'));
         $entity->expects($this->once())->method('setMigrationTable')->with($this->equalTo('migrate'));
         $entity->expects($this->once())->method('setPath')->with($this->equalTo('mydb.sqlite'));
+        $entity->expects($this->once())->method('setConnectionName')->with($this->equalTo('connect1'));
         
         $dsn = new Sqlite();
         $dsn->merge($entity,$parsed);
@@ -43,7 +45,8 @@ class SqliteTest extends AbstractProject
             'username' => 'root',
             'password' => 'vagrant',
             'migration_table' => 'migrate',
-            'memory'   => ':memory'
+            'memory'   => ':memory',
+            'connectionName'  => 'connect1'
         );
         
         
@@ -55,6 +58,7 @@ class SqliteTest extends AbstractProject
         $entity->expects($this->once())->method('setPassword')->with($this->equalTo('vagrant'));
         $entity->expects($this->once())->method('setMigrationTable')->with($this->equalTo('migrate'));
         $entity->expects($this->once())->method('setMemory')->with($this->equalTo(':memory'));
+        $entity->expects($this->once())->method('setConnectionName')->with($this->equalTo('connect1'));
         
         $dsn = new Sqlite();
         $dsn->merge($entity,$parsed);
@@ -68,7 +72,8 @@ class SqliteTest extends AbstractProject
             'username' => false,
             'password' => false,
             'migration_table' => 'migrate',
-            'memory'   => ':memory'
+            'memory'   => ':memory',
+            'connectionName'  => 'connect1'
         );
         
         
@@ -80,6 +85,7 @@ class SqliteTest extends AbstractProject
         $entity->expects($this->once())->method('setPassword')->with($this->equalTo(false));
         $entity->expects($this->once())->method('setMigrationTable')->with($this->equalTo('migrate'));
         $entity->expects($this->once())->method('setMemory')->with($this->equalTo(':memory'));
+        $entity->expects($this->once())->method('setConnectionName')->with($this->equalTo('connect1'));
         
         $dsn = new Sqlite();
         $dsn->merge($entity,$parsed);
@@ -97,7 +103,8 @@ class SqliteTest extends AbstractProject
             'type'  => 'mysql',
             'username' => 'root',
             'password' => 'vagrant',
-            'migration_table' => 'migrate'
+            'migration_table' => 'migrate',
+            'connectionName'  => 'connect1'
         );
         
         
@@ -118,6 +125,7 @@ class SqliteTest extends AbstractProject
             'type'  => 'pdo_sqlite',
             'username' => 'root',
             'password' => 'vagrant',
+            'connectionName'  => 'connect1'
             
         );
         
@@ -140,7 +148,8 @@ class SqliteTest extends AbstractProject
             'type'  => 'pdo_sqlite',
             'username' => 'root',
             'password' => 'vagrant',
-            'migration_table' => 'migrate'
+            'migration_table' => 'migrate',
+            'connectionName'  => 'connect1'
         );
         
         
@@ -150,6 +159,28 @@ class SqliteTest extends AbstractProject
        
         $dsn = new Sqlite();
         $dsn->merge($entity,$parsed);
+    }
+    
+     /**
+      *  @expectedException \Migration\Components\Config\InvalidConfigException
+      *  @expectedExceptionMessage The child node "connectionName" at path "database" must be configured
+      */
+    public function testMergeMissingConnectionNameConfig()
+    {
+        $parsed = array(
+            'type'  => 'pdo_sqlite',
+            'username' => false,
+            'password' => false,
+            'migration_table' => 'migrate',
+            'memory'   => ':memory',
+        );
+        
+        
+        $entity = $this->getMockBuilder('\Migration\Components\Config\EntityInterface')->getMock();
+    
+        $dsn = new Sqlite();
+        $dsn->merge($entity,$parsed);
+    
     }
     
 }

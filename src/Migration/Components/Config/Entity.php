@@ -167,5 +167,33 @@ class Entity implements EntityInterface
     
     //------------------------------------------------------------------
     
+    
+    protected $connName;
+    
+    public function setConnectionName($name)
+    {
+        $this->connName = $name;
+    }
+    
+    public function getConnectionName()
+    {
+        return $this->connName;
+    }
+    
+   //------------------------------------------------------------------
+  
+   protected $platformOptions = array(); 
+   
+   
+   public function addPlatformOption($name,$value)
+   {
+       $this->platformOptions[$name] = $value;
+   }
+   
+   public function getPlatformOptions()
+   {
+       return $this->platformOptions;
+   }
+    
 }
 /* End of File */

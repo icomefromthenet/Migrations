@@ -244,6 +244,21 @@ class Project extends Pimple
     {
         return $this['migration_manager'];
     }
+    
+    //  -------------------------------------------------------------------------
+    # Connection Pool
+    
+    
+    /**
+     *  Return the database connection pool
+     * 
+     * @access public
+     * @return Migration\Components\Config\ConnectionPool
+     */ 
+    public function getConnectionPool()
+    {
+        return $this['connection_pool'];
+    }
 
     
     //  -------------------------------------------------------------------------

@@ -19,7 +19,8 @@ class OciTest extends AbstractProject
             'host' => 'localhost',
             'port'     => 3306,
             'schema' => 'sakila',
-            'migration_table' => 'migrate'
+            'migration_table' => 'migrate',
+            'connectionName'  => 'connect1'
         );
         
         
@@ -34,6 +35,7 @@ class OciTest extends AbstractProject
         $entity->expects($this->once())->method('setPassword')->with($this->equalTo('vagrant'));
         $entity->expects($this->once())->method('setMigrationTable')->with($this->equalTo('migrate'));
         $entity->expects($this->once())->method('setCharset')->with($this->equalTo(false));
+        $entity->expects($this->once())->method('setConnectionName')->with($this->equalTo('connect1'));
         
         $dsn = new Oci();
         $dsn->merge($entity,$parsed);
@@ -50,7 +52,8 @@ class OciTest extends AbstractProject
             'port'     => 3306,
             'schema' => 'sakila',
             'migration_table' => 'migrate',
-            'charset' => 'latin1'
+            'charset' => 'latin1',
+            'connectionName'  => 'connect1'
         );
         
         
@@ -65,6 +68,7 @@ class OciTest extends AbstractProject
         $entity->expects($this->once())->method('setPassword')->with($this->equalTo('vagrant'));
         $entity->expects($this->once())->method('setMigrationTable')->with($this->equalTo('migrate'));
         $entity->expects($this->once())->method('setCharset')->with($this->equalTo('latin1'));
+        $entity->expects($this->once())->method('setConnectionName')->with($this->equalTo('connect1'));
         
         $dsn = new Oci();
         $dsn->merge($entity,$parsed);
@@ -85,7 +89,8 @@ class OciTest extends AbstractProject
             'host' => 'localhost',
             'port'     => 3306,
             'schema' => 'sakila',
-            'migration_table' => 'migrate'
+            'migration_table' => 'migrate',
+            'connectionName'  => 'connect1'
         );
         
         
@@ -109,6 +114,7 @@ class OciTest extends AbstractProject
             'host' => 'localhost',
             'port'     => 3306,
             'schema' => 'sakila',
+            'connectionName'  => 'connect1'
         );
         
         $entity = $this->getMockBuilder('\Migration\Components\Config\EntityInterface')->getMock();
@@ -117,7 +123,27 @@ class OciTest extends AbstractProject
         $dsn->merge($entity,$parsed);
     }
     
-    
+    /**
+      *  @expectedException \Migration\Components\Config\InvalidConfigException
+      *  @expectedExceptionMessage The child node "connectionName" at path "database" must be configured
+      */
+    public function testParseConnectionNameConfig()
+    {
+        $parsed = array(
+            'type'  => 'pdo_oci',
+            'username' => 'root',
+            'password' => 'vagrant',
+            'host' => 'localhost',
+            'port'     => 3306,
+            'schema' => 'sakila',
+            'migration_table' => 'migrate',
+        );
+        
+        $entity = $this->getMockBuilder('\Migration\Components\Config\EntityInterface')->getMock();
+       
+        $dsn = new Oci();
+        $dsn->merge($entity,$parsed);
+    }
     
 }
 /* End of File MysqlTest.php */

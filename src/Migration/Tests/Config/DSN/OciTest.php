@@ -37,6 +37,7 @@ class OciTest extends AbstractProject
         $entity->expects($this->once())->method('setPassword')->with($this->equalTo('vagrant'));
         $entity->expects($this->once())->method('setMigrationTable')->with($this->equalTo('migrate'));
         $entity->expects($this->once())->method('setCharset')->with($this->equalTo(false));
+        $entity->expects($this->once())->method('setConnectionName')->with($this->equalTo('default'));
         
         $dsn = new Oci();
         $dsn->merge($entity,$parsed);
@@ -70,6 +71,7 @@ class OciTest extends AbstractProject
         $entity->expects($this->once())->method('setPassword')->with($this->equalTo('vagrant'));
         $entity->expects($this->once())->method('setMigrationTable')->with($this->equalTo('migrate'));
         $entity->expects($this->once())->method('setCharset')->with($this->equalTo(false));
+        $entity->expects($this->once())->method('setConnectionName')->with($this->equalTo('default'));
         
         $dsn = new Oci();
         $dsn->merge($entity,$parsed);
