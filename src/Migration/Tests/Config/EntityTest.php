@@ -42,7 +42,7 @@ class EntityTest extends AbstractProject
         $this->assertEquals($entity->getType(),'pdo_mysql');
         $this->assertEquals($entity->getUnixSocket(),'path/to/socker/socket.sock');
         $this->assertEquals($entity->getUser(),'root');
-        $this->assertEquals($entity->getConnectionName(),'mystage');
+        $this->assertEquals($entity->getConnectionName(),'MYSTAGE');
         $this->assertEquals($entity->getMigrationTable(),'mytable');
         
         $this->assertSame(array('service'=>'myService','mypath'=>'myPath'),$entity->getPlatformOptions());

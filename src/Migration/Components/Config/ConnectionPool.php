@@ -87,6 +87,9 @@ class ConnectionPool
          
         $connection        = DriverManager::getConnection($connectionParams, new Configuration());
        
+        $connection->setMigrationConnectionPool($this);
+        $connection->setMigrationConnectionPoolName($name);
+       
         $this->otherConnections[$name] = $connection;
        
        return $connection;
@@ -161,6 +164,18 @@ class ConnectionPool
    }
    
    
-    
+   /**
+    * Return a list of connections using a connection name
+    * 
+    * @return array[DoctrineConnWrapper]     
+    */ 
+   public function findConnections($name)
+   {
+        
+        
+            
+       
+   }
+   
 }
 /* End of Class */

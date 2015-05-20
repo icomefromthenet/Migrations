@@ -22,7 +22,7 @@ class LoaderTest extends AbstractProject
         $this->assertEquals($config['path'],$ent->getPath());
         $this->assertEquals($config['memory'],$ent->getMemory());
         $this->assertEquals($config['charset'],$ent->getCharset());
-        $this->assertEquals($config['connName'],$ent->getConnectionName());
+        $this->assertEquals(strtoupper($config['connName']),$ent->getConnectionName());
         $this->assertEquals($config['migration_table'],$ent->getMigrationTable());
         
     }

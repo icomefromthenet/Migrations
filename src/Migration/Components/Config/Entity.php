@@ -1,7 +1,7 @@
 <?php
 namespace Migration\Components\Config;
 
-use Migration\Components\Config\InvalidConfigurationException,
+use Migration\Components\Config\InvalidConfigException,
     Migration\Components\Config\EntityInterface;
 
 
@@ -172,6 +172,20 @@ class Entity implements EntityInterface
     
     public function setConnectionName($name)
     {
+        if(true === empty($name)) {
+            throw new InvalidConfigException('Connection Name must not be empty');
+        }
+     
+        $name = trim(strtoupper($name));
+        
+        $aSplit = preg_split('/$[a-zA-Z0-9.@_]+/',$name);
+     
+        
+     
+        if(count($aSplit) > 1) {
+            throw new InvalidConfigException('There are invalid characters in the connection name at::'.$name);
+        }
+     
         $this->connName = $name;
     }
     

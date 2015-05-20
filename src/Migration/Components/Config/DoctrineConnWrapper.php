@@ -16,6 +16,8 @@ class DoctrineConnWrapper extends Connection
    protected $migrationConnectionPool;
    
    
+   protected $migrationConnectionPoolName;
+   
    /**
     * Fetch the connection pool
     * 
@@ -37,6 +39,29 @@ class DoctrineConnWrapper extends Connection
    public function setMigrationConnectionPool(ConnectionPool $pool)
    {
        $this->migrationConnectionPool = $pool;
+   }
+   
+   
+   /**
+    * Return the assigned connection pool name
+    * 
+    * @return string the connection name from pool
+    */ 
+   public function getMigrationConnectionPoolName()
+   {
+      return $this->migrationConnectionPoolName;
+   }
+   
+   
+   /**
+    * Sets the assigned connection pool name
+    * 
+    * @access  public
+    * @param   string   $name    The connection pool name.
+    */ 
+   public function setMigrationConnectionPoolName($name)
+   {
+      $this->migrationConnectionPoolName = $name;
    }
    
 
