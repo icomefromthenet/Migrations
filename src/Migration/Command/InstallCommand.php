@@ -1,6 +1,7 @@
 <?php
 namespace Migration\Command;
 
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument,
     Symfony\Component\Console\Input\InputInterface,
     Symfony\Component\Console\Output\OutputInterface,
@@ -10,6 +11,7 @@ use Symfony\Component\Console\Input\InputArgument,
     Migration\Components\Config\Manager,
     Migration\Io\FileExistException,
     Migration\Exceptions\AllReadyInstalledException;
+
 
 class InstallCommand extends Command
 {
@@ -21,32 +23,63 @@ class InstallCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $project = $this->getApplication()->getProject();
-        $config  = $project->getConfigFile();
-        $table_manager = $project->getMigrationManager()->getTableManager();
-    
         
-        # test if the table has been previously init
-        if($table_manager->exists() === true)  {
-            throw new AllReadyInstalledException('The database already has a migration table named::'.$config->getMigrationTable());
+        # bootdtrap the connections and schemas
+        $project->bootstrapNewConnections();
+        $project->bootstrapNewSchemas();
+        
+        
+        # fetch the con name query argument
+        $name = $input->getArgument('conQuery');
+        
+        if(true === empty($name)) {
+            $name = 'default';
         }
         
-        $table_manager->build();
+        //$table = new Table($output);
+        //$table->setHeaders(array('ConnectionName', 'Result', ''));
+    
+        foreach($project->getSchemaCollection() as $schema) {
+            
+            try {
+            
+            $schema->executeInstall($name,$output);
+            
+            }
+            catch (\Exception $e) {
+                throw $e;
+                
+            }
+        }
         
-        $output->writeLn('Setup Database <info>Migrations Tracking Table</info> using name ::'.$config->getMigrationTable());
+        
         
     }
 
 
     protected function configure()
     {
-        $this->setDescription('Will setup database ready for build');
-        $this->setHelp(<<<EOF
+        $this->addArgument(
+                'conQuery',
+                InputArgument::OPTIONAL,
+                'Connections to apply the command to'
+        )
+        ->setDescription('Will setup database ready for build')
+        ->setHelp(<<<EOF
 Install the <info>migration tracking table</info> to a database
 after this command you can run all migration commands.
 
+
 Example
 
->> app:install
+Connection named default
+>> app:install default
+
+All connections under UAT 
+>> app:install UAT.*
+
+All connections:
+>> app:install *
 
 EOF
 );

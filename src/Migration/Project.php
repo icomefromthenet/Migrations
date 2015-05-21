@@ -1,13 +1,21 @@
 <?php
 namespace Migration;
 
-use Symfony\Component\Console\Output\OutputInterface,
-    Symfony\Component\Finder\Finder,
-    Pimple,
-    Migration\Exception as MigrationException;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
+use Pimple;
+use Migration\Exception as MigrationException;
+use Migration\Components\Config\ConnectionNotExistException;
+use Migration\ChannelEventDispatcher;
+use Migration\Exceptions\AllReadyInstalledException;
+use Migration\Components\Config\NameMatcher;
+
 
 class Project extends Pimple
 {
+
+    protected $schemaCollection = array();
+
 
     /**
       *  function getPath
@@ -190,6 +198,50 @@ class Project extends Pimple
         return FALSE;
 
     }
+    //  -----------------------------------------------------------------------------
+    # SchemaCollection
+    
+    
+    public function addNewSchema($connName)
+    {
+        # fetch dep to build new schema
+        $pool                = $this->getConnectionPool();
+        $tableManagerFactory = $this['migration_table_factory'];
+        $schemaManagerFactory= $this['migration_schema_factory'];
+        
+        if(false === $pool->hasExtraConnection($connName)) {
+            throw new \Migration\Components\Config\ConnectionNotExistException("The $connName not found in pool");
+        }
+    
+        $conn                = $pool->getExtraConnection($connName);
+        $tableManager        = $tableManagerFactory->create($conn,$conn->getMigrationAdapterPlatform(),$conn->getMigrationTableName());
+        $schemaManager       = $schemaManagerFactory->create($conn->getMigrationAdapterPlatform(),$conn,$tableManager);
+        $event               = new ChannelEventDispatcher($this->getEventDispatcher());
+        $nameMatcher         = new NameMatcher($connName);
+        $migrationFileLoader = $this->getMigrationManager()->getLoader();
+        $fileNameParser      = $this['migration_filename_parser'];
+        
+        # instance new schema
+        $schema = new Schema($tableManager,$schemaManager,$event,$migrationFileLoader,$nameMatcher,$conn,$fileNameParser);
+        
+        # add new schema to internal collection
+        $this->schemaCollection[$connName] = $schema;
+        
+        return  $schema;
+        
+    }
+    
+    /**
+     * Return the schema collection of use in commands
+     * 
+     * @access public
+     * @return array[Schema]
+     */ 
+    public function getSchemaCollection()
+    {
+        return $this->schemaCollection;
+    }
+
 
     //  -----------------------------------------------------------------------------
     # Database
@@ -245,21 +297,6 @@ class Project extends Pimple
         return $this['migration_manager'];
     }
     
-    //  -------------------------------------------------------------------------
-    # Connection Pool
-    
-    
-    /**
-     *  Return the database connection pool
-     * 
-     * @access public
-     * @return Migration\Components\Config\ConnectionPool
-     */ 
-    public function getConnectionPool()
-    {
-        return $this['connection_pool'];
-    }
-
     
     //  -------------------------------------------------------------------------
     # Event Class
@@ -305,17 +342,17 @@ class Project extends Pimple
 
 
     //  -------------------------------------------------------------------------
-    # Config File
+    # Connection Pool
      
     /**
-      *  Function getConfigFile
+      *  Function fetch connection pool.
       *
       *  @access public
-      *  @return \Migration\Components\Config\Entity
+      *  @return \Migration\Components\Config\ConnectionPool
       */ 
-    public function getConfigFile()
+    public function getConnectionPool()
     {
-          return $this['config_file'];
+          return $this['connection_pool'];
     }
 
     //  -------------------------------------------------------------------------
@@ -371,6 +408,88 @@ class Project extends Pimple
         
         return true;
     }
-           
+    
+    //  -------------------------------------------------------------------------
+    # This will bootstrap the schemas 
+    
+    public function bootstrapNewSchemas()
+    {
+        foreach($this->getConnectionPool() as $connName => $conn ) {
+            
+            if(false === isset($this->schemaCollection[$connName])) {
+                $this->addNewSchema($connName);
+            }
+            
+        }
+        
+        return $this->getSchemaCollection();
+    }
+    
+    
+    public function bootstrapNewConnections()
+    {
+        $config_manager = $this->getConfigManager();
+        $pool           = $this->getConnectionPool();
+      
+        if($config_manager === null) {
+            throw new \RuntimeException('Config Manager not loaded, must be loaded before booting the database');
+        }
+      
+        $entity = new \Migration\Components\Config\Entity();
+          
+        # is the dsn set
+        # e.g mysql://root:vagrant@localhost:3306/sakila?migration_table=migrations_data
+        if(isset($this['dsn_command']) === true) {
+            $dsn_parser      = new \Migration\Components\Config\DSNParser();
+      
+            # attempt to parse dsn for detials
+            $parsed          = $dsn_parser->parse($this['dsn_command']);
+            $db_type         = ($parsed['phptype'] !== 'oci8') ? $parsed['phptype'] = 'pdo_' . $parsed['phptype'] : $parsed['phptype'];
+      
+            # parse the dsn config data using the DSN driver.
+            $this['config_dsn_factory']->create($parsed['phptype'])->merge($entity,$parsed);
+               
+               
+        } else {
+      
+             # if config name not set that we use the default
+             $config_name = $this->getConfigName();
+          
+              # check if we can load the config given
+              if($config_manager->getLoader()->exists($config_name) === false) {
+                 throw new \RuntimeException(sprintf('Missing database config at %s ',$config_name));
+              }
+      
+              # load the config file
+              $entityStack = $config_manager->getLoader()->load($config_name);
+              
+              
+              # push the connection into the pool   
+              foreach($entityStack as $config) {
+                 # in shell mode this config can be reloaded to force new configurations
+                 # to be included
+                 if(false === $pool->hasExtraConnection($config->getConnectionName())) {
+                     $pool->addExtraConnection($config->getConnectionName(),$config);   
+                 }
+                 
+              }
+              
+              # assign default as the active (internal) connection
+              if($pool->hasExtraConnection('default')) {
+                 $pool->setActiveConnection($pool->getConnectionName('default'));
+              }
+              else {
+                 $connections = $pool->getExtraConnections();
+                 reset($connections);
+                 $pool->setActiveConnection(current($connections));
+              }
+              
+          }
+          
+          # store the global config for later access
+          return $pool;
+        
+    }
+       
 }
 /* End of File */

@@ -14,16 +14,8 @@ class SchemaManagerFactoryTest extends AbstractProject
         $log    = $this->getMockBuilder('Monolog\Logger')
                         ->disableOriginalConstructor()
                         ->getMock();
-                        
-        $connection = $this->getMockBuilder('Doctrine\DBAL\Connection')
-                           ->disableOriginalConstructor()
-                           ->getMock();
       
-        $table_manager = $this->getMockBuilder('Migration\Components\Migration\Driver\TableInterface')
-                               ->disableOriginalConstructor()
-                               ->getMock();
-      
-        $factory = new SchemaManagerFactory($log,$out,$connection,$table_manager);
+        $factory = new SchemaManagerFactory($log,$out);
         
         $this->assertInstanceOf('Migration\ExtensionInterface',$factory);
     }
@@ -45,8 +37,8 @@ class SchemaManagerFactoryTest extends AbstractProject
                                ->getMock();
      
       
-        $factory = new SchemaManagerFactory($log,$out,$connection,$table_manager);
-        $manager_mysql = $factory->create('pdo_mysql');
+        $factory = new SchemaManagerFactory($log,$out);
+        $manager_mysql = $factory->create('pdo_mysql',$connection,$table_manager);
        
         $this->assertInstanceOf('Migration\Components\Migration\Driver\Mysql\SchemaManager',$manager_mysql);
     }
@@ -67,8 +59,8 @@ class SchemaManagerFactoryTest extends AbstractProject
                                ->getMock();
      
       
-        $factory = new SchemaManagerFactory($log,$out,$connection,$table_manager);
-        $manager_mysql = $factory->create('PDO_MYSQL');
+        $factory = new SchemaManagerFactory($log,$out);
+        $manager_mysql = $factory->create('PDO_MYSQL',$connection,$table_manager);
        
        
        
@@ -96,8 +88,8 @@ class SchemaManagerFactoryTest extends AbstractProject
                                ->getMock();
      
       
-        $factory = new SchemaManagerFactory($log,$out,$connection,$table_manager);
-        $factory->create('bad');
+        $factory = new SchemaManagerFactory($log,$out);
+        $factory->create('bad',$connection,$table_manager);
             
     }
     

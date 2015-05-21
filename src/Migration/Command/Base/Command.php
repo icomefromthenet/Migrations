@@ -23,6 +23,7 @@ class Command extends BaseCommand
         # http://pear.php.net/manual/en/package.database.db.intro-dsn.php
         
         $this->addOption('--dsn', '',   InputOption::VALUE_OPTIONAL,'DSN to connect to db',false);
+        
     }
 
 

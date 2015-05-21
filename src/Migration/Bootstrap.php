@@ -9,6 +9,9 @@ use Migration\Command\Base\Application,
     Migration\Bootstrap\Database as BootDatabase,
     Migration\Autoload;
 
+use Migration\Components\Config\DoctrineConnWrapper;
+use Migration\Components\Migration\Driver\TableInterface;
+
 class Bootstrap
 {
 
@@ -98,7 +101,7 @@ class Bootstrap
       set_exception_handler(array($project['error'],'exceptionHandler'));
       
       //---------------------------------------------------------------
-      // Get Config
+      // Connection Pool
       //
       //--------------------------------------------------------------
       
@@ -109,65 +112,7 @@ class Bootstrap
             
             return $pool;
       });
-      
-      $project['config_file'] = $project->share(function($project){
-         
-          $config_manager = $project->getConfigManager();
-          $pool           = $project->getConnectionPool();
-      
-          if($config_manager === null) {
-              throw new \RuntimeException('Config Manager not loaded, must be loaded before booting the database');
-          }
-      
-          $entity = new \Migration\Components\Config\Entity();
-          
-          # is the dsn set
-          # e.g mysql://root:vagrant@localhost:3306/sakila?migration_table=migrations_data
-          if(isset($project['dsn_command']) === true) {
-            $dsn_parser      = new \Migration\Components\Config\DSNParser();
-      
-            # attempt to parse dsn for detials
-            $parsed          = $dsn_parser->parse($project['dsn_command']);
-            $db_type         = ($parsed['phptype'] !== 'oci8') ? $parsed['phptype'] = 'pdo_' . $parsed['phptype'] : $parsed['phptype'];
-      
-            # parse the dsn config data using the DSN driver.
-            $project['config_dsn_factory']->create($parsed['phptype'])->merge($entity,$parsed);
-               
-               
-          } else {
-      
-             # if config name not set that we use the default
-             $config_name = $project->getConfigName();
-          
-              # check if we can load the config given
-              if($config_manager->getLoader()->exists($config_name) === false) {
-                 throw new \RuntimeException(sprintf('Missing database config at %s ',$config_name));
-              }
-      
-              # load the config file
-              $entityStack = $config_manager->getLoader()->load($config_name);
-              
-              
-              # push the connection into the pool   
-              foreach($entityStack as $config) {
-                 $pool->addExtraConnection($config->getConnectionName(),$config);
-              }
-              
-              # assign default as the active (internal) connection
-              if($pool->hasExtraConnection('default')) {
-                 $pool->setInternalConnection($pool->getConnectionName('default'));
-              }
-              else {
-                 $connections = $pool->getExtraConnections();
-                 $pool->setInternalConnection($connections[0]);
-              }
-              
-          }
-          
-          # store the global config for later access
-          return $pool;
-      
-      });
+     
       
       //---------------------------------------------------------------
       // Setup Database (lazy loaded)
@@ -243,47 +188,6 @@ class Bootstrap
           return new \Migration\Components\Migration\Manager($io,$project);
       });
       
-      //---------------------------------------------------------------
-      // Migration Collection
-      //
-      //---------------------------------------------------------------
-      
-      $project['migration_collection'] = $project->share(function($project){
-         
-         $event             = $project['migration_event_dispatcher'];
-         $table_manager     = $project['migration_table_manager'];
-         $migration_manager = $project['migration_manager'];
-         
-         
-         # fetch the last applied stamp   
-         $stamp_collection = $table_manager->fill();
-         $latest = end($stamp_collection);
-         
-         # check for empty return from end
-         if($latest === false) {
-            $latest = null;
-         }
-         
-         reset($stamp_collection);
-         
-         # load the collection via the loader
-         $collection = new \Migration\Components\Migration\Collection($event,$latest);
-         $migration_manager->getLoader()->load($collection,$project['migration_filename_parser']);
-         
-         # merge the collection together
-         foreach($stamp_collection as $stamp) {
-            
-            if($collection->exists($stamp) === true) {
-               $collection->get($stamp)->setApplied(true);   
-            }
-         }
-            
-         
-         return $collection;
-      });
-      
-      
-      
       
       //---------------------------------------------------------------
       // Migration Filename parser
@@ -320,43 +224,24 @@ class Bootstrap
       });
       
       //---------------------------------------------------------------
-      // Migration Table Manager Factory and the Manager
+      // Migration Table Manager Factory
       //
       //---------------------------------------------------------------
       
       $project['migration_table_factory'] = $project->share(function($project){
-         return new \Migration\Components\Migration\Driver\TableManagerFactory($project['database'],$project['logger']);
-      });
-      
-      $project['migration_table_manager'] = $project->share(function($project){
-         
-         # uses the config to derive a table manager
-         # config comes from the file setup in the configure command or a dsn passed via cli.
-         
-         $factory       = $project['migration_table_factory'];
-         $config        = $project['config_file'];
-         return $factory->create($config->getType(),$config->getMigrationTable());
+         return new \Migration\Components\Migration\Driver\TableManagerFactory($project['logger']);
       });
       
       
       //---------------------------------------------------------------
-      // Migration Schema Manager Factory and Manager
+      // Migration Schema Manager Factory
       //
       //---------------------------------------------------------------
       
       $project['migration_schema_factory'] = $project->share(function($project){
-         return new \Migration\Components\Migration\Driver\SchemaManagerFactory($project['logger'],$project['console_output'],$project['database'],$project['migration_table_manager']);
+         return new \Migration\Components\Migration\Driver\SchemaManagerFactory($project['logger'],$project['console_output']);
       });
       
-      $project['migration_schema_manager'] = $project->share(function($project){
-         
-         # uses the config to derive a schema manager
-         # config comes from the file setup in the configure command or a dsn passed via cli.
-         
-         $factory       = $project['migration_schema_factory'];
-         $config        = $project['config_file'];
-         return $factory->create($config->getType());
-      });
       
       //---------------------------------------------------------------
       // Migration Sanity Check
@@ -398,6 +283,7 @@ class Bootstrap
       });
       
       
+      
       //---------------------------------------------------------------
       // Console Output
       //
@@ -410,6 +296,6 @@ class Bootstrap
       return $project;
 
    }
- 
+   
 }
 /* End of File */

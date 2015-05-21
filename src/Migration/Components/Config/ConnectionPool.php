@@ -12,7 +12,7 @@ use Migration\PlatformFactory;
  *  
  * @author  Lewis Dyer <getintouch@icomefromthenet.com>
  */  
-class ConnectionPool 
+class ConnectionPool implements \IteratorAggregate 
 {
    
    /**
@@ -89,6 +89,8 @@ class ConnectionPool
        
         $connection->setMigrationConnectionPool($this);
         $connection->setMigrationConnectionPoolName($name);
+        $connection->setMigrationAdapterPlatform($entity->getType());
+        $connection->setMigrationTableName($entity->getMigrationTable());
        
         $this->otherConnections[$name] = $connection;
        
@@ -163,19 +165,13 @@ class ConnectionPool
        return isset($this->otherConnections[$name]);
    }
    
-   
-   /**
-    * Return a list of connections using a connection name
-    * 
-    * @return array[DoctrineConnWrapper]     
-    */ 
-   public function findConnections($name)
-   {
-        
-        
-            
-       
-   }
+    //--------------------------------------------------------------------------
+    # IteratorAggregate     
+    
+    public function getIterator() 
+    {
+        return new \ArrayIterator($this->otherConnections);
+    }
    
 }
 /* End of Class */

@@ -12,11 +12,6 @@ class SchemaManagerFactory implements ExtensionInterface
 {
     
     /**
-      *  @var Doctrine\DBAL\Connection 
-      */
-    protected $database;
-    
-    /**
       *  @var Monolog\Logger 
       */
     protected $logger;
@@ -25,11 +20,7 @@ class SchemaManagerFactory implements ExtensionInterface
       *  @var Symfony\Component\Console\Output\OutputInterface 
       */
     protected $output;
-    
-    /**
-      *  @var TableInterface 
-      */
-    protected $table;
+
     
      /**
       *  @var string[] list of SchemaManagers
@@ -59,18 +50,16 @@ class SchemaManagerFactory implements ExtensionInterface
     
     //  -------------------------------------------------------------------------
 
-    public function __construct(Logger $log, Output $out, Connection $db, TableInterface $table)
+    public function __construct(Logger $log, Output $out)
     {
         $this->logger   = $log;
         $this->output   = $out;
-        $this->database = $db;
-        $this->table    = $table;
         
     }
    
     //  -------------------------------------------------------------------------
 
-    public function create($manager)
+    public function create($manager,Connection $db, TableInterface $table)
     {
         $manager = strtolower($manager);
         
@@ -78,7 +67,7 @@ class SchemaManagerFactory implements ExtensionInterface
             throw new MigrationException('Manager not found at '.$manager);
         }
     
-        return new self::$drivers[$manager]($this->logger,$this->output,$this->database,$this->table);
+        return new self::$drivers[$manager]($this->logger,$this->output,$db,$table);
                              
     }
     

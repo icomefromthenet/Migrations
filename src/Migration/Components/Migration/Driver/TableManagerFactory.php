@@ -11,11 +11,6 @@ class TableManagerFactory implements ExtensionInterface
 {
     
     /**
-      *  @var Doctrine\DBAL\Connection 
-      */
-    protected $database;
-    
-    /**
       *  @var Monolog\Logger 
       */
     protected $logger;
@@ -49,16 +44,14 @@ class TableManagerFactory implements ExtensionInterface
     
     //  -------------------------------------------------------------------------
 
-    public function __construct(Connection $db,Logger $log)
+    public function __construct(Logger $log)
     {
         $this->logger = $log;
-        $this->database = $db;
-        
     }
    
     //  -------------------------------------------------------------------------
 
-    public function create($manager,$migration_table)
+    public function create(Connection $db, $manager,$migration_table)
     {
         $manager = strtolower($manager);
         
@@ -66,7 +59,7 @@ class TableManagerFactory implements ExtensionInterface
             throw new MigrationException('Manager not found at '.$manager);
         }
     
-        return new self::$drivers[$manager]($this->database,$this->logger,$migration_table);
+        return new self::$drivers[$manager]($db,$this->logger,$migration_table);
                              
     }
     

@@ -18,6 +18,12 @@ class DoctrineConnWrapper extends Connection
    
    protected $migrationConnectionPoolName;
    
+   
+   protected $migrationAdapterPlatform;
+   
+   
+   protected $migrationTableName;
+   
    /**
     * Fetch the connection pool
     * 
@@ -64,6 +70,45 @@ class DoctrineConnWrapper extends Connection
       $this->migrationConnectionPoolName = $name;
    }
    
+   /**
+    * Return the adapter platform e.g pdo_mysql, pdo_sqlite
+    * 
+    * @return string the platform name used in the factories
+    */ 
+   public function getMigrationAdapterPlatform()
+   {
+      return $this->migrationAdapterPlatform;
+   }
+   
+   /**
+    * Sets the adapter platform e.g pdo_mysql, pdo_sqlite
+    * 
+    * @param string $name the platform name used in the factories
+    */ 
+   public function setMigrationAdapterPlatform($name)
+   {
+      $this->migrationAdapterPlatform = $name;
+   }
+   
+   /**
+    * Return the migration tracking table name
+    * 
+    * @return string the name of the migration tracking table
+    */ 
+   public function getMigrationTableName()
+   {
+      return $this->migrationTableName;
+   }
+   
+   /**
+    * Sets the migration tracking table nam
+    * 
+    * @param string $name the name of the migration tracking table
+    */ 
+   public function setMigrationTableName($name)
+   {
+      $this->migrationTableName = $name;
+   }
 
 }
 /* End of Class */

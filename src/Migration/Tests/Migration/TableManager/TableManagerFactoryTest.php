@@ -14,11 +14,8 @@ class TableManagerFactoryTest extends AbstractProject
                         ->disableOriginalConstructor()
                         ->getMock();
                         
-        $connection = $this->getMockBuilder('Doctrine\DBAL\Connection')
-                           ->disableOriginalConstructor()
-                           ->getMock();
       
-        $factory = new TableManagerFactory($connection,$log);
+        $factory = new TableManagerFactory($log);
         
         $this->assertInstanceOf('Migration\ExtensionInterface',$factory);
     }
@@ -34,8 +31,8 @@ class TableManagerFactoryTest extends AbstractProject
                            ->disableOriginalConstructor()
                            ->getMock();
       
-        $factory = new TableManagerFactory($connection,$log);
-        $manager_mysql = $factory->create('pdo_mysql','migration_table');
+        $factory = new TableManagerFactory($log);
+        $manager_mysql = $factory->create($connection,'pdo_mysql','migration_table');
        
         $this->assertInstanceOf('Migration\Components\Migration\Driver\Mysql\TableManager',$manager_mysql);
     }
@@ -50,8 +47,8 @@ class TableManagerFactoryTest extends AbstractProject
                            ->disableOriginalConstructor()
                            ->getMock();
       
-        $factory = new TableManagerFactory($connection,$log);
-        $manager_mysql = $factory->create('PDO_MYSQL','migration_table');
+        $factory = new TableManagerFactory($log);
+        $manager_mysql = $factory->create($connection,'PDO_MYSQL','migration_table');
        
         $this->assertInstanceOf('Migration\Components\Migration\Driver\Mysql\TableManager',$manager_mysql);
     }
@@ -71,8 +68,8 @@ class TableManagerFactoryTest extends AbstractProject
                            ->disableOriginalConstructor()
                            ->getMock();
       
-        $factory = new TableManagerFactory($connection,$log);
-        $factory->create('bad','migration_table');
+        $factory = new TableManagerFactory($log);
+        $factory->create($connection,'bad','migration_table');
             
     }
     

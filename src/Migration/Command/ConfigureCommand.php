@@ -10,6 +10,7 @@ use Symfony\Component\Console\Input\InputArgument,
     Migration\Components\Config\Manager,
     Migration\Io\FileExistException,
     Migration\Components\Config\Entity;
+use Migration\Components\Config\Loader;
 
 class ConfigureCommand extends Command
 {
@@ -30,7 +31,7 @@ class ConfigureCommand extends Command
         $answers =  array();
 
         # Ask for the database type
-        $answers['type'] =  strtolower($dialog->ask($output,'<question>Which Database does this belong? [mysql|mssql|oracle|posgsql|oci8]: </question>','mysql'));
+        $answers['type'] =  strtolower($dialog->ask($output,'<question>Which Database does this belong? [mysql|mssql|oracle|posgsql|oci8|sqlite]: </question>','mysql'));
 
         # apply format of the Doctrine DBAL
         $answers['type'] = ($answers['type'] !== 'oci8') ? $answers['type'] = 'pdo_' . $answers['type'] : $answers['type'];        
@@ -60,13 +61,22 @@ class ConfigureCommand extends Command
         $manager = $project['config_manager'];
 
         try {
+            # existing config
+            $existingConfig = array();
+            if($manager->getLoader()->exists(Loader::DEFAULTNAME)) {
+                $existingConfig = $manager->getLoader()->load();    
+            }
+        
 
             # get the CLI Config Driver
             $driver = $project->getConfigManager()->getCLIFactory()->create($this->answers['type']);
             $entity = $driver->merge(new Entity(),$this->answers);
         
+            # add new config to list
+            $existingConfig[] = $entity;
+        
             #Write config file to the project
-            $manager->getWriter()->write($entity,$project->getConfigName());
+            $manager->getWriter()->write($existingConfig,$project->getConfigName());
 
         }
         catch(FileExistException $e) {
@@ -76,13 +86,14 @@ class ConfigureCommand extends Command
 
             if($answer) {
                 #Write config file to the project
-                $manager->getWriter()->write($entity,$project->getConfigName(),true);
+                $manager->getWriter()->write($existingConfig,$project->getConfigName(),true);
 
             }
         }
 
         # reload the config file (needed in shell mode)
-        $project['config_file'];
+        $project->bootstrapNewConnections();
+        $project->bootstrapNewSchemas();
         
         # tell them the file was written
         $output->writeln(sprintf("++ Writing <comment>config file</comment>  %s",$project->getConfigName()));
