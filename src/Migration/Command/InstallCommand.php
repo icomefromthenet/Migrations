@@ -36,23 +36,14 @@ class InstallCommand extends Command
             $name = 'default';
         }
         
-        //$table = new Table($output);
-        //$table->setHeaders(array('ConnectionName', 'Result', ''));
+        $summaryTable = new Table($output);
+        $summaryTable->setHeaders(array('ConnectionName', 'Result', 'Message'));
     
         foreach($project->getSchemaCollection() as $schema) {
-            
-            try {
-            
-            $schema->executeInstall($name,$output);
-            
-            }
-            catch (\Exception $e) {
-                throw $e;
-                
-            }
+            $schema->executeInstall($name,$output,$summaryTable);
         }
         
-        
+        $summaryTable->render();    
         
     }
 

@@ -1,57 +1,53 @@
 <?php
 namespace Migration\Command;
 
-use DateTime,
-    Symfony\Component\Console\Input\InputInterface,
-    Symfony\Component\Console\Output\OutputInterface,
-    Symfony\Component\Console\Input\InputArgument,
-    Symfony\Component\Console\Input\InputOption,
-    Migration\Command\Base\Command;
+use DateTime;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Helper\Table;
+use Migration\Command\Base\Command;
 
 class StatusCommand extends Command
 {
 
     protected function execute(InputInterface $input,OutputInterface $output)
     {
-       $project = $this->getApplication()->getProject();
-       $migrantion_manager = $project->getMigrationManager();
-       $collection = $migrantion_manager->getMigrationCollection();
-       $sanity             = $migrantion_manager->getSanityCheck();
-     
-       # check if that are migrations recorded in DB and not available on filesystem.
-       $sanity->diffBA(); 
+        $project = $this->getApplication()->getProject();
        
+        # bootdtrap the connections and schemas
+        $project->bootstrapNewConnections();
+        $project->bootstrapNewSchemas();
+        
+        # fetch the con name query argument
+        $name = $input->getArgument('conQuery');
+        
+        if(true === empty($name)) {
+            $name = 'default';
+        }
+        
+        $summaryTable = new Table($output);
+        $summaryTable->setHeaders(array('ConnectionName', 'Result', 'Message'));
        
-       # fetch head
-       
-       $head = $collection->getLatestMigration();
-       
-       if($head === null || $head === false) {
+        foreach($project->getSchemaCollection() as $schema) {
+            $schema->executeStatus($name,$output,$summaryTable);
+        }
         
-            $output->writeln("\t".'There has been <info>no head </info>set run <comment>app:build</comment> or <comment>app:latest</comment> to apply all migrations.');
-        
-       } else {
-            $head_migration = $collection->get($head);
-            $stamp = $migrantion_manager->getFileNameParser()->parse($head_migration->getBasename('.php'));    
-            $stamp_dte = new DateTime();
-            $stamp_dte->setTimestamp($stamp);
-            
-            $index = array_search($head,$collection->getMap()) +1;
-                       
-            $output->writeln("\t" .'Current Head Migration (last applied) Index <comment>'.$index.'</comment> Date Migration <comment>'.$stamp_dte->format(DATE_RSS).'</comment>');    
-       }
-        
-        
-        
+        $summaryTable->render();
     }
 
 
 
     protected function configure()
     {
-
-        $this->setDescription('Shows the Current Migration');
-        $this->setHelp(<<<EOF
+        $this->addArgument(
+                'conQuery',
+                InputArgument::OPTIONAL,
+                'Connections to apply the command to'
+        )
+        ->setDescription('Shows the Current Migration')
+        ->setHelp(<<<EOF
 Shows the <info>current</info> migration:
 
 This command should be used to see the currently applied migration.
@@ -61,7 +57,7 @@ the date.
 
 Example
 
->> app: status
+>> app: status demo.a
 
 EOF
 );

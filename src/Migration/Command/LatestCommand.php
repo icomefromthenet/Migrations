@@ -12,6 +12,21 @@ class LatestCommand extends Command
 
     protected function execute(InputInterface $input,OutputInterface $output)
     {
+       
+       $project = $this->getApplication()->getProject();
+        
+        # bootdtrap the connections and schemas
+        $project->bootstrapNewConnections();
+        $project->bootstrapNewSchemas();
+        
+        
+        # fetch the con name query argument
+        $name = $input->getArgument('conQuery');
+        
+        if(true === empty($name)) {
+            $name = 'default';
+        }
+       
        $project            = $this->getApplication()->getProject();
        $migrantion_manager = $project->getMigrationManager();
        $table_manager      = $migrantion_manager->getTableManager();
@@ -48,9 +63,13 @@ class LatestCommand extends Command
 
     protected function configure()
     {
-
-        $this->setDescription('Applied all Migrations to the latest addition');
-        $this->setHelp(<<<EOF
+        $this->addArgument(
+                'conQuery',
+                InputArgument::OPTIONAL,
+                'Connections to apply the command to'
+        )
+        ->setDescription('Applied all Migrations to the latest addition')
+        ->setHelp(<<<EOF
 Applies <info>Migrations UP until the last added</info> is reached:
 
 This command should be used to migrate your schema

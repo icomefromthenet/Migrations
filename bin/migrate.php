@@ -71,7 +71,9 @@ $project->getConsole()->add(new InstallCommand('app:install'));
 // Run the App
 //--------------------------------------------------------------------
 
-$project->getConsole()->run();
+$shell = new \Symfony\Component\Console\Shell($project->getConsole());
+
+$shell->run();
 
 
 

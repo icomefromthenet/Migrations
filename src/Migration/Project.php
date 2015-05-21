@@ -220,9 +220,10 @@ class Project extends Pimple
         $nameMatcher         = new NameMatcher($connName);
         $migrationFileLoader = $this->getMigrationManager()->getLoader();
         $fileNameParser      = $this['migration_filename_parser'];
+        $errorPrinter        = $this['console'];
         
         # instance new schema
-        $schema = new Schema($tableManager,$schemaManager,$event,$migrationFileLoader,$nameMatcher,$conn,$fileNameParser);
+        $schema = new Schema($tableManager,$schemaManager,$event,$migrationFileLoader,$nameMatcher,$conn,$fileNameParser,$errorPrinter);
         
         # add new schema to internal collection
         $this->schemaCollection[$connName] = $schema;

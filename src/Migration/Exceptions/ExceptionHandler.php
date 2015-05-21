@@ -4,6 +4,7 @@ namespace Migration\Exceptions;
 use Monolog\Logger;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Migration\Components\Config\DoctrineConnWrapper;
 
 class ExceptionHandler
 {
@@ -18,29 +19,15 @@ class ExceptionHandler
     */
     protected $output;
 
-    //  -------------------------------------------------------------------------
-    # Static Constructor
-
     /**
-      *  Constructor
-      *
-      *  @param Monolog\Logger $log
-      *  @param Symfony\Component\Console\Output\ConsoleOutput $output
-      *  @access public
-      *  @return void
-      */
-    public function __construct(Logger $log , OutputInterface $output)
+     * Render an exception message
+     * 
+     * @access protected
+     * @param Exception $exception the exception to render
+     * @return string the error message
+     */ 
+    protected function renderException(\Exception $exception)
     {
-        $this->log = $log;
-        $this->output = $output;
-    }
-
-    //  -------------------------------------------------------------------------
-    # Global Exception Handler
-
-    public function exceptionHandler(\Exception $exception)
-    {
-
         #Send the error to the log file
 
         // these are our templates
@@ -74,7 +61,7 @@ class ExceptionHandler
 
 
         // write tracelines into main template
-        $msg = \sprintf(
+        return  \sprintf(
             $msg,
             \get_class($exception),
             $exception->getMessage(),
@@ -85,9 +72,36 @@ class ExceptionHandler
             $exception->getLine()
         );
 
+        
+    }
+
+    //  -------------------------------------------------------------------------
+    # Static Constructor
+
+    /**
+      *  Constructor
+      *
+      *  @param Monolog\Logger $log
+      *  @param Symfony\Component\Console\Output\ConsoleOutput $output
+      *  @access public
+      *  @return void
+      */
+    public function __construct(Logger $log , OutputInterface $output)
+    {
+        $this->log = $log;
+        $this->output = $output;
+    }
+
+    //  -------------------------------------------------------------------------
+    # Global Exception Handler
+
+
+    public function exceptionHandler(\Exception $exception)
+    {
+        $msg = $this->renderException($exception);
+        
         #write to log
         $this->log->addError($msg);
-
 
         # log to console
         $this->output->writeln('<error>'.$msg.'</error>');

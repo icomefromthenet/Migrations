@@ -1,6 +1,8 @@
 <?php 
 namespace Migration;
 
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Migration\Components\Migration\Collection;
@@ -11,6 +13,8 @@ use Migration\Components\Config\DoctrineConnWrapper;
 use Migration\Components\Migration\Exception\TableMissingException;
 use Migration\Components\Migration\FileName;
 use Migration\Components\Migration\Loader;
+use Migration\Components\Migration\Diff;
+use Migration\Exceptions\AllReadyInstalledException;
 
 class Schema 
 {
@@ -60,13 +64,10 @@ class Schema
      */ 
     protected $migrationFileLoader;
     
-    
-    protected function getMigrationDiff()
-    {
-        
-        
-    }
-    
+    /**
+     * @var Migration\Exceptions\ExceptionHandler
+     */ 
+    protected $errorPrinter;
     
     /**
      * Check if the table exists
@@ -88,7 +89,8 @@ class Schema
                                 ,Loader $migrationLoader
                                 ,NameMatcher $nameMatcher
                                 ,DoctrineConnWrapper $dbConn
-                                ,FileName $parser)
+                                ,FileName $parser
+                                ,Application $printer)
     {
         $this->tableManager         = $tableManager;
         $this->eventDispatcher      = $eventDispatcher;
@@ -98,7 +100,7 @@ class Schema
         $this->databaseConn         = $dbConn;
         $this->isInstalled          = null; 
         $this->fileNameParser       = $parser;
-        
+        $this->errorPrinter         = $printer;
     }
     
     
@@ -130,16 +132,48 @@ class Schema
         }
     }
     
-    public function executeStatus($name, OutputInterface $output)
+    public function executeStatus($name, OutputInterface $output, Table $table)
     {
         if(true === $this->getNameMatcher()->isMatch($name)) {
-            if(false === $this->isInstalled()) {
-                 throw new TableMissingException('Can not execute this function if migration tracking table not installed');
-            }
             
+            try {
             
+                if(false === $this->isInstalled()) {
+                     throw new TableMissingException('Can not execute this function if migration tracking table not installed');
+                }
+
+               $migrantionTableMgr = $this->getMigrationTableManager();
+               $collection         = $this->getMigrationCollection();
+               
+               $sanity             = new Diff($collection->getMap(),$migrantionTableMgr->fill());    
+             
+               # check if that are migrations recorded in DB and not available on filesystem.
+               $sanity->diffBA(); 
+               
+               # fetch head
+               
+               $head = $collection->getLatestMigration();
+               
+               if($head === null || $head === false) {
+                    $table->addRow(array($this->getConnectionName(),'<info>N</info>','There has been <info>no head </info>set run <comment>app:build</comment> or <comment>app:latest</comment> to apply all migrations.'));
+               } else {
+                    $head_migration = $collection->get($head);
+                    $stamp = $this->fileNameParser->parse($head_migration->getBasename('.php'));    
+                    $stamp_dte = new DateTime();
+                    $stamp_dte->setTimestamp($stamp);
+                    $index = array_search($head,$collection->getMap()) +1;
+                    
+                    $table->addRow(array($this->getConnectionName(),$index,'Current Head Migration (last applied) Index <comment>'.$index.'</comment> Date Migration <comment>'.$stamp_dte->format(DATE_RSS).'</comment>'));
+               }
+              
             
+          } catch(\Exception $e) {
+            $table->addRow(array($this->getConnectionName(),'<error>N</error>','Error unable to fetch status for this connection'));
+            $this->getErrorPrinter()->renderExceptionWithConnection($e,$output,$this->getDatabaseConnection());
+          }
+          
         }
+        
     }
     
     public function executeBuild($name, OutputInterface $output)
@@ -155,28 +189,36 @@ class Schema
     }
     
     
-    public function executeInstall($name, OutputInterface $output)
+    public function executeInstall($name, OutputInterface $output, Table $table)
     {
         if(true === $this->getNameMatcher()->isMatch($name)) {
             $mTableName = $this->getDatabaseConnection()->getMigrationTableName();
             
-            if(true === $this->isInstalled()) {
-                throw new AllReadyInstalledException('The database already has a migration table named::'.$mTableName);
+            try { 
+                
+                if(true === $this->isInstalled()) {
+                   throw new AllReadyInstalledException('The database already has a migration table named::'.$mTableName);
+                }
+                
+                $this->getMigrationTableManager()->build(); 
+                $table->addRow(array($this->getConnectionName(),'Y','Setup Database Success Migrations Tracking Table created using name ::'.$mTableName));
+            } catch(Exception $e) {
+                $table->addRow(array($this->getConnectionName(),'<error>N</error>','Error Unable to Setup migration table using name ::'.$mTableName));
+                $this->getErrorPrinter()->renderExceptionWithConnection($e,$output,$this->getDatabaseConnection());
             }
-             
-            $this->getMigrationTableManager()->build(); 
-        
-            $output->writeLn('Setup Database <info>Migrations Tracking Table</info> using name ::'.$mTableName);
              
             $this->isInstalled = true; 
         }
-        
-        
         
     }
     
     //-------------------------------------------------------------------------
     # Properties
+    
+    public function getErrorPrinter()
+    {
+        return $this->errorPrinter; 
+    }
     
     public function getEventDispatcher()
     {
@@ -207,7 +249,7 @@ class Schema
             }
          
              $event             = $this->getEventDispatcher();
-             $table_manager     = $this->getTableManager();
+             $table_manager     = $this->getMigrationTableManager();
              $fnameParser       = $this->fileNameParser;
              
              # fetch the last applied stamp   
@@ -223,7 +265,7 @@ class Schema
              
              # load the collection via the loader
              $collection = new Collection($event,$latest);
-             $migration_manager->getLoader()->load($collection,$fnameParser);
+             $this->getMigrationFileLoader()->load($collection,$fnameParser);
              
              # merge the collection together
              foreach($stamp_collection as $stamp) {
@@ -249,5 +291,11 @@ class Schema
     {
         return $this->migrationFileLoader;
     }
+    
+    public function getConnectionName()
+    {
+        return $this->getDatabaseConnection()->getMigrationConnectionPoolName();
+    }
+    
 }
 /* End of Class */

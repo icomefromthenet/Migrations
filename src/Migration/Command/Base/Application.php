@@ -1,28 +1,28 @@
 <?php
 namespace Migration\Command\Base;
 
-use Symfony\Component\Console\Application as BaseApplication,
-    Symfony\Component\Console\Input\InputInterface,
-    Symfony\Component\Console\Input\InputOption,
-    Symfony\Component\Console\Input\ArgvInput,
-    Symfony\Component\Console\Input\ArrayInput,
-    Symfony\Component\Console\Input\InputDefinition,
-    Symfony\Component\Console\Input\InputArgument,
-    Symfony\Component\Console\Output\OutputInterface,
-    Symfony\Component\Console\Output\Output,
-    Symfony\Component\Console\Output\ConsoleOutput,
-    Symfony\Component\Console\Output\ConsoleOutputInterface,
-    Symfony\Component\Console\Command\HelpCommand,
-    Symfony\Component\Console\Command\ListCommand,
-    Symfony\Component\Console\Helper\HelperSet,
-    Symfony\Component\Console\Helper\FormatterHelper,
-    Symfony\Component\Console\Helper\DialogHelper,
-    Migration\Project;
+use Symfony\Component\Console\Application as BaseApplication;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Output\Output;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
+use Symfony\Component\Console\Command\HelpCommand;
+use Symfony\Component\Console\Command\ListCommand;
+use Symfony\Component\Console\Helper\HelperSet;
+use Symfony\Component\Console\Helper\FormatterHelper;
+use Symfony\Component\Console\Helper\DialogHelper;
+use Migration\Project;
+use Migration\Components\Config\DoctrineConnWrapper;
 
 /*
  * class BaseApplication
  */
-
 class Application extends BaseApplication
 {
 
@@ -82,62 +82,15 @@ class Application extends BaseApplication
     {
         # resume normal operation here
         $output->writeLn($this->getHeader());
-        $name = $this->getCommandName($input);
-        
-        if (true === $input->hasParameterOption(array('--ansi'))) {
-            $output->setDecorated(true);
-        } elseif (true === $input->hasParameterOption(array('--no-ansi'))) {
-            $output->setDecorated(false);
-        }
-
-        if (true === $input->hasParameterOption(array('--help', '-h'))) {
-            if (!$name) {
-                $name = 'help';
-                $input = new ArrayInput(array('command' => 'help'));
-            } else {
-                $this->wantHelps = true;
+            
+        $status = parent::doRun($input,$output);
+            
+            if(0 === $status ) {
+                # write Footer
+                $output->writeLn($this->getFooter());        
             }
-        }
-
-        if (true === $input->hasParameterOption(array('--no-interaction', '-n'))) {
-            $input->setInteractive(false);
-        }
-
-        if (function_exists('posix_isatty') && $this->getHelperSet()->has('dialog')) {
-            $inputStream = $this->getHelperSet()->get('dialog')->getInputStream();
-            if (!posix_isatty($inputStream)) {
-                $input->setInteractive(false);
-            }
-        }
-
-        if (true === $input->hasParameterOption(array('--quiet', '-q'))) {
-            $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
-        } elseif (true === $input->hasParameterOption(array('--verbose', '-v'))) {
-            $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
-        }
-
-        if (true === $input->hasParameterOption(array('--version', '-V'))) {
-            $output->writeln($this->getLongVersion());
-
-            return 0;
-        }
-
-        if (!$name) {
-            $name = 'list';
-            $input = new ArrayInput(array('command' => 'list'));
-        }
-
-        // the command name MUST be the first element of the input
-        $command = $this->find($name);
-
-        $this->runningCommand = $command;
-        $statusCode = $command->run($input, $output);
-        $this->runningCommand = null;
-        
-        # write Footer
-        $output->writeLn($this->getFooter());
-        
-        return is_numeric($statusCode) ? $statusCode : 0;
+            
+        return $status;
     
     }
     
@@ -185,6 +138,20 @@ EOF;
 
     }
 
+
+    /**
+     * Render an exception message and include a connection name in the header
+     * 
+     * @access public
+     * @param \Exception            $e
+     * @param OutputInterface       $output
+     * @param DoctrineConnWrapper   $conn
+     */ 
+    public function renderExceptionWithConnection(\Exception $e, OutputInterface $output, DoctrineConnWrapper $conn)
+    {
+        $output->writeLn('<error>For Connection::'.$conn->getMigrationConnectionPoolName().'</error>');
+        return $this->renderException($e,$output);
+    }
 
 }
 /* End of File */
