@@ -119,20 +119,6 @@ class Bootstrap
       //
       //--------------------------------------------------------------
       
-      $project['database'] = $project->share(function($project)
-      {
-         # bootstrap the database configs via the connections pool
-         $project['config_file'];
-         
-         # hand back the internal database as its always going to exists
-         # database user need to select the necessary connection later
-         $connection = $project['connection_pool']->fetchInternalConnection();
-         
-         # assign the default connection to the doctrine helper   
-         $project['console']->getHelperSet()->set(new \Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper($connection), 'db');
-         
-         return $connection;
-      });
       
       $project['platform_factory'] = $project->share(function($project){
          return new \Migration\PlatformFactory();
@@ -199,29 +185,6 @@ class Bootstrap
       });
       
       
-      //---------------------------------------------------------------
-      // Migration Event Dispatcher
-      //
-      //---------------------------------------------------------------
-      
-      $project['migration_event_dispatcher'] = $project->share(function($project){
-         $handler = $project['migration_event_handler'];
-         $event   = $project['event_dispatcher'];
-         
-         $event->addListener('migration.up',  array($handler,'handleUp'));
-         $event->addListener('migration.down',array($handler,'handleDown'));
-         
-         return $event;
-      });
-      
-      //---------------------------------------------------------------
-      // Migration Event Handler
-      //
-      //---------------------------------------------------------------
-      
-      $project['migration_event_handler'] = $project->share(function($project){
-         return new \Migration\Components\Migration\Event\Handler($project['migration_table_manager'],$project['database']);
-      });
       
       //---------------------------------------------------------------
       // Migration Table Manager Factory
@@ -243,18 +206,6 @@ class Bootstrap
       });
       
       
-      //---------------------------------------------------------------
-      // Migration Sanity Check
-      //
-      //---------------------------------------------------------------
-      
-      $project['migration_sanity_check'] = $project->share(function($project){
-      
-         $migration_collection    = $project['migration_collection'];
-         $migration_table_manager = $project['migration_table_manager'];
-      
-         return new \Migration\Components\Migration\Diff($migration_collection->getMap(),$migration_table_manager->fill());
-      });
       
       //---------------------------------------------------------------
       // Setup Templating Manager (lazy loaded)

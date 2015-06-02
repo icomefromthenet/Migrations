@@ -9,7 +9,7 @@ use Migration\Components\Config\ConnectionNotExistException;
 use Migration\ChannelEventDispatcher;
 use Migration\Exceptions\AllReadyInstalledException;
 use Migration\Components\Config\NameMatcher;
-
+use Migration\Components\Migration\Event\Handler;
 
 class Project extends Pimple
 {
@@ -216,14 +216,25 @@ class Project extends Pimple
         $conn                = $pool->getExtraConnection($connName);
         $tableManager        = $tableManagerFactory->create($conn,$conn->getMigrationAdapterPlatform(),$conn->getMigrationTableName());
         $schemaManager       = $schemaManagerFactory->create($conn->getMigrationAdapterPlatform(),$conn,$tableManager);
+        
+        
         $event               = new ChannelEventDispatcher($this->getEventDispatcher());
+        $event->addChannel($connName, new \Symfony\Component\EventDispatcher\EventDispatcher());
+        $event->switchChannel($connName);
+        
         $nameMatcher         = new NameMatcher($connName);
         $migrationFileLoader = $this->getMigrationManager()->getLoader();
         $fileNameParser      = $this['migration_filename_parser'];
         $errorPrinter        = $this['console'];
         
+        # setup migration events handler for this connection    
+        $migrationEventHandler = new Handler($tableManager,$conn);
+        $event->addListener('migration.up',  array($migrationEventHandler,'handleUp'));
+        $event->addListener('migration.down',array($migrationEventHandler,'handleDown'));
+        
+        
         # instance new schema
-        $schema = new Schema($tableManager,$schemaManager,$event,$migrationFileLoader,$nameMatcher,$conn,$fileNameParser,$errorPrinter);
+        $schema = new Schema($tableManager,$schemaManager,$event,$migrationFileLoader,$nameMatcher,$conn,$fileNameParser,$errorPrinter,$migrationEventHandler);
         
         # add new schema to internal collection
         $this->schemaCollection[$connName] = $schema;
@@ -416,7 +427,7 @@ class Project extends Pimple
     public function bootstrapNewSchemas()
     {
         foreach($this->getConnectionPool() as $connName => $conn ) {
-            
+               
             if(false === isset($this->schemaCollection[$connName])) {
                 $this->addNewSchema($connName);
             }
@@ -458,7 +469,7 @@ class Project extends Pimple
           
               # check if we can load the config given
               if($config_manager->getLoader()->exists($config_name) === false) {
-                 throw new \RuntimeException(sprintf('Missing database config at %s ',$config_name));
+                 throw new \RuntimeException(sprintf('Missing database config at %s/config/%s ',$this->getPath()->get(),$config_name));
               }
       
               # load the config file
@@ -473,16 +484,6 @@ class Project extends Pimple
                      $pool->addExtraConnection($config->getConnectionName(),$config);   
                  }
                  
-              }
-              
-              # assign default as the active (internal) connection
-              if($pool->hasExtraConnection('default')) {
-                 $pool->setActiveConnection($pool->getConnectionName('default'));
-              }
-              else {
-                 $connections = $pool->getExtraConnections();
-                 reset($connections);
-                 $pool->setActiveConnection(current($connections));
               }
               
           }

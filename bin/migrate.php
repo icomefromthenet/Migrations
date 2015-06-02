@@ -71,10 +71,10 @@ $project->getConsole()->add(new InstallCommand('app:install'));
 // Run the App
 //--------------------------------------------------------------------
 
-$shell = new \Symfony\Component\Console\Shell($project->getConsole());
+//$shell = new \Symfony\Component\Console\Shell($project->getConsole());
 
-$shell->run();
+//$shell->run();
 
-
+$project->getConsole()->run();
 
 /* End of Class */

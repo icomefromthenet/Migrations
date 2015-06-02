@@ -1,6 +1,7 @@
 <?php
 namespace Migration\Command;
 
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -10,8 +11,11 @@ use Migration\Command\Base\Command;
 class LatestCommand extends Command
 {
 
+    protected $eventWrired = false;
+
     protected function execute(InputInterface $input,OutputInterface $output)
     {
+       
        
        $project = $this->getApplication()->getProject();
         
@@ -26,37 +30,34 @@ class LatestCommand extends Command
         if(true === empty($name)) {
             $name = 'default';
         }
-       
-       $project            = $this->getApplication()->getProject();
-       $migrantion_manager = $project->getMigrationManager();
-       $table_manager      = $migrantion_manager->getTableManager();
-       $collection         = $migrantion_manager->getMigrationCollection();
-       $event              = $project->getEventDispatcher(); 
+      
      
-       # run sanity check 
-       $sanity             = $migrantion_manager->getSanityCheck();
-     
-       # check if that are new migrations under the head.
-       # these are easy to miss since they are in the middle of the list
-       $sanity->diffAB(); 
-       
-       # check if that are migrations recorded in DB and not available on filesystem.
-       $sanity->diffBA();  
+        $summaryTable = new Table($output);
+        $summaryTable->setHeaders(array('ConnectionName', 'Result', 'Message'));
         
-       # attach some event to output
+        # attach some event to output
+      
+        if(false === $this->eventWrired) {
+            
+            # fetch global event dispatcher and add listener
+            $event = $project['event_dispatcher'];
+            
+             $event->addListener('migration.up', function ( \Migration\Components\Migration\Event\DownEvent $event) use ($output) {
+                $output->writeln("\t" . 'Applying Up on migration: <info>'.$event->getMigration()->getFilename(). '</info>');
+            });
+            
+            $this->eventWrired = true;
+        }
        
-       $event->addListener('migration.up', function ( \Migration\Components\Migration\Event\UpEvent $event) use ($output) {
-            $output->writeln("\t" . 'Applying migration: <info>'.$event->getMigration()->getFilename(). '</info>');
-       });
-       
-       //$event->addListener('migration.down',function( \Migration\Components\Migration\Event\DownEvent $event) use ($output) {
-    
-       //});
         
-       # will migrate up to the newest migration found.
-       $collection->latest(); 
+        # apply build operation too all match schema's
+        foreach($project->getSchemaCollection() as $schema) {
+            $schema->executeLatest($name,$output,$summaryTable);
+            $schema->clearMigrationCollection();
+        }
         
-                     
+        $summaryTable->render(); 
+                    
     }
 
 

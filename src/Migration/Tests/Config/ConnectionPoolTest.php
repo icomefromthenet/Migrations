@@ -9,23 +9,6 @@ use Migration\Components\Config\ConnectionPool;
 class ConnectionPoolTest extends AbstractProject
 {
     
-    public function testAddDefaultConnection()
-    {
-        $project = $this->getProject();
-        $platform = $project['platform_factory'];
-        $pool = new \Migration\Components\Config\ConnectionPool($platform);
-        
-        
-        $mockConn = $this->getMockBuilder('Migration\\Components\\Config\\DoctrineConnWrapper')
-             ->disableOriginalConstructor()
-             ->getMock();
-        
-        $pool->setActiveConnection($mockConn);
-        
-        $this->assertEquals($mockConn,$pool->fetchActiveConnection());
-    }
-    
-    
     
     public function testAddExtraConnection()
     {

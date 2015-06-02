@@ -1,62 +1,78 @@
 <?php
-
 namespace Migration\Command;
 
-use Symfony\Component\Console\Input\InputInterface,
-    Symfony\Component\Console\Output\OutputInterface,
-    Symfony\Component\Console\Input\InputArgument,
-    Symfony\Component\Console\Input\InputOption,
-    InvalidArgumentException,
-    Migration\Command\Base\Command;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
+use InvalidArgumentException;
+use Migration\Command\Base\Command;
 
 class UpCommand extends Command
 {
 
+    protected $eventWrired = false;
+
+
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-       $project            = $this->getApplication()->getProject();
-       $migrantion_manager = $project->getMigrationManager();
-       $table_manager      = $migrantion_manager->getTableManager();
-       $collection         = $migrantion_manager->getMigrationCollection();
-       $event              = $project->getEventDispatcher(); 
-     
-       # run sanity check 
-       $sanity             = $migrantion_manager->getSanityCheck();
-     
-       # check if that are new migrations under the head.
-       # these are easy to miss since they are in the middle of the list
-       $sanity->diffAB(); 
-       
-       # check if that are migrations recorded in DB and not available on filesystem.
-       $sanity->diffBA(); 
+        $project = $this->getApplication()->getProject();
         
-       # attach some event to output
+        # bootdtrap the connections and schemas
+        $project->bootstrapNewConnections();
+        $project->bootstrapNewSchemas();    
+        
+        # fetch the con name query argument
+        $name = $input->getArgument('conQuery');
+        
+        if(true === empty($name)) {
+            $name = 'default';
+        }
+     
+        $summaryTable = new Table($output);
+        $summaryTable->setHeaders(array('ConnectionName', 'Result', 'Message'));
+        
+        # attach some event to output
+      
+        if(false === $this->eventWrired) {
+            
+            # fetch global event dispatcher and add listener
+            $event = $project['event_dispatcher'];
+            
+            $event->addListener('migration.up', function ( \Migration\Components\Migration\Event\UpEvent $event) use ($output) {
+                $output->writeln("\t" . 'Applying Up migration: <info>'.$event->getMigration()->getFilename(). '</info>');
+            });
+            
+            $this->eventWrired = true;
+        }
        
-       $event->addListener('migration.up', function ( \Migration\Components\Migration\Event\UpEvent $event) use ($output) {
-            $output->writeln("\t" . 'Applying Up migration: <info>'.$event->getMigration()->getFilename(). '</info>');
-       });
        
-       $map = $collection->getMap();
-       $index = $input->getArgument('index') -1;
-       
-       if(isset($map[$index]) === false) {
-            throw new InvalidArgumentException(sprintf('Index at %s not found ',$index));
-       }
-       
-       # will migrate up to the newest migration found.
-       $collection->up($map[$index],$input->getOption('force')); 
+        $iIndex = $input->getArgument('index');
+        $bforce = $input->getOption('force');
+        
+        # apply build operation too all match schema's
+        foreach($project->getSchemaCollection() as $schema) {
+            $schema->executeUp($name,$output,$summaryTable,$iIndex,$bforce);
+            $schema->clearMigrationCollection();
+         }
+        
+        $summaryTable->render(); 
     }
 
     protected function configure()
     {
-
+        $this->addArgument(
+                'conQuery',
+                InputArgument::REQUIRED,
+                'Connections to apply the command to');
         $this->setDescription('Move one migration up');
         $this->setHelp(<<<EOF
 Move the migration <info>up</info> to the supplied migration:
 
 Example  
 
->> app:up <comment>5</comment> 
+>> app:up demo.a <comment>5</comment> 
 
 will migrate up to the latest migration 
 

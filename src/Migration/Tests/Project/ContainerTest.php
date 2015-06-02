@@ -21,33 +21,35 @@ class ContainerTest extends AbstractProject
     {
         $pimple = new Project($this->getMockedPath());
         $pimple['test_service'] = function () {
-            return new AbstractProject();
+            return new \stdClass();
         };
 
-        $this->assertInstanceOf('Migration\Tests\Base\AbstractProject', $pimple['test_service']);
+        $this->assertInstanceOf('\stdClass', $pimple['test_service']);
     }
+
 
     public function testServicesShouldBeDifferent()
     {
         $pimple = new Project($this->getMockedPath());
+        
         $pimple['test_service'] = function () {
-            return new AbstractProject();
+            return new \stdClass();
         };
 
         $serviceOne = $pimple['test_service'];
-        $this->assertInstanceOf('Migration\Tests\Base\AbstractProject', $serviceOne);
+        $this->assertInstanceOf('\stdClass', $serviceOne);
 
         $serviceTwo = $pimple['test_service'];
-        $this->assertInstanceOf('Migration\Tests\Base\AbstractProject', $serviceTwo);
+        $this->assertInstanceOf('\stdClass', $serviceTwo);
 
-        $this->assertNotSame($serviceOne, $serviceTwo);
+        $this->assertNotSame($serviceOne, $serviceTwo); 
     }
 
     public function testShouldPassContainerAsParameter()
     {
         $pimple = new Project($this->getMockedPath());
         $pimple['test_service'] = function () {
-            return new AbstractProject();
+            return new \stdClass();
         };
         $pimple['test_container'] = function ($container) {
             return $container;
@@ -62,7 +64,7 @@ class ContainerTest extends AbstractProject
         $pimple = new Project($this->getMockedPath());
         $pimple['test_param'] = 'value';
         $pimple['test_service'] = function () {
-            return new AbstractProject();
+            return new \stdClass();
         };
 
         $this->assertTrue(isset($pimple['test_param']));
@@ -93,7 +95,7 @@ class ContainerTest extends AbstractProject
         $pimple = new Project($this->getMockedPath());
         $pimple['param'] = 'value';
         $pimple['service'] = function () {
-            return new AbstractProject();
+            return new \stdClass();
         };
 
         unset($pimple['param'], $pimple['service']);
@@ -105,14 +107,14 @@ class ContainerTest extends AbstractProject
     {
         $pimple = new Project($this->getMockedPath());
         $pimple['shared_service'] = $pimple->share(function () {
-            return new AbstractProject();
+            return new \stdClass();
         });
 
         $serviceOne = $pimple['shared_service'];
-        $this->assertInstanceOf('Migration\Tests\Base\AbstractProject', $serviceOne);
+        $this->assertInstanceOf('\stdClass', $serviceOne);
 
         $serviceTwo = $pimple['shared_service'];
-        $this->assertInstanceOf('Migration\Tests\Base\AbstractProject', $serviceTwo);
+        $this->assertInstanceOf('\stdClass', $serviceTwo);
 
         $this->assertSame($serviceOne, $serviceTwo);
     }

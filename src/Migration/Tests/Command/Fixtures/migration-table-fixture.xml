@@ -6,25 +6,29 @@
 == Host: localhost
 == Generation Time: 2012-09-04T06:31:23+00:00
 == PHP Version: 5.3.10-1ubuntu3.2
-== Platform: mysql
+== Platform: sqlite
 
-==
-== Database: sakila
 ==
 -->
 <dataset>
     <table name="migrations_data">
+        <column>id</column>
         <column>timestamp</column>
+        
         <row>
+            <value>1</value>
             <value>1347321600</value>
         </row>
         <row>
+            <value>2</value>
             <value>1347926400</value>
         </row>
         <row>
+            <value>3</value>
             <value>1348531200</value>
         </row>
         <row>
+            <value>4</value>
             <value>1349136000</value>
         </row>
     </table>

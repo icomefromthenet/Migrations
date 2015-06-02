@@ -10,40 +10,32 @@ use Migration\Project,
     Symfony\Component\Finder\Finder,
     Symfony\Component\Filesystem\Filesystem,
     Migration\Components\Migration\Collection,
-    \PHPUnit_Extensions_Database_TestCase,
+    \PHPUnit_Extensions_MultipleDatabase_TestCase,
     \PDO;
 
-class AbstractProjectWithFixture extends PHPUnit_Extensions_Database_TestCase
+class AbstractProjectWithFixture extends PHPUnit_Extensions_MultipleDatabase_TestCase
 {
     protected $migration_dir = 'myproject';
 
     /**
       *  @var Faker\Project 
       */
-    public static $project;
+    protected $project;
 
+
+    const MIG_TMP_PATH = '/var/tmp/';
+    
     
     //  ----------------------------------------------------------------------------
 
     public function __construct()
     {
-        
-        self::$project = $this->getProject();
-        
-        self::$project->setPath($this->getMockedPath());
-        
-        self::$project['loader']->setExtensionNamespace(
-                   'Migration\\Components\\Extension' , self::$project->getPath()->get()
-        );
-        
-        $this->processIsolation = true;
+        $this->processIsolation = false;
         $this->preserveGlobalState = false;
         
         # remove migration project directory
-        $path = '/var/tmp/' . $this->migration_dir;
+        $path = self::MIG_TMP_PATH.$this->migration_dir;
         $this->removeProject($path);
-        
-        
        
     }
     
@@ -52,12 +44,27 @@ class AbstractProjectWithFixture extends PHPUnit_Extensions_Database_TestCase
 
     public function setUp()
     {
-      $this->createProject($this->getProject(),$this->getSkeltonIO());
+        # create new project object
+        $boot = new Bootstrap();
+        $project = $this->project = $boot->boot('1.0.0-dev',null);
       
-      # set error level
-      error_reporting(E_ERROR);
+        $project->setPath($this->getMockedPath());
+        
+        $project['loader']->setExtensionNamespace(
+                   'Migration\\Components\\Extension' , $project->getPath()->get()
+        );
       
-      parent::setUp();
+       # create mock project folder
+       $this->createProject($project,$this->getSkeltonIO());
+      
+       #bootstrap this project
+       $project->bootstrapNewConnections();
+       $project->bootstrapNewSchemas();    
+       
+        # set error level
+        error_reporting(E_ERROR);
+      
+        parent::setUp();
     }
     
 
@@ -65,7 +72,15 @@ class AbstractProjectWithFixture extends PHPUnit_Extensions_Database_TestCase
     {
         #remove migration project directory
         $path = '/var/tmp/' . $this->migration_dir;
+        
+        $this->project->getConnectionPool()->purgeExtraConnections();
+        
+        # clear the project
+        unset($this->project);
+        
+        # clear local folders
         $this->removeProject($path);
+        
         
         parent::tearDown();
     }
@@ -75,12 +90,7 @@ class AbstractProjectWithFixture extends PHPUnit_Extensions_Database_TestCase
 
     public function getProject()
     {
-         if(self::$project === null) {
-            $boot = new Bootstrap();
-            self::$project = $boot->boot('1.0.0-dev',null);
-        }
-        
-        return self::$project;
+        return $this->project;
     }
 
     public function getSkeltonIO()
@@ -123,21 +133,30 @@ class AbstractProjectWithFixture extends PHPUnit_Extensions_Database_TestCase
         
         if($fs->isAbsolutePath($path) && is_dir($path)) {
             $fs->remove($finder->directories()->in($path));
+            //$fs->remove($finder->files()->in($path));
         }
+        
     }
     
     
     public function createProject(Project $project,Io $skelton_folder)
     {
+        
         $fs = new Filesystem();
         
         if(is_dir($project->getPath()->get()) === false) {
            $fs->mkdir($project->getPath()->get()); 
         }
         
+        # sqlite db need dir to be writtable
+        $fs->chmod($project->getPath()->get(),0777);
+        
         $project_folder = new Io($project->getPath()->get());
         $project->build($project_folder,$skelton_folder,new NullOutput());
         $project->getPath()->loadExtensionBootstrap();
+        $fs->copy(__DIR__ .'/Mock/Config/default.php',rtrim($project->getPath()->get(),'/') .'/config/default.php');
+        $this->createMockMigrations();
+        
     }
 
     
@@ -164,58 +183,21 @@ class AbstractProjectWithFixture extends PHPUnit_Extensions_Database_TestCase
 
         # create the directories
         $fs->touch(new \ArrayIterator($migrations));
-
+        
+        /*
+        $fs->touch(new \ArrayIterator(array(
+            $path->get() . DIRECTORY_SEPARATOR . 'mytestsdb.sqlite',
+            $path->get() . DIRECTORY_SEPARATOR. 'mytestsdb.sqlite3'
+        )));  */
+    
+        
     }
     
+   //  ----------------------------------------------------------------------------
     
-    //  ----------------------------------------------------------------------------
-    
-     
-    public function buildSchema()
-    {
-        exec('/usr/bin/mysql -u '. DEMO_DATABASE_USER . ' -p'.DEMO_DATABASE_PASSWORD .' < '.__DIR__ .'/sakila-schema.sql');  
-        exec('/usr/bin/mysql -u '. DEMO_DATABASE_USER . ' -p'.DEMO_DATABASE_PASSWORD .' < '.__DIR__ .'/Fixtures/migration-table.sql');  
-    }
-    
-    //  ----------------------------------------------------------------------------
-    
-    /**
-      *  @var PDO  only instantiate pdo once for test clean-up/fixture load
-      *  @access private
-      */ 
-    static private $pdo = null;
-
-    /**
-      *  @var PHPUnit_Extensions_Database_DB_IDatabaseConnection only instantiate once per test
-      *  @access private
-      */
-    private $conn = null;
-    
-    /**
-      *  Makes a connection to database
-      *  @access public
-      *  @return PHPUnit_Extensions_Database_DB_IDatabaseConnection
-      */
-    final public function getConnection()
-    {
-        if ($this->conn === null) {
-            if (self::$pdo == null) {
-                
-                $dsn = sprintf('mysql:host=%s;dbname=%s',DEMO_DATABASE_HOST,DEMO_DATABASE_SCHEMA);
-                
-                self::$pdo = new PDO($dsn, DEMO_DATABASE_USER, DEMO_DATABASE_PASSWORD );
-            }
-            $this->conn = $this->createDefaultDBConnection(self::$pdo, DEMO_DATABASE_SCHEMA);
-        }
-
-        return $this->conn;
-    }
-    
-    //  ----------------------------------------------------------------------------
-    
-    public function getDataSet()
-    {
-        throw new \RuntimeException('Get Data set not implemented on child class');
+    protected function getDatabaseConfigs(){
+        
+        
     }
     
 }

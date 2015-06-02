@@ -119,10 +119,12 @@ class TableManager implements TableInterface
     {
         $stamp = $this->convertDateTimeToUnix($timestamp);
         $table = $this->table;
+        $db    = $this->database;
         
-        $query = sprintf("INSERT INTO %s (timestamp) VALUES (%s);",$table,$stamp);
         
-        $affected = $this->database->executeUpdate($query);
+        $query = sprintf("INSERT INTO %s (timestamp) VALUES (?);",$table);
+        
+        $affected = $db->executeUpdate($query,array((string) $stamp),array('integer'));
         
         if($affected > 0) {
             return true;
@@ -180,15 +182,18 @@ class TableManager implements TableInterface
         $table_name = $this->table;
         $schema = new \Doctrine\DBAL\Schema\Schema();
         $manager = $this->database->getSchemaManager();
+        
         try {
         
             if($this->exists()) {
+               
                 $manager->dropTable($table_name);
             }
         
             $table = $schema->createTable($table_name);
             $table->addColumn("timestamp", "integer", array("unsigned" => true));
-            $table->setPrimaryKey(array("timestamp"));
+            $table->addColumn("id", "integer", array("unsigned" => true));
+            $table->setPrimaryKey(array("id"));
             $sql = $schema->toSql($this->database->getDatabasePlatform());
                    
             $this->database->exec($sql[0]);

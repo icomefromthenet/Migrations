@@ -37,32 +37,29 @@ class Handler
       */
     public function handleUp(MigrationEvent $event)
     {
-        $migration = $event->getMigration();
-        $schema = $this->conn->getSchemaManager();
-        
-        $this->conn->beginTransaction();
+        $migration      = $event->getMigration();
+        $schema         = $this->conn->getSchemaManager(); # dbal schema manager
+        $conn           = $this->conn;
+        $migrationMgr   = $this->migration;
         
         try {
+            $conn->beginTransaction();
             
             # Apply the migration
-            
             $migration->getEntity()->up($this->conn, $schema);
             
             # Add to the state table
             $dte = DateTime::createFromFormat('U',$migration->getTimestamp());
-            $this->migration->push($dte);
+            $migrationMgr->push($dte);
             
             
             # Mark the migration as applied
-            
             $migration->setApplied(true);
             
+            $conn->commit();
             
-            $this->conn->commit();
         } catch (MigrationException $e) {
-            
-            $this->conn->rollback();
-            
+            $conn->rollback();
             throw new MigrationException($e->getMessage());
         }
         
@@ -76,11 +73,13 @@ class Handler
       */    
     public function handleDown(MigrationEvent $event)
     {
-        $migration = $event->getMigration();
-        $schema = $this->conn->getSchemaManager();
-        $this->conn->beginTransaction();
-        
+        $migration      = $event->getMigration();
+        $schema         = $this->conn->getSchemaManager();  # dbal schema manager
+        $conn           = $this->conn;
+        $migrationMgr   = $this->migration;
+      
         try {
+            $this->conn->beginTransaction();
             
             # call the migration
             

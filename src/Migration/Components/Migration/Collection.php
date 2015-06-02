@@ -208,8 +208,6 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
                       
         # stamp given is the new head all before it have down run on them, but not the given stamp head = last migration that up applied
         for($head_index; $head_index > $stamp_index; --$head_index) {
-          
-          
           # skip unapplied migrations unless force has been set true.
           if($this->inner_queue[$map[$head_index]]->getApplied() === true || $force === true) {
               $this->run($map[$head_index],'down'); 

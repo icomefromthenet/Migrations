@@ -3,17 +3,36 @@
 /* Database Config file */
 
 return array (
-  'type' => 'pdo_mysql',
-  'schema' => 'sakila',
-  'user' => 'root',
-  'password' => 'vagrant',
-  'host' => 'localhost',
-  'port' => 3306,
-  'migration_table' => 'migrations_data',
-  'socket' => false,
-  'path' => NULL,
-  'memory' => NULL,
-  'charset' => false,
+  0 => 
+  array (
+    'type' => 'pdo_sqlite',
+    'schema' => NULL,
+    'user' => false,
+    'password' => false,
+    'host' => NULL,
+    'port' => NULL,
+    'socket' => NULL,
+    'path' => '',
+    'memory' => true,
+    'charset' => NULL,
+    'connectionName' => 'DEMO.A',
+    'migration_table' => 'migrations_data',
+  ),
+  1 => 
+  array (
+    'type' => 'pdo_sqlite',
+    'schema' => NULL,
+    'user' => false,
+    'password' => false,
+    'host' => NULL,
+    'port' => NULL,
+    'socket' => NULL,
+    'path' => '',
+    'memory' => true,
+    'charset' => NULL,
+    'connectionName' => 'DEMO.B',
+    'migration_table' => 'migrations_data',
+  ),
 );
 
 

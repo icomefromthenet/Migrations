@@ -1,6 +1,7 @@
 <?php
 namespace Migration\Command;
 
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -10,61 +11,72 @@ use Migration\Command\Base\Command;
 class DownCommand extends Command
 {
     
+    protected $eventWrired = false;
+    
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $project = $this->getApplication()->getProject();
         
-       $project            = $this->getApplication()->getProject();
-       $migrantion_manager = $project->getMigrationManager();
-       $table_manager      = $migrantion_manager->getTableManager();
-       $collection         = $migrantion_manager->getMigrationCollection();
-       $event              = $project->getEventDispatcher(); 
-     
-       # run sanity check 
-       $sanity             = $migrantion_manager->getSanityCheck();
-     
-       # check if that are new migrations under the head.
-       # these are easy to miss since they are in the middle of the list
-       $sanity->diffAB();
+        # bootdtrap the connections and schemas
+        $project->bootstrapNewConnections();
+        $project->bootstrapNewSchemas();    
        
-       # check if that are migrations recorded in DB and not available on filesystem.
-       $sanity->diffBA(); 
+         //    eval(\Psy\sh());
         
-       # attach some event to output
+        # fetch the con name query argument
+        $name = $input->getArgument('conQuery');
+        
+        if(true === empty($name)) {
+            $name = 'default';
+        }
+     
+        $summaryTable = new Table($output);
+        $summaryTable->setHeaders(array('ConnectionName', 'Result', 'Message'));
+        
+        # attach some event to output
+      
+        if(false === $this->eventWrired) {
+            
+            # fetch global event dispatcher and add listener
+            $event = $project['event_dispatcher'];
+            
+             $event->addListener('migration.down', function ( \Migration\Components\Migration\Event\DownEvent $event) use ($output) {
+                $output->writeln("\t" . 'Applying Down on migration: <info>'.$event->getMigration()->getFilename(). '</info>');
+            });
+            
+            $this->eventWrired = true;
+        }
        
-       $event->addListener('migration.down', function ( \Migration\Components\Migration\Event\DownEvent $event) use ($output) {
-            $output->writeln("\t" . 'Applying Down on migration: <info>'.$event->getMigration()->getFilename(). '</info>');
-       });
        
-       $map = $collection->getMap();
-       $index = $input->getArgument('index');
-       
-       
-       
-       if(($index = $index -1) < 0) {
-         $stamp = null;
-       } else {
-
-         if(isset($map[$index]) === false) {
-            throw new InvalidArgumentException(sprintf('Index at %s not found ',$index));
+        $iIndex = $input->getArgument('index');
+        $bforce = $input->getOption('force');
+        
+        # apply build operation too all match schema's
+        foreach($project->getSchemaCollection() as $schema) {
+            $schema->executeDown($name,$output,$summaryTable,$iIndex,$bforce);
+            $schema->clearMigrationCollection();
          }
-         
-         $stamp = $map[$index];
-       }
-       
-       # will migrate up to the newest migration found.
-       $collection->down($stamp,$input->getOption('force')); 
+        
+        $summaryTable->render(); 
+        
+        
         
     }
     
-       protected function configure() {
+       protected function configure() 
+       {
         
-        $this->setDescription('Move one migration down');
-        $this->setHelp(<<<EOF
+        $this->addArgument(
+                'conQuery',
+                InputArgument::REQUIRED,
+                'Connections to apply the command to'
+        )->setDescription('Move one migration down')
+        ->setHelp(<<<EOF
 Move the migration <info>down</info> to the supplied migration:
 
 Example  
 
->> app:down <comment>5</comment> 
+>> app:down demo <comment>5</comment> 
 
 EOF
 );        

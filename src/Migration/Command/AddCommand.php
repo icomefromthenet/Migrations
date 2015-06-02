@@ -13,13 +13,24 @@ class AddCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-           $project  = $this->getApplication()->getProject();
+            $project  = $this->getApplication()->getProject();
+           
+            # bootdtrap the connections and schemas
+            $project->bootstrapNewConnections();
+            $project->bootstrapNewSchemas();
+           
+           
            $migration_manager = $project->getMigrationManager();
            $template_manager  = $project->getTemplatingManager();
            
            $migration_template = $template_manager->getLoader()->load('migration_template.twig',array());
            
            $migration_file = $migration_manager->getWriter()->write($migration_template,$input->getArgument('migration_prefix'));
+         
+            # flush all schema collections so next command will get this new migration
+            foreach($project->getSchemaCollection() as $schema) {
+                $schema->clearMigrationCollection();
+            }
          
            $output->writeLn('Finished Writing new Migration: <comment>'. $migration_file->getFileName() .'</comment>');
       

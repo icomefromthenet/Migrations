@@ -97,34 +97,6 @@ class ConnectionPool implements \IteratorAggregate
        return $connection;
    }
    
-   /**
-    * Sets the internal connection 
-    * 
-    * @access public
-    * @return void
-    * @param  Doctrine\DBAL\Connection $connect  the dbal connection already configured
-    */ 
-   public function setActiveConnection(Connection $connect)
-   {
-       $this->otherConnections['__ACTIVE__'] =  $connect;
-   }
-   
-   /**
-    * Fetch faker internal database connection
-    * 
-    * @throws InvalidConfigException if the connnection does not exists
-    * @access public
-    * @return Doctrine\DBAL\Connection
-    */ 
-   public function fetchActiveConnection()
-   {
-       if(false === isset($this->otherConnections['__ACTIVE__'])) {
-            throw new InvalidConfigException('database at __ACTIVE__ does not exists yet');
-       }
-       
-       return $this->otherConnections['__ACTIVE__'];
-   }
-   
    
    /**
     * Fetch a connection from the pool
@@ -155,6 +127,23 @@ class ConnectionPool implements \IteratorAggregate
    }
    
    /**
+    * Remove references to existing connections
+    *  
+    * @access public
+    * @return void
+    */ 
+   public function purgeExtraConnections()
+   {
+        foreach($this->otherConnections as $connection) {
+            $connection->close();
+        }
+        
+       unset($this->otherConnections);
+       
+       $this->otherConnections = array();
+   }
+   
+   /**
     *  check if a connection exists at x
     * 
     *  @param string    $name   The connection name
@@ -164,6 +153,7 @@ class ConnectionPool implements \IteratorAggregate
    {
        return isset($this->otherConnections[$name]);
    }
+   
    
     //--------------------------------------------------------------------------
     # IteratorAggregate     

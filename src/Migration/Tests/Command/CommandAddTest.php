@@ -1,23 +1,60 @@
 <?php
 namespace Migration\Tests\Command;    
 
-use Symfony\Component\Console\Tester\CommandTester,
-    Symfony\Component\Finder\Finder,
-    Symfony\Component\Filesystem\Filesystem,
-    Migration\Command\Base\Application,
-    Migration\Command\AddCommand,
-    Migration\Command\InitProjectCommand,
-    Migration\Tests\Base\AbstractProjectWithFixture;
+use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Filesystem\Filesystem;
+use Migration\Command\Base\Application;
+use Migration\Command\AddCommand;
+use Migration\Command\InitProjectCommand;
+use Migration\Tests\Base\AbstractProjectWithFixture;
 
 class CommandAddTest extends AbstractProjectWithFixture
 {
     
     
-    public function getDataset()
+    protected function getDatabaseConfigs() 
     {
-        $this->buildSchema();
-        return $this->createXmlDataSet( __DIR__ . DIRECTORY_SEPARATOR .'..'. DIRECTORY_SEPARATOR .'Base' . DIRECTORY_SEPARATOR .'Fixtures' . DIRECTORY_SEPARATOR .'migration-table-fixture.xml');
+        $configs     = array();
+        $project     = $this->getProject();
+        $fixturesDir = __DIR__ . DIRECTORY_SEPARATOR .'Fixtures' . DIRECTORY_SEPARATOR;
+        $path        = $this->getMockedPath()->get(). DIRECTORY_SEPARATOR;
+        $fs          = new Filesystem();
+        
+        $pdoA = $project->getConnectionPool()->getExtraConnection('DEMO.A')->getWrappedConnection();
+        $pdoB = $project->getConnectionPool()->getExtraConnection('DEMO.B')->getWrappedConnection();
+        
+        # build schemas        
+        $pdoA->exec(file_get_contents($fixturesDir.'migration-table.sql'));
+        $pdoB->exec(file_get_contents($fixturesDir.'migration-table.sql'));
+        
+        # define configs
+        $builder = new \PHPUnit_Extensions_MultipleDatabase_DatabaseConfig_Builder();
+        $configs[] = $builder
+            ->connection(
+                new \PHPUnit_Extensions_Database_DB_DefaultDatabaseConnection(
+                    $pdoA
+                    ,'sqliteA'
+                )
+            )
+            ->dataSet(new \PHPUnit_Extensions_Database_DataSet_XmlDataSet($fixturesDir.'migration-table-fixture.xml'))
+            ->build();
+            
+            
+        $builder = new \PHPUnit_Extensions_MultipleDatabase_DatabaseConfig_Builder();
+        $configs[] = $builder
+            ->connection(
+                new \PHPUnit_Extensions_Database_DB_DefaultDatabaseConnection(
+                   $pdoB
+                    ,'sqliteB'
+                )
+            )
+            ->dataSet(new \PHPUnit_Extensions_Database_DataSet_XmlDataSet($fixturesDir.'migration-table-fixture.xml'))
+            ->build();
+
+        return $configs;
     }
+    
     
     //  ----------------------------------------------------------------------------
     

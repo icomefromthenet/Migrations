@@ -1,66 +1,83 @@
 <?php
 namespace Migration\Command;
 
-use Symfony\Component\Console\Input\InputInterface,
-    Symfony\Component\Console\Output\OutputInterface,
-    Symfony\Component\Console\Input\InputArgument,
-    Symfony\Component\Console\Input\InputOption,
-    InvalidArgumentException,
-    DateTime,
-    Migration\Command\Base\Command;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
+use InvalidArgumentException;
+use DateTime;
+use Migration\Command\Base\Command;
 
 class RunCommand extends Command
 {
 
+    protected $eventWrired = false;
+
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         
-       $project            = $this->getApplication()->getProject();
-       $migrantion_manager = $project->getMigrationManager();
-       $table_manager      = $migrantion_manager->getTableManager();
-       $collection         = $migrantion_manager->getMigrationCollection();
-       $event              = $project->getEventDispatcher(); 
-     
-       # run sanity check 
-       $sanity             = $migrantion_manager->getSanityCheck();
-     
-       if($input->getOption('force') === false) {
-            # check if that are new migrations under the head.
-            # these are easy to miss since they are in the middle of the list
-            $sanity->diffAB(); 
-        } 
+        $project = $this->getApplication()->getProject();
         
-       # attach some event to output
+        # bootdtrap the connections and schemas
+        $project->bootstrapNewConnections();
+        $project->bootstrapNewSchemas();   
+        
+        #fetch the con name query argument
+        $name = $input->getArgument('conQuery');
+        
+        if(true === empty($name)) {
+            $name = 'default';
+        }
+     
+        $summaryTable = new Table($output);
+        $summaryTable->setHeaders(array('ConnectionName', 'Result', 'Message'));
+        
+          # attach some event to output
+      
+        if(false === $this->eventWrired) {
+            
+            # fetch global event dispatcher and add listener
+            $event = $project['event_dispatcher'];
+            
+            $event->addListener('migration.up', function ( \Migration\Components\Migration\Event\UpEvent $event) use ($output) {
+                $output->writeln("\t" . 'Applying Up migration: <info>'.$event->getMigration()->getFilename(). '</info>');
+             });
        
-       $event->addListener('migration.up', function ( \Migration\Components\Migration\Event\UpEvent $event) use ($output) {
-            $output->writeln("\t" . 'Applying Up migration: <info>'.$event->getMigration()->getFilename(). '</info>');
-       });
-       
-       $event->addListener('migration.down', function ( \Migration\Components\Migration\Event\DownEvent $event) use ($output) {
-            $output->writeln("\t" . 'Applying Down migration: <info>'.$event->getMigration()->getFilename(). '</info>');
-       });
-       
-       $direction = strtolower($input->getArgument('direction'));
+            $event->addListener('migration.down', function ( \Migration\Components\Migration\Event\DownEvent $event) use ($output) {
+                $output->writeln("\t" . 'Applying Down migration: <info>'.$event->getMigration()->getFilename(). '</info>');
+            });
+            
+            $this->eventWrired = true;
+        }
+        
+        $direction = strtolower($input->getArgument('direction'));
        
        if(strcasecmp('up',$direction) !== 0 && strcasecmp('down',$direction) !== 0) {
             throw new InvalidArgumentException('Direction Argument must be up or down');
        }
-       
-       
-       $map = $collection->getMap();
-       $index = $input->getArgument('index') -1;
         
-       if(isset($map[$index]) === false) {
-            throw new InvalidArgumentException(sprintf('Index at %s not found ',$index));
-       }
-       
-       # will migrate up to the newest migration found.
-       $collection->run($map[$index],$direction); 
+        $iIndex = $input->getArgument('index');
+        $bforce = $input->getOption('force');
+        
+        # apply build operation too all match schema's
+        foreach($project->getSchemaCollection() as $schema) {
+            $schema->executeRun($name,$output,$summaryTable,$iIndex,$bforce,$direction);
+            $schema->clearMigrationCollection();
+         }
+        
+        $summaryTable->render();  
+      
     }
 
     protected function configure()
     {
-
+          
+        $this->addArgument(
+                'conQuery',
+                InputArgument::REQUIRED,
+                'Connections to apply the command to');
         $this->setDescription('Will run a migration');
         $this->setHelp(<<<EOF
 Run a <info>migration</info>:
@@ -72,11 +89,11 @@ use this command.
 
 Example 
 
->> app:run <comment> 10 </comment>
+>> app:run demo <comment> 10 </comment>
 
 
-To Force a run and avoid the sanity check.
->> app:run <comment> 10 </comment> --force
+To Force a run and avoid the sanity check to all demo connections.
+>> app:run demo <comment> 10 </comment> --force
 
 EOF
 );

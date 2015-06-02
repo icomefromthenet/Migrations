@@ -86,7 +86,7 @@ class SchemaManager implements SchemaInterface
         $this->database = $db;
         $this->output   = $output;
         $this->logger   = $log;
-	$this->table    = $table;
+	    $this->table    = $table;
     }
 
     
@@ -108,21 +108,21 @@ class SchemaManager implements SchemaInterface
     
     public function listSequences()
     {
-	$short = array();
-	
-	try {
-	
-	    $sequences = $this->database->getSchemaManager()->listSequences();
-
-	    foreach($sequences as $sequence) {
-		$short[] = $sequence->getName();
-	    }
-	}
-	catch(DBALException $exception) {
-	    #sollow not support exception    
-	}
-	
-	return $short;
+    	$short = array();
+    	
+    	try {
+    	
+    	    $sequences = $this->database->getSchemaManager()->listSequences();
+    
+    	    foreach($sequences as $sequence) {
+    		$short[] = $sequence->getName();
+    	    }
+    	}
+    	catch(DBALException $exception) {
+    	    #sollow not support exception    
+    	}
+    	
+    	return $short;
     }
     
     
@@ -142,35 +142,35 @@ class SchemaManager implements SchemaInterface
     
     public function listTables()
     {
-	$tables = $this->database->getSchemaManager()->listTables();
-	
-	$short = array();
-	
-	foreach($tables as $table) {
-	    $short[] = $table->getName();
-	}
-	
-	return $short;
+    	$tables = $this->database->getSchemaManager()->listTables();
+    	
+    	$short = array();
+    	
+    	foreach($tables as $table) {
+    	    $short[] = $table->getName();
+    	}
+    	
+    	return $short;
     }
 
 
     
     public function listViews()
     {
-	$short = array();
-	
-	try {
-	
-	    $views = $this->database->getSchemaManager()->listViews();
-	    
-	    foreach($views as $view) {
-		$short[] = $view->getName();
-	    }
-	
-	}
-	catch(DBALException $exception) {
-	    #sollow not support exception    
-	}
+    	$short = array();
+    	
+    	try {
+    	
+    	    $views = $this->database->getSchemaManager()->listViews();
+    	    
+    	    foreach($views as $view) {
+    		$short[] = $view->getName();
+    	    }
+    	
+    	}
+    	catch(DBALException $exception) {
+    	    #sollow not support exception    
+    	}
 	
 	return $short;
 	
@@ -180,24 +180,24 @@ class SchemaManager implements SchemaInterface
     
     public function listTriggers()
     {
-	$short = array();
+    	$short = array();
+    	
+    	try {
+    	
+    	    $triggers = $this->database->fetchAll("SELECT name FROM sqlite_master WHERE type = 'trigger'");
+    	    
+    	    
+    	    
+    	    foreach($triggers as $trigger) {
+    		$short[] = $trigger[name];
+    	    }
+    	
+    	}
+    	catch(DBALException $exception) {
+    	    #sollow not support exception    
+    	}
 	
-	try {
-	
-	    $triggers = $this->database->fetchAll("SELECT name FROM sqlite_master WHERE type = 'trigger'");
-	    
-	    
-	    
-	    foreach($triggers as $trigger) {
-		$short[] = $trigger[name];
-	    }
-	
-	}
-	catch(DBALException $exception) {
-	    #sollow not support exception    
-	}
-	
-	return $short;	      
+	    return $short;	      
     }
     
     
@@ -230,7 +230,7 @@ class SchemaManager implements SchemaInterface
       */
     public function dropTable($name)
     {
-	return $this->getDatabase()->getSchemaManager()->dropTable($name);
+    	return $this->getDatabase()->getSchemaManager()->dropTable($name);
     }
 
     
@@ -242,7 +242,7 @@ class SchemaManager implements SchemaInterface
       */
     public function dropSequence($name)
     {
-	return $this->getDatabase()->getSchemaManager()->dropSequence($name);
+    	return $this->getDatabase()->getSchemaManager()->dropSequence($name);
     }
 
     
@@ -255,8 +255,7 @@ class SchemaManager implements SchemaInterface
       */
     public function dropIndex($name, $table)
     {
-	return $this->getDatabase()->getSchemaManager()->dropIndex($name,$table);
-   
+    	return $this->getDatabase()->getSchemaManager()->dropIndex($name,$table);
     }
     
    
@@ -270,7 +269,7 @@ class SchemaManager implements SchemaInterface
     public function dropForeignKey($name, $table)
     {
         # sqlite not support drop FK on tables
-	return null;
+    	return null;
     }
     
    
@@ -327,7 +326,7 @@ class SchemaManager implements SchemaInterface
       */
     public function apply()
     {
-	$this->table->build();
+	    $this->table->build();
     }
 
     //  -------------------------------------------------------------------------
@@ -341,9 +340,9 @@ class SchemaManager implements SchemaInterface
       */
     public function clean()
     {
-	$triggers = $this->listTriggers();
-	
-	foreach($triggers as $trigger) {
+    	$triggers = $this->listTriggers();
+    	
+    	foreach($triggers as $trigger) {
             $this->dropTrigger($trigger);
         }
 	
@@ -359,23 +358,10 @@ class SchemaManager implements SchemaInterface
     
         # Drop Each Table
         foreach($tables as $table) {
-            
-	    # drop FK
-	    #$costraints = $this->database->listTableForeignKeys($table);
-	    
-	    
-	    
-	    
-	    # drop Indexed
-	    
-	    $this->dropTable($table);
-	    
-        }
-	
-	
-	
-	
-	return true;
+            $this->dropTable($table);
+	    }
+    	
+    	return true;
     }
     
     
@@ -392,13 +378,13 @@ class SchemaManager implements SchemaInterface
             # Print a list of tables to drop
             $this->show();
 
-	    # clear the schema
+	        # clear the schema
             $this->clean();
 	    
-	    # Apply Migration Table so we can migrate later Schema
+	        # Apply Migration Table so we can migrate later Schema
             $this->apply();
 	    
-	    # clear head of the applied migration
+	        # clear head of the applied migration
             $collection->clearApplied();
 	    
             # Apply inital schema
@@ -407,15 +393,14 @@ class SchemaManager implements SchemaInterface
 	    
             # Apply Migrations
             $collection->latest();
-	    
+	        
             # Apply Test Data
             if($test_data !== null) {
-		$new_test_data = $test_data->getEntity();
-		$new_test_data->up($this->database,$this->database->getSchemaManager());
-	    }
+    		    $new_test_data = $test_data->getEntity();
+    		    $new_test_data->up($this->database,$this->database->getSchemaManager());
+    	    }
 	    
             $this->database->commit();
-            
         
         }
         catch(\Exception $e) {
@@ -433,11 +418,11 @@ class SchemaManager implements SchemaInterface
 
     public function dump()
     {
-	# use doctrine schema dump
-	
-	$schema_manager = $this->database->getSchemaManager();
-	$platform = $this->database->getDatabasePlatform();
-	return implode (';' .PHP_EOL,$schema_manager->createSchema()->toSql($platform));
+    	# use doctrine schema dump
+    	
+    	$schema_manager = $this->database->getSchemaManager();
+    	$platform = $this->database->getDatabasePlatform();
+    	return implode (';' .PHP_EOL,$schema_manager->createSchema()->toSql($platform));
 	
     }
     
