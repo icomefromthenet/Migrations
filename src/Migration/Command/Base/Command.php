@@ -70,6 +70,10 @@ class Command extends BaseCommand
 
             $project['dsn_command'] =  $input->getOption('dsn');
         }
+        
+        # bind this output instance to the output bridget
+        
+        $project->getConsoleOutputBridge()->setInternalConsole($output);
 
     }
     

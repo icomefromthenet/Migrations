@@ -34,7 +34,7 @@ class FileName
         );
 
         $timestamp = $parsed_date->format('U') +0; //force init cast
-
+        
         return $timestamp;
     }
 

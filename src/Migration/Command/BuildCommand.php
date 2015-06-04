@@ -10,7 +10,18 @@ use Migration\Command\Base\Command;
 
 class BuildCommand extends Command
 {
-
+    
+    /**
+     * @var Symfony\Component\Console\Helper\DialogHelper
+     */ 
+    protected $dialogHealper;
+    
+    public function __construct($name,DialogHelper $confirmationDialog)
+    {
+        parent::__construct($name);
+        
+        $this->dialogHealper = $confirmationDialog;
+    }
 
     protected $eventWrired = false;
 
@@ -37,7 +48,7 @@ class BuildCommand extends Command
         
         if($input->getOption('force') === false) {
             
-             $dialog = new DialogHelper();
+             $dialog = $this->dialogHealper;
 
             //Warn that this will clear the database as to continue
 
@@ -47,6 +58,7 @@ class BuildCommand extends Command
             $start_confirmation .= 'Answer Y / N to continue: [n]:';
     
             if($dialog->askConfirmation($output, $start_confirmation,false) === false) {
+                $output->writeln('Aborting Build...');
                 return;
             }
         }

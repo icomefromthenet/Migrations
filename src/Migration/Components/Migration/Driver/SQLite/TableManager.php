@@ -122,7 +122,7 @@ class TableManager implements TableInterface
         $db    = $this->database;
         
         
-        $query = sprintf("INSERT INTO %s (timestamp) VALUES (?);",$table);
+        $query = sprintf("INSERT INTO %s (id,timestamp) VALUES (null,?);",$table);
         
         $affected = $db->executeUpdate($query,array((string) $stamp),array('integer'));
         

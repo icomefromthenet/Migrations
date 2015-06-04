@@ -241,7 +241,8 @@ class Bootstrap
       //---------------------------------------------------------------
       $project['console_output'] = $project->share(function($project){
          
-         return new \Symfony\Component\Console\Output\ConsoleOutput();
+         return new \Migration\ConsoleOutputBridge();
+         
       });
    
       return $project;

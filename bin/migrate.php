@@ -16,6 +16,7 @@ use Migration\Project,
     Migration\Command\BuildCommand,
     Migration\Command\InitProjectCommand,
     Migration\Command\InstallCommand;
+use Symfony\Component\Console\Helper\DialogHelper;
 
 //---------------------------------------------------------------
 // Setup Global Error Levels
@@ -58,7 +59,7 @@ $project->getConsole()->add(new ConfigureCommand('app:configure'));
 $project->getConsole()->add(new DownCommand('app:down'));
 $project->getConsole()->add(new UpCommand('app:up'));
 $project->getConsole()->add(new LatestCommand('app:latest'));
-$project->getConsole()->add(new BuildCommand('app:build'));
+$project->getConsole()->add(new BuildCommand('app:build',new DialogHelper()));
 $project->getConsole()->add(new StatusCommand('app:status'));
 $project->getConsole()->add(new RunCommand('app:run'));
 $project->getConsole()->add(new ListCommand('app:list'));

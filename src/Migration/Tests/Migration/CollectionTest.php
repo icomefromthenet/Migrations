@@ -56,7 +56,8 @@ class CollectionTest extends AbstractProject
     }
     
     /**
-      *  @expectedException \ErrorException
+      *  @expectedException Migration\Components\Migration\Exception
+      *  @expectedErrorMessage Unknown Event Type
       * 
       */
     public function testDispatchBadEvent()

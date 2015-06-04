@@ -70,7 +70,7 @@ class CommandAddTest extends AbstractProjectWithFixture
             array('command' => $command->getName())
         );
         
-        $this->assertRegExp('/Finished Writing new Migration:/',$commandTester->getDisplay());
+        $this->assertContains('Finished Writing new Migration:',$commandTester->getDisplay());
     }
     
     
@@ -87,8 +87,8 @@ class CommandAddTest extends AbstractProjectWithFixture
             
         );
         
-        $this->assertRegExp('/Finished Writing new Migration:/',$commandTester->getDisplay());
-        $this->assertRegExp('/setup_new_db_table_/',$commandTester->getDisplay());
+        $this->assertContains('Finished Writing new Migration:',$commandTester->getDisplay());
+        $this->assertContains('setup_new_db_table_',$commandTester->getDisplay());
     }
     
     public function testAddMigrationConvertsUCasePrefix()
@@ -104,8 +104,8 @@ class CommandAddTest extends AbstractProjectWithFixture
             
         );
         
-        $this->assertRegExp('/Finished Writing new Migration:/',$commandTester->getDisplay());
-        $this->assertRegExp('/setup_new_db_table_/',$commandTester->getDisplay());
+        $this->assertContains('Finished Writing new Migration:',$commandTester->getDisplay());
+        $this->assertContains('setup_new_db_table_',$commandTester->getDisplay());
         
         
     }
@@ -123,8 +123,8 @@ class CommandAddTest extends AbstractProjectWithFixture
             
         );
         
-        $this->assertRegExp('/Finished Writing new Migration:/',$commandTester->getDisplay());
-        $this->assertRegExp('/setup_new_db_table_011_/',$commandTester->getDisplay());
+        $this->assertContains('Finished Writing new Migration:',$commandTester->getDisplay());
+        $this->assertContains('setup_new_db_table_011_',$commandTester->getDisplay());
         
         
     }

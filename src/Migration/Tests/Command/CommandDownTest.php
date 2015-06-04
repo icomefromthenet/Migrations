@@ -38,7 +38,7 @@ class CommandDownTest extends AbstractProjectWithFixture
                     ,'sqliteA'
                 )
             )
-            ->dataSet(new \PHPUnit_Extensions_Database_DataSet_XmlDataSet($fixturesDir.'migration-table-fixture.xml'))
+            ->dataSet(new \PHPUnit_Extensions_Database_DataSet_XmlDataSet($fixturesDir.'migration-table-fixture-down.xml'))
             ->build();
             
             
@@ -50,7 +50,7 @@ class CommandDownTest extends AbstractProjectWithFixture
                     ,'sqliteB'
                 )
             )
-            ->dataSet(new \PHPUnit_Extensions_Database_DataSet_XmlDataSet($fixturesDir.'migration-table-fixture.xml'))
+            ->dataSet(new \PHPUnit_Extensions_Database_DataSet_XmlDataSet($fixturesDir.'migration-table-fixture-down.xml'))
             ->build();
 
         return $configs;
@@ -59,7 +59,7 @@ class CommandDownTest extends AbstractProjectWithFixture
     //  ----------------------------------------------------------------------------
     
     
-    public function testAddMigration()
+    public function testDownMigration()
     {
         
         $application = new Application($this->getProject());
@@ -71,14 +71,79 @@ class CommandDownTest extends AbstractProjectWithFixture
             array('command' => $command->getName(), 'conQuery' => 'demo.A','index' => 1)
         );
         
-        var_dump($commandTester->getDisplay());
+         
+        $this->assertContains('Applying Down on migration: migration_2012_08_31_04_59_37.php',$commandTester->getDisplay());
+        $this->assertContains('DEMO.A         | Y      | Migration down to 1346381787',$commandTester->getDisplay());
+    }
+    
+    public function testMigrationFailsCalledDownToExistingHead()
+    {
+        $application = new Application($this->getProject());
+        $application->add(new DownCommand('down'));
+        $command = $application->find('down');
+        $commandTester = new CommandTester($command);
         
-        //$this->assertRegExp('/Finished Writing new Migration:/',$commandTester->getDisplay());
+        $commandTester->execute(
+            array('command' => $command->getName(), 'conQuery' => 'demo.A','index' => 3)
+        );
+        
+         
+        $this->assertContains('Down must be called on migration below the head',$commandTester->getDisplay());
+        $this->assertContains('DEMO.A         | N      | Error unable to migrate down',$commandTester->getDisplay());
+    }
+    
+    public function testMigrationFailsCalledDownOnNotExistsMigration()
+    {
+        $application = new Application($this->getProject());
+        $application->add(new DownCommand('down'));
+        $command = $application->find('down');
+        $commandTester = new CommandTester($command);
+        
+        $commandTester->execute(
+            array('command' => $command->getName(), 'conQuery' => 'demo.A','index' => 5)
+        );
+        
+         
+        $this->assertContains('Index at 4 not found',$commandTester->getDisplay());
+        $this->assertContains('DEMO.A         | N      | Error unable to migrate down',$commandTester->getDisplay());
+    }
+    
+    public function testMigrationCanBeForced()
+    {
+        $application = new Application($this->getProject());
+        $application->add(new DownCommand('down'));
+        $command = $application->find('down');
+        $commandTester = new CommandTester($command);
+        
+        # the migration at 3 should be the head, if add another migration have to push this value up
+        $commandTester->execute(
+            array('command' => $command->getName(), 'conQuery' => 'demo.A','index' => 3,'--force'=>true)
+        );
+        
+         
+        $this->assertContains('Applying Down on migration: migration_2012_08_31_04_59_37.php',$commandTester->getDisplay());
+        $this->assertContains('DEMO.A         | Y      | Migration down to 1346381977',$commandTester->getDisplay());
+        
     }
     
     
+    public function testDownMultiple()
+    {
+        $application = new Application($this->getProject());
+        $application->add(new DownCommand('down'));
+        $command = $application->find('down');
+        $commandTester = new CommandTester($command);
+        
+        $commandTester->execute(
+            array('command' => $command->getName(), 'conQuery' => 'demo','index' => 1)
+        );
+        
+         
+        $this->assertContains('Applying Down on migration: migration_2012_08_31_04_59_37.php',$commandTester->getDisplay());
+        $this->assertContains('DEMO.A         | Y      | Migration down to 1346381787',$commandTester->getDisplay());
+        $this->assertContains('DEMO.B         | Y      | Migration down to 1346381787',$commandTester->getDisplay());
+        
+    }
     
 }
-
-
 /* End of File */

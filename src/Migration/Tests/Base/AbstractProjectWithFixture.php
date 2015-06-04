@@ -154,44 +154,16 @@ class AbstractProjectWithFixture extends PHPUnit_Extensions_MultipleDatabase_Tes
         $project_folder = new Io($project->getPath()->get());
         $project->build($project_folder,$skelton_folder,new NullOutput());
         $project->getPath()->loadExtensionBootstrap();
+        # copy config
         $fs->copy(__DIR__ .'/Mock/Config/default.php',rtrim($project->getPath()->get(),'/') .'/config/default.php');
-        $this->createMockMigrations();
         
+        #copy migration files
+        $fs->copy(__DIR__ .'/Mock/Migrations/migration_2012_08_31_04_56_27.php',rtrim($project->getPath()->get(),'/') .'/migration/migration_2012_08_31_04_56_27.php');
+        $fs->copy(__DIR__ .'/Mock/Migrations/migration_2012_08_31_04_56_58.php',rtrim($project->getPath()->get(),'/') .'/migration/migration_2012_08_31_04_56_58.php');
+        $fs->copy(__DIR__ .'/Mock/Migrations/migration_2012_08_31_04_59_37.php',rtrim($project->getPath()->get(),'/') .'/migration/migration_2012_08_31_04_59_37.php');
     }
 
     
-    protected function createMockMigrations()
-    {
-        
-        $fs = new Filesystem();
-        $path = $this->getMockedPath();
-        $migration_path = $path->get() . DIRECTORY_SEPARATOR . 'migration' . DIRECTORY_SEPARATOR;
-        $migrations = array(
-            $migration_path.'migration_2012_01_02_22_33_33.php',
-            $migration_path.'migration_2012_01_03_22_33_33.php',
-            $migration_path.'migration_2012_01_04_22_33_33.php',
-            $migration_path.'migration_2012_01_05_22_33_33.php',
-        );
-                        
-        if($fs->isAbsolutePath($path->get()) === false) {
-            throw new \RuntimeException(__CLASS__.'::'.__METHOD__.':: Project Path has not absolute');
-        }
-                        
-        if(is_dir($migration_path) === false) {
-            throw new \RuntimeException(__CLASS__.'::'.__METHOD__.':: Schema folder is missing can not create test migrations');
-        }
-
-        # create the directories
-        $fs->touch(new \ArrayIterator($migrations));
-        
-        /*
-        $fs->touch(new \ArrayIterator(array(
-            $path->get() . DIRECTORY_SEPARATOR . 'mytestsdb.sqlite',
-            $path->get() . DIRECTORY_SEPARATOR. 'mytestsdb.sqlite3'
-        )));  */
-    
-        
-    }
     
    //  ----------------------------------------------------------------------------
     

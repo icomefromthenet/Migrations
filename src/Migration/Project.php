@@ -381,6 +381,16 @@ class Project extends Pimple
         return $this['console'];
     }
 
+    /**
+     * Return the consoleoutput bridget
+     * 
+     * @return Migration\ConsoleOutputBridget
+     */ 
+    public function getConsoleOutputBridge()
+    {
+        return $this['console_output'];
+    }
+
     //  -------------------------------------------------------------------------
     # Detect project folder
 
