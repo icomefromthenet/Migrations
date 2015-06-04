@@ -148,7 +148,7 @@ class TableManager implements TableInterface
         $table_name = $this->table;
         
         try {
-            $query = sprintf("SELECT timestamp FROM %s;",$table_name);
+            $query = sprintf("SELECT timestamp FROM %s",$table_name);
             $stmt = $this->database->query($query);
             
             while ($row = $stmt->fetch()) {

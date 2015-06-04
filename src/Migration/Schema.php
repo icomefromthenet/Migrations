@@ -1,6 +1,7 @@
 <?php 
 namespace Migration;
 
+use \Exception;
 use \InvalidArgumentException;
 use \DateTime;
 use Symfony\Component\Console\Application;
@@ -123,13 +124,12 @@ class Schema
         if(true === $this->getNameMatcher()->isMatch($name)) {
             
             try {
+                $this->writeSchemaHeader($output);
                 
                 if(false === $this->isInstalled()) {
                     throw new TableMissingException('Can not execute this function if migration tracking table not installed');
                 }
                 
-                $this->writeSchemaHeader($output);
-       
                 $table_manager      = $this->getMigrationTableManager();
                 $collection         = $this->getMigrationCollection();
            
@@ -182,12 +182,12 @@ class Schema
        if(true === $this->getNameMatcher()->isMatch($name)) {
             
              try {
-                 
+                $this->writeSchemaHeader($output);
+       
+
                 if(false === $this->isInstalled()) {
                     throw new TableMissingException('Can not execute this function if migration tracking table not installed');
                 }
-                
-                $this->writeSchemaHeader($output);
        
                 $table_manager      = $this->getMigrationTableManager();
                 $collection         = $this->getMigrationCollection();
@@ -237,13 +237,12 @@ class Schema
         if(true === $this->getNameMatcher()->isMatch($name)) {
             
             try {
-                
+                $this->writeSchemaHeader($output);
+
                 if(false === $this->isInstalled()) {
                      throw new TableMissingException('Can not execute this function if migration tracking table not installed');
                 }
                 
-                $this->writeSchemaHeader($output);
-       
                 $table_manager      = $this->getMigrationTableManager();
                 $collection         = $this->getMigrationCollection();
            
@@ -335,12 +334,11 @@ class Schema
         if(true === $this->getNameMatcher()->isMatch($name)) {
             
              try {
-            
+                $this->writeSchemaHeader($output);
+             
                 if(false === $this->isInstalled()) {
                      throw new TableMissingException('Can not execute this function if migration tracking table not installed');
                 }
-                
-                $this->writeSchemaHeader($output);
 
                 $collection          = $this->getMigrationCollection();
                 
@@ -369,12 +367,11 @@ class Schema
             $mTableName = $this->getDatabaseConnection()->getMigrationTableName();
             
             try { 
-                
+                $this->writeSchemaHeader($output);
+
                 if(true === $this->isInstalled()) {
                    throw new AllReadyInstalledException('The database already has a migration table named::'.$mTableName);
                 }
-                
-                $this->writeSchemaHeader($output);
                 
                 $this->getMigrationTableManager()->build(); 
                 $table->addRow(array($this->getConnectionName(),'Y','Setup Database Success Migrations Tracking Table created using name ::'.$mTableName));
@@ -390,15 +387,18 @@ class Schema
     
     public function executeList($name, OutputInterface $output, Table $table,Table $conTable,$bAll,$iMax)
     {
-         if(true === $this->getNameMatcher()->isMatch($name)) {
         
+        if(true === $this->getNameMatcher()->isMatch($name)) {
+            
           try {    
-        
+            
+                $this->writeSchemaHeader($output);
+            
                if(false === $this->isInstalled()) {
                      throw new TableMissingException('Can not execute this function if migration tracking table not installed');
                 }
                 
-                $this->writeSchemaHeader($output);
+                
                 
                 $migrantionTableMgr = $this->getMigrationTableManager();
                 $collection         = $this->getMigrationCollection();

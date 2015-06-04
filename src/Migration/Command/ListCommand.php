@@ -45,7 +45,7 @@ class ListCommand extends Command
             
             $schema->executeList($name,$output,$summaryTable,$connTable,$bAll,$iMax);
             $schema->clearMigrationCollection();
-            
+           
         }
         
         
