@@ -120,7 +120,7 @@ class TableManager implements TableInterface
         $stamp = $this->convertDateTimeToUnix($timestamp);
         $table = $this->table;
         
-        $query = sprintf("INSERT INTO %s (timestamp) VALUES (%s);",$table,$stamp);
+        $query = sprintf("INSERT INTO %s (timestamp) VALUES (%s)",$table,$stamp);
         
         $affected = $this->database->executeUpdate($query);
         
@@ -152,7 +152,13 @@ class TableManager implements TableInterface
             $stmt = $this->database->query($query);
             
             while ($row = $stmt->fetch()) {
-                $results[] = (integer) $row['timestamp'];
+                if(isset($row['timestamp'])) {
+                    $results[] = (integer) $row['timestamp'];    
+                } else {
+                    $results[] = (integer) $row['TIMESTAMP'];  
+                }
+                
+                
             }
             
             $this->log->addInfo('Loaded migrations from '.$table_name);
