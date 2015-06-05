@@ -5,6 +5,7 @@ namespace Migration\Components\Migration\Driver\Generic;
 use Monolog\Logger as Logger;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Types\Type;
 
 use Migration\Components\Migration\MigrationFileInterface;
 use Migration\Components\Migration\Collection;
@@ -80,7 +81,7 @@ class TableManager implements TableInterface
         $stamp = $stmt->fetchColumn(0);
         
         # Delete the stamp
-        $affected = $this->database->executeUpdate(sprintf('DELETE FROM %s WHERE timestamp = ?',$table),array($stamp));
+        $affected = $this->database->executeUpdate(sprintf("DELETE FROM %s WHERE timestamp = :iStamp",$table),array(':iStamp' =>$stamp),array(TYPE::getType(TYPE::INTEGER)));
         
         if($affected > 0) {
             return true;
@@ -100,7 +101,7 @@ class TableManager implements TableInterface
         $table = $this->table;
 
         # Delete the stamp
-        $affected = $this->database->executeUpdate(sprintf('DELETE FROM `%s` WHERE `timestamp` = ?',$table),array($stamp));
+        $affected = $this->database->executeUpdate(sprintf("DELETE FROM %s WHERE timestamp = :iStamp",$table),array(':iStamp' =>$stamp),array(TYPE::getType(TYPE::INTEGER)));
         
         if($affected > 0) {
             return true;
