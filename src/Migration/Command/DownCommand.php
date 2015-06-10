@@ -17,12 +17,7 @@ class DownCommand extends Command
     {
         $project = $this->getApplication()->getProject();
         
-        # bootdtrap the connections and schemas
-        $project->bootstrapNewConnections();
-        $project->bootstrapNewSchemas();    
        
-         //    eval(\Psy\sh());
-        
         # fetch the con name query argument
         $name = $input->getArgument('conQuery');
         
@@ -53,6 +48,8 @@ class DownCommand extends Command
         
         # apply build operation too all match schema's
         foreach($project->getSchemaCollection() as $schema) {
+           
+           
             $schema->executeDown($name,$output,$summaryTable,$iIndex,$bforce);
             $schema->clearMigrationCollection();
          }

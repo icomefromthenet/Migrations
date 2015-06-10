@@ -48,6 +48,8 @@ class AbstractProjectWithFixture extends PHPUnit_Extensions_MultipleDatabase_Tes
         $boot = new Bootstrap();
         $project = $this->project = $boot->boot('1.0.0-dev',null);
       
+     
+      
         $project->setPath($this->getMockedPath());
         
         $project['loader']->setExtensionNamespace(
@@ -57,7 +59,9 @@ class AbstractProjectWithFixture extends PHPUnit_Extensions_MultipleDatabase_Tes
        # create mock project folder
        $this->createProject($project,$this->getSkeltonIO());
       
-       #bootstrap this project
+       
+      
+       #bootstrap the connections for the features to do db inserts
        $project->bootstrapNewConnections();
        $project->bootstrapNewSchemas();    
        

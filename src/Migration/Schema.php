@@ -1,7 +1,6 @@
 <?php 
 namespace Migration;
 
-use \Exception;
 use \InvalidArgumentException;
 use \DateTime;
 use Symfony\Component\Console\Application;
@@ -77,6 +76,7 @@ class Schema
      * @var Migration\Components\Migration\Event\Handler
      */ 
     protected $migrationEventHandler;
+    
     
     /**
      * Check if the table exists
@@ -375,7 +375,7 @@ class Schema
                 
                 $this->getMigrationTableManager()->build(); 
                 $table->addRow(array($this->getConnectionName(),'Y','Setup Database Success Migrations Tracking Table created using name ::'.$mTableName));
-            } catch(Exception $e) {
+            } catch(\Exception $e) {
                 $table->addRow(array($this->getConnectionName(),'<error>N</error>','Error Unable to Setup migration table using name ::'.$mTableName));
                 $this->getErrorPrinter()->renderExceptionWithConnection($e,$output,$this->getDatabaseConnection());
             }
@@ -471,7 +471,7 @@ class Schema
                 $table->addRow(array($this->getConnectionName(),'Y','Listed migrations for connecion'));
                 
               
-            } catch(Exception $e) {
+            } catch(\Exception $e) {
                 $table->addRow(array($this->getConnectionName(),'<error>N</error>','Error Unable to List migrations for connection'));
                 $this->getErrorPrinter()->renderExceptionWithConnection($e,$output,$this->getDatabaseConnection());
             }    
@@ -625,6 +625,7 @@ class Schema
     {
         return $this->migrationEventHandler;
     }
+    
     
 }
 /* End of Class */

@@ -107,6 +107,7 @@ class Path
     {
         $extension_bootstrap = $this->path . DIRECTORY_SEPARATOR . 'extension'. DIRECTORY_SEPARATOR .'bootstrap.php';
         
+        
         if(is_file($extension_bootstrap) === false) {
             throw new MigrationException(__CLASS__.'::'.__METHOD__.':: extension bootstrap file not found at '.$extension_bootstrap);    
         }

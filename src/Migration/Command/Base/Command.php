@@ -7,6 +7,8 @@ use Symfony\Component\Console\Command\Command as BaseCommand,
     Symfony\Component\Console\Input\InputOption,
     Migration\Project,
     Migration\Exception as MigrationException;
+use Migration\Components\Config\Loader;
+use Migration\Components\Config\StreamQueryLogger;
 
 class Command extends BaseCommand
 {
@@ -24,6 +26,8 @@ class Command extends BaseCommand
         
         $this->addOption('--dsn', '',   InputOption::VALUE_OPTIONAL,'DSN to connect to db',false);
         
+        
+        $this->addOption('--squish',null, InputOption::VALUE_NONE,'database exceptions during migration do not bubble and stop migration file');
     }
 
 
@@ -50,7 +54,8 @@ class Command extends BaseCommand
             );
             
        }
-
+         
+       
         #try and detect if path exits
         $path = $project->getPath()->get();
         if($path === false) {
@@ -58,8 +63,11 @@ class Command extends BaseCommand
         }
 
         # path exists does it have a project
-        if(Project::detect((string)$path) === false && $this->getName() !== 'app:init') {
+        if(Project::detect((string)$path) === false && $this->getName() !== 'app:init' ) {
             throw new MigrationException('Project Folder does not contain the correct folder heirarchy');
+        }
+        elseif($this->getName() !== 'app:init') {
+             $project->getPath()->loadExtensionBootstrap();
         }
 
         
@@ -74,6 +82,26 @@ class Command extends BaseCommand
         # bind this output instance to the output bridget
         
         $project->getConsoleOutputBridge()->setInternalConsole($output);
+
+         
+        $manager = $project['config_manager'];
+        
+        # bootdtrap the connections and schemas
+        if($manager->getLoader()->exists(Loader::DEFAULTNAME)) {
+            $project->bootstrapNewConnections();
+            $project->bootstrapNewSchemas();
+            $logger = $project->getLogger();
+            
+            foreach($project->getConnectionPool() as $connection) {
+                $connection->setSquishMigraionErrors($input->getOption('squish'));
+              
+                if(null === $connection->getConfiguration()->getSQLLogger()) {
+                    $connection->getConfiguration()->setSQLLogger(new StreamQueryLogger($logger));
+                }
+                
+            }
+            
+        }
 
     }
     

@@ -4,6 +4,9 @@ namespace Migration\Components\Config;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Cache\QueryCacheProfile;
+use Psr\Log\LoggerInterface;
 
 
 /**
@@ -24,6 +27,31 @@ class DoctrineConnWrapper extends Connection
    
    protected $migrationTableName;
    
+  /**
+   * The Level of output to display
+   */ 
+   protected $squishMigrationExceptions;
+   
+    /**
+     * Records an exception message for the given connection
+     * 
+     * @access public
+     * @param \Exception            $e
+     * @param DoctrineConnWrapper   $conn
+     */ 
+   protected function recordExceptionInLog(DBALException $e)
+   {
+      
+      $message = '['.$this->getMigrationConnectionPoolName().']::'.$e->getMessage();
+      
+      if(null === $this->getConfiguration()->getSQLLogger()) {
+         throw new \RuntimeException('The psr Logger is not assigned to this connectio and should be');
+      }
+      
+      $this->getConfiguration()->getSQLLogger()->getLogger()->error($message,array('connection'=>$this->getMigrationConnectionPoolName()));    
+   }
+
+     
    /**
     * Fetch the connection pool
     * 
@@ -109,6 +137,57 @@ class DoctrineConnWrapper extends Connection
    {
       $this->migrationTableName = $name;
    }
-
+   
+   /**
+    * Level of verbosity that console app is using.
+    * 
+    * @return integer a verbosity level
+    */ 
+   public function setSquishMigraionErrors($value)
+   {
+      $this->squishMigrationExceptions = (boolean)$value;
+   }
+   
+   
+   //--------------------------------------------------------------------------
+    
+   public function executeUpdate($query, array $params = array(), array $types = array())
+   {
+     $r = null;
+     
+      try {   
+         $r = parent::executeUpdate($query,$params,$types);
+      }
+      catch (DBALException $e) {
+         $this->recordExceptionInLog($e);
+         
+         if(true !== $this->squishMigrationExceptions) {
+            throw $e;
+         }
+         
+      }
+      
+      return $r;
+   }
+   
+   public function executeQuery($query, array $params = array(), $types = array(), QueryCacheProfile $qcp = null)
+   {
+      $r = null;
+      try {   
+        $r =  parent::executeQuery($query,$params,$types,$qcp);
+      }
+      catch (DBALException $e) {
+         $this->recordExceptionInLog($e);
+         
+         if(true !== $this->squishMigrationExceptions) {
+            throw $e;
+         }
+         
+      }
+      
+      return $r;
+   }
+   
+   
 }
 /* End of Class */

@@ -19,10 +19,6 @@ class UpCommand extends Command
     {
         $project = $this->getApplication()->getProject();
         
-        # bootdtrap the connections and schemas
-        $project->bootstrapNewConnections();
-        $project->bootstrapNewSchemas();    
-        
         # fetch the con name query argument
         $name = $input->getArgument('conQuery');
         

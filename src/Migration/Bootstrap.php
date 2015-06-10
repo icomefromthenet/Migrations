@@ -4,16 +4,24 @@ namespace Migration;
 use Migration\Command\Base\Application,
     Migration\Project,
     Migration\Path,
-    Migration\Bootstrap\Log as BootLog,
-    Migration\Bootstrap\Error as BootError,
-    Migration\Bootstrap\Database as BootDatabase,
     Migration\Autoload;
 
 use Migration\Components\Config\DoctrineConnWrapper;
 use Migration\Components\Migration\Driver\TableInterface;
+use Monolog\Logger;
+
 
 class Bootstrap
 {
+
+   protected static $classInstance;
+    
+   public static function getInstance()
+   {
+      return self::$classInstance;
+   }
+
+
 
    public function boot($version,$composer)
    {  
@@ -68,17 +76,19 @@ class Bootstrap
       
       //---------------------------------------------------------------
       // Bootstrap the logs
-      //
+      // Custom loggers are defined in the Project Skelton Bootstrap file
+      // We set a default for testing and bootstrap when project folder
+      // does not exist
       //--------------------------------------------------------------
       
-      
       $project['logger'] = $project->share(function($project){
-         // Create some handlers
-          $sysLog = new \Monolog\Handler\TestHandler();
+          // Create some handlers
+          $fileLog = new  \Monolog\Handler\NullHandler();
       
           // Create the main logger of the app
-          $logger = new \Monolog\Logger('error');
-          $logger->pushHandler($sysLog);
+          $logger = new \Monolog\Logger('log');
+          
+          $logger->pushHandler($fileLog);
       
           #assign the log to the project
           return $logger;
@@ -244,6 +254,9 @@ class Bootstrap
          return new \Migration\ConsoleOutputBridge();
          
       });
+   
+      # assignd this bootstrap class to instance var
+      self::$classInstance = $project;
    
       return $project;
 
