@@ -20,7 +20,7 @@ class AddCommand extends Command
             $project->bootstrapNewSchemas();
            
            
-           $migration_manager = $project->getMigrationManager();
+           $migration_manager = $project->getMigrationManager($input->getArgument('migration_folder'));
            $template_manager  = $project->getTemplatingManager();
            
            $migration_template = $template_manager->getLoader()->load('migration_template.twig',array());
