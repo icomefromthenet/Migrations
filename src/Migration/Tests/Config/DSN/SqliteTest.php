@@ -22,7 +22,8 @@ class SqliteTest extends AbstractProject
             'port'     => 3306,
             'socket'   => false,
             'database' => 'mydb.sqlite',
-            'migration_table' => 'migrate'
+            'migration_table' => 'migrate',
+            'schemaFolder' => 'migration'
         );
         
         
@@ -36,6 +37,7 @@ class SqliteTest extends AbstractProject
         $entity->expects($this->once())->method('setPath')->with($this->equalTo('mydb.sqlite'));
         $entity->expects($this->once())->method('setMemory')->with($this->equalTo(false));
         $entity->expects($this->once())->method('setConnectionName')->with($this->equalTo('default'));
+        $entity->expects($this->once())->method('setSchemaFolderName')->with($this->equalTo('migration'));
         
         $dsn = new Sqlite();
         $dsn->merge($entity,$parsed);

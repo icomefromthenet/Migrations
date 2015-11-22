@@ -175,14 +175,14 @@ class Bootstrap
       //
       //---------------------------------------------------------------
       
-      $project['migration_manager'] = $project->share(function($project){
-          $io = new \Migration\Components\Migration\Io($project->getPath()->get());
-          
+      $project['migration_manager'] = function($project,$sSchemaFolderName = null) {
+          $io = new \Migration\Components\Migration\Io($project->getPath()->get(),$sSchemaFolderName);
+           
           $project['loader']->setMigrationPath($io->path(''));
         
           # instance the manager, no database needed here
           return new \Migration\Components\Migration\Manager($io,$project);
-      });
+      };
       
       
       //---------------------------------------------------------------

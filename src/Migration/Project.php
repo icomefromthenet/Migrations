@@ -223,7 +223,8 @@ class Project extends Pimple
         $event->switchChannel($connName);
         
         $nameMatcher         = new NameMatcher($connName);
-        $migrationFileLoader = $this->getMigrationManager()->getLoader();
+        
+        $migrationFileLoader = $this->getMigrationManager($conn->getMigrationSchemaFolderName())->getLoader();
         $fileNameParser      = $this['migration_filename_parser'];
         $errorPrinter        = $this['console'];
         
@@ -303,10 +304,12 @@ class Project extends Pimple
       *
       *  @access public
       *  @return \Migration\Components\Migration\Manager an instance of the migration component manager
+      *  @param string $sSchemaFolderName The folder that contains the migrations 
       */
-    public function getMigrationManager()
+    public function getMigrationManager($sSchemaFolderName)
     {
-        return $this['migration_manager'];
+        $oFunc = $this->raw('migration_manager');
+        return $oFunc($this,$sSchemaFolderName);
     }
     
     
@@ -457,20 +460,22 @@ class Project extends Pimple
             throw new \RuntimeException('Config Manager not loaded, must be loaded before booting the database');
         }
       
-        $entity = new \Migration\Components\Config\Entity();
           
         # is the dsn set
         # e.g mysql://root:vagrant@localhost:3306/sakila?migration_table=migrations_data
         if(isset($this['dsn_command']) === true) {
             $dsn_parser      = new \Migration\Components\Config\DSNParser();
-      
+            $entity = new \Migration\Components\Config\Entity();
+     
             # attempt to parse dsn for detials
             $parsed          = $dsn_parser->parse($this['dsn_command']);
             $db_type         = ($parsed['phptype'] !== 'oci8') ? $parsed['phptype'] = 'pdo_' . $parsed['phptype'] : $parsed['phptype'];
       
             # parse the dsn config data using the DSN driver.
             $this['config_dsn_factory']->create($parsed['phptype'])->merge($entity,$parsed);
-               
+            
+            # assign this parsed DSN to the connection Pool.   
+            $pool->addExtraConnection($entity->getConnectionName(),$entity);   
                
         } else {
       
@@ -491,7 +496,7 @@ class Project extends Pimple
                  # in shell mode this config can be reloaded to force new configurations
                  # to be included
                  if(false === $pool->hasExtraConnection($config->getConnectionName())) {
-                     $pool->addExtraConnection($config->getConnectionName(),$config);   
+                    $pool->addExtraConnection($config->getConnectionName(),$config);   
                  }
                  
               }

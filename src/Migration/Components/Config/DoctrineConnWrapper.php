@@ -27,6 +27,10 @@ class DoctrineConnWrapper extends Connection
    
    protected $migrationTableName;
    
+   
+   protected $migrationSchemaFolderName;
+
+      
   /**
    * The Level of output to display
    */ 
@@ -146,6 +150,26 @@ class DoctrineConnWrapper extends Connection
    public function setSquishMigraionErrors($value)
    {
       $this->squishMigrationExceptions = (boolean)$value;
+   }
+   
+   /**
+    * Schema Folder Name where the migration files are stored
+    * 
+    * @return void
+    */ 
+   public function setMigrationSchemaFolderName($sFolderName)
+   {
+      $this->migrationSchemaFolderName = $sFolderName;
+   }
+   
+   /**
+    * Fetches the schema folder name where migration files are stored
+    * 
+    * @return string if value been set
+    */ 
+   public function getMigrationSchemaFolderName()
+   {
+      return $this->migrationSchemaFolderName;
    }
    
    

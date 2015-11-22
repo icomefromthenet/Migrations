@@ -110,7 +110,7 @@ interface EntityInterface
     
     public function setMigrationTable($table);
     
-     /**
+    /**
      * Sets the pool id of this connection
      * 
      * @return string the poolname
@@ -119,5 +119,14 @@ interface EntityInterface
     
     public function setConnectionName($name);
     
+    /**
+     * Sets the schema folder name
+     * 
+     * @return string the poolname
+     */
+    public function setSchemaFolderName($sSchemaFolder);
+    
+    public function getSchemaFolderName();
+        
 }
 /* End of File */

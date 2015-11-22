@@ -62,7 +62,7 @@ class CollectionTest extends AbstractProject
       */
     public function testDispatchBadEvent()
     {
-        $bad_event = $this->getMockBuilder('\Symfony\Component\EventDispatcher\Event')->getMock();
+        $bad_event = $this->getMockBuilder('Migration\Components\Migration\Event\Base')->getMock();
         $event = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcherInterface')->getMock();
         $latest = null;
         $collection = new Collection($event,$latest);

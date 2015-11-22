@@ -50,24 +50,35 @@ You may pass in an optional <comment>Alpha Numeric prefix.</comment>
 
 <comment>Example (Default prefix):</comment>
 
->> app:add
+>> app:add migration
+
+<comment>Example (Different Schema Folder with default prefix):</comment>
+
+>> app:add contract 
+
 
 <comment>Example (Custom prefix): </comment>
 
->> app:add 'added currency column to table x'
+>> app:add migration 'added currency column to table x'
 
 <error>Invalid Example (Must start with a-z|A-z):</error>
 
->> app:add '00988'
+>> app:add migration '00988'
 
 <error>Invalid Example (not alpha numeric):</error>
 
->> app:add suffix with = sign 
+>> app:add migration suffix with = sign 
 
 EOF
     );
 
           $this->setDefinition(array(
+            new InputArgument(
+                    'migration_folder',
+                    InputArgument::REQUIRED,
+                    'the migration folder to use',
+                    NULL
+            ),
             new InputArgument(
                     'migration_prefix',
                     InputArgument::OPTIONAL,

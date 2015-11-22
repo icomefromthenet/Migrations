@@ -27,6 +27,7 @@ class EntityTest extends AbstractProject
         $entity->setUser('root');
         $entity->setConnectionName('mystage');
         $entity->setMigrationTable('mytable');
+        $entity->setSchemaFolderName('default');
         
         $entity->addPlatformOption('service','myService');
         $entity->addPlatformOption('mypath','myPath');
@@ -44,7 +45,7 @@ class EntityTest extends AbstractProject
         $this->assertEquals($entity->getUser(),'root');
         $this->assertEquals($entity->getConnectionName(),'MYSTAGE');
         $this->assertEquals($entity->getMigrationTable(),'mytable');
-        
+        $this->assertEquals($entity->getSchemaFolderName(),'default');
         $this->assertSame(array('service'=>'myService','mypath'=>'myPath'),$entity->getPlatformOptions());
         
         

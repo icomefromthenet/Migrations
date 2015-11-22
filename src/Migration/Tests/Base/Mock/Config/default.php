@@ -17,6 +17,7 @@ return array (
     'charset' => NULL,
     'connectionName' => 'DEMO.A',
     'migration_table' => 'migrations_data',
+    'schemaFolder' => 'migration'
   ),
   1 => 
   array (
@@ -32,6 +33,7 @@ return array (
     'charset' => NULL,
     'connectionName' => 'DEMO.B',
     'migration_table' => 'migrations_data',
+    'schemaFolder' => 'migration'
   ),
 );
 

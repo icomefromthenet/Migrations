@@ -10,7 +10,7 @@ use Symfony\Component\Finder\Finder;
 class Io extends Base
 {
 
-    protected $dir = 'migration';
+    protected $dir;
 
     protected $test_data_fname = 'test_data.php';
 
@@ -21,8 +21,15 @@ class Io extends Base
      * @param string $base_folder the path to a project
      */
 
-    public function __construct($base_folder)
+    public function __construct($base_folder,$dir = null)
     {
+        if($dir === null) {
+            $dir = 'migration';
+        } 
+          
+        $this->dir = $dir;
+        
+        
         parent::__construct($base_folder);
     }
 

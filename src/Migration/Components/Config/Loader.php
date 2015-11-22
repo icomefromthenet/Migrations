@@ -49,6 +49,19 @@ class Loader
             $ent->setUser($config_ary['user']);
             $ent->setMigrationTable($config_ary['migration_table']);
             
+            
+            if(isset($config_ary['schemaFolder'])) {
+                $ent->setSchemaFolderName($config_ary['schemaFolder']);
+            }
+            
+            if(isset($config_ary['schema_folder'])) {
+                $ent->setSchemaFolderName($config_ary['schema_folder']);
+            }
+            
+            if(isset($config_ary['schemafolder'])) {
+                $ent->setSchemaFolderName($config_ary['schemafolder']);
+            }
+            
             if(isset($config_ary['connName'])) {
                 $ent->setConnectionName($config_ary['connName']);
             }
@@ -62,10 +75,11 @@ class Loader
             }
             
             foreach($config_ary as $k => $v) {
-                if(false == in_array($k,array('type','charset','memory','password','path','port','schema','socket','user','connName','poolName','connectionName'))) {
+                if(false == in_array($k,array('schemaFolder','schemafolder','schema_folder','type','charset','memory','password','path','port','schema','socket','user','connName','poolName','connectionName'))) {
                     $ent->addPlatformOption($k,$v);
                 }
             }
+            
             
             return $ent;
     }

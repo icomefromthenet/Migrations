@@ -43,9 +43,6 @@ class ConnectionPool implements \IteratorAggregate
     */ 
    public function addExtraConnection($name,Entity $entity)
    {
-       if($name === '__INTERNAL__') {
-           throw new InvalidConfigException('not allowd to add a database connection using name __INTERNAL__');
-       }
        
        if(true === empty($name)) {
            throw new InvalidConfigException('database connection name must not be empty');
@@ -91,6 +88,7 @@ class ConnectionPool implements \IteratorAggregate
         $connection->setMigrationConnectionPoolName($name);
         $connection->setMigrationAdapterPlatform($entity->getType());
         $connection->setMigrationTableName($entity->getMigrationTable());
+        $connection->setMigrationSchemaFolderName($entity->getSchemaFolderName());
        
         $this->otherConnections[$name] = $connection;
        

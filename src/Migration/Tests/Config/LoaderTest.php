@@ -10,7 +10,7 @@ class LoaderTest extends AbstractProject
 {
     
     
-     protected function matchFakerDBEntity($config,EntityInterface $ent)
+    protected function matchFakerDBEntityA($config,EntityInterface $ent)
     {
         $this->assertEquals($config['type'],$ent->getType());
         $this->assertEquals($config['schema'],$ent->getSchema());
@@ -24,9 +24,49 @@ class LoaderTest extends AbstractProject
         $this->assertEquals($config['charset'],$ent->getCharset());
         $this->assertEquals(strtoupper($config['connName']),$ent->getConnectionName());
         $this->assertEquals($config['migration_table'],$ent->getMigrationTable());
+        $this->assertEquals($config['schemaFolder'],$ent->getSchemaFolderName());
+     
         
     }
-    
+
+    protected function matchFakerDBEntityB($config,EntityInterface $ent)
+    {
+        $this->assertEquals($config['type'],$ent->getType());
+        $this->assertEquals($config['schema'],$ent->getSchema());
+        $this->assertEquals($config['user'],$ent->getUser());
+        $this->assertEquals($config['password'],$ent->getPassword());
+        $this->assertEquals($config['host'],$ent->getHost());
+        $this->assertEquals($config['port'],$ent->getPort());
+        $this->assertEquals($config['socket'],$ent->getUnixSocket());
+        $this->assertEquals($config['path'],$ent->getPath());
+        $this->assertEquals($config['memory'],$ent->getMemory());
+        $this->assertEquals($config['charset'],$ent->getCharset());
+        $this->assertEquals(strtoupper($config['connName']),$ent->getConnectionName());
+        $this->assertEquals($config['migration_table'],$ent->getMigrationTable());
+        $this->assertEquals($config['schemafolder'],$ent->getSchemaFolderName());
+     
+        
+    }
+
+    protected function matchFakerDBEntityC($config,EntityInterface $ent)
+    {
+        $this->assertEquals($config['type'],$ent->getType());
+        $this->assertEquals($config['schema'],$ent->getSchema());
+        $this->assertEquals($config['user'],$ent->getUser());
+        $this->assertEquals($config['password'],$ent->getPassword());
+        $this->assertEquals($config['host'],$ent->getHost());
+        $this->assertEquals($config['port'],$ent->getPort());
+        $this->assertEquals($config['socket'],$ent->getUnixSocket());
+        $this->assertEquals($config['path'],$ent->getPath());
+        $this->assertEquals($config['memory'],$ent->getMemory());
+        $this->assertEquals($config['charset'],$ent->getCharset());
+        $this->assertEquals(strtoupper($config['connName']),$ent->getConnectionName());
+        $this->assertEquals($config['migration_table'],$ent->getMigrationTable());
+        $this->assertEquals($config['schema_folder'],$ent->getSchemaFolderName());
+     
+        
+    }
+        
     public function testProperties()
     {
         $io = $this->getMockBuilder('\Migration\Components\Config\Io')->disableOriginalConstructor()->getMock();    
@@ -129,7 +169,8 @@ class LoaderTest extends AbstractProject
             'memory'          => false,
             'charset'         => false,
             'connName'        => 'myconnectName',
-            'migration_table' => 'mytable'
+            'migration_table' => 'mytable',
+            'schemaFolder'    => 'default'
         );
         
        
@@ -144,7 +185,7 @@ class LoaderTest extends AbstractProject
         
         $this->assertInternalType('array',$returnStack);
         $this->assertCount(1,$returnStack);
-        $this->matchFakerDBEntity($data,$returnStack[0]);
+        $this->matchFakerDBEntityA($data,$returnStack[0]);
     }
     
    /**
@@ -169,7 +210,8 @@ class LoaderTest extends AbstractProject
             'memory'          => false,
             'charset'         => false,
             'connName'        => 'myconnectNameA',
-            'migration_table' => 'table1'
+            'migration_table' => 'table1',
+            'schema_folder'   => 'default'
         );
         $data[1] = array(
             'type'            => 'pdo_mysqlB',
@@ -183,7 +225,8 @@ class LoaderTest extends AbstractProject
             'memory'          => false,
             'charset'         => false,
             'connName'        => 'myconnectNameB',
-            'migration_table' => 'table1'
+            'migration_table' => 'table1',
+            'schemafolder'    => 'default'
         );
        
         
@@ -197,8 +240,8 @@ class LoaderTest extends AbstractProject
         
         $this->assertInternalType('array',$returnStack);
         $this->assertCount(2,$returnStack);
-        $this->matchFakerDBEntity($data[0],$returnStack[0]);
-        $this->matchFakerDBEntity($data[1],$returnStack[1]);
+        $this->matchFakerDBEntityC($data[0],$returnStack[0]);
+        $this->matchFakerDBEntityB($data[1],$returnStack[1]);
     }
     
     

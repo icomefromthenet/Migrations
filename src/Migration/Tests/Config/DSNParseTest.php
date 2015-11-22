@@ -76,6 +76,16 @@ class DSNParserTest  extends AbstractProject
         $this->assertEquals('localhost',$config['hostspec']);
     }
     
+     public function testParseSchemafolder()
+    {
+        $parser = new DSNParser();
+        $dsn    = 'odbc(access)://admin@/datasourcename?schemafolder=default';
+        
+        $config = $parser->parse($dsn);
+        
+        $this->assertEquals('default',$config['schemafolder']);
+    }
+    
     
 }
 /* End of File */

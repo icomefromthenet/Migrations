@@ -54,6 +54,7 @@ class Pgsql implements ConfigInterface
                 ->scalarNode('database')->isRequired()->end()
                 ->scalarNode('migration_table')->isRequired()->end()
                 ->scalarNode('connectionName')->defaultValue('default')->end()
+                ->scalarNode('schemaFolder')->defaultValue(null)->end()
                 ->end();
 
             } catch(\Exception $e) {
@@ -82,6 +83,7 @@ class Pgsql implements ConfigInterface
             $entity->setPassword($config['password']);
             $entity->setMigrationTable($config['migration_table']);
            $entity->setConnectionName($config['connectionName']);
+           $entity->setSchemaFolderName($config['schemaFolder']); 
     
         } catch(\Exception $e) {
             throw new InvalidConfigException($e->getMessage());

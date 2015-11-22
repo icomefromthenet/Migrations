@@ -22,7 +22,7 @@ class DSNParser
      *
      * Most variations are allowed:
      * <code>
-     *  phptype://username:password@protocol+hostspec:110//usr/db_file.db?mode=0644
+     *  phptype://username:password@protocol+hostspec:110//usr/db_file.db?mode=0644?schemafolder=default
      *  phptype://username:password@hostspec/database_name
      *  phptype://username:password@hostspec
      *  phptype://username@hostspec

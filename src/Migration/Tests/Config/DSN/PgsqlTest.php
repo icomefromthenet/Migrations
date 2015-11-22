@@ -22,7 +22,8 @@ class PgSqlTest extends AbstractProject
             'port'     => 3306,
             'socket'   => false,
             'database' => 'sakila',
-            'migration_table' => 'migrate'
+            'migration_table' => 'migrate',
+            'schemaFolder' => 'migration'
         );
         
         
@@ -37,6 +38,7 @@ class PgSqlTest extends AbstractProject
         $entity->expects($this->once())->method('setPassword')->with($this->equalTo('vagrant'));
         $entity->expects($this->once())->method('setMigrationTable')->with($this->equalTo('migrate'));
         $entity->expects($this->once())->method('setConnectionName')->with($this->equalTo('default'));
+        $entity->expects($this->once())->method('setSchemaFolderName')->with($this->equalTo('migration'));
         
         $dsn = new Pgsql();
         $dsn->merge($entity,$parsed);

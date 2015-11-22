@@ -55,6 +55,7 @@ class Oci implements ConfigInterface
                 ->scalarNode('migration_table')->isRequired()->end()
                 ->scalarNode('charset')->defaultValue(false)->end()
                 ->scalarNode('connectionName')->defaultValue('default')->end()
+                ->scalarNode('schemaFolder')->defaultValue(null)->end()
                 ->end();
 
             } catch(\Exception $e) {
@@ -84,6 +85,7 @@ class Oci implements ConfigInterface
             $entity->setCharset($config['charset']);
             $entity->setMigrationTable($config['migration_table']);
             $entity->setConnectionName($config['connectionName']);
+            $entity->setSchemaFolderName($config['schemaFolder']); 
     
         } catch(\Exception $e) {
             throw new InvalidConfigException($e->getMessage());

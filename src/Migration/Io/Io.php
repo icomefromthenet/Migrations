@@ -164,11 +164,14 @@ class Io implements IoInterface
     public function write($filename,$folders,$content,$overrite = FALSE)
     {
 
+
+
         # Remove the first and last dir char.
         $filename = ltrim(rtrim($filename,'/'),'/');
 
 
         $path  = $this->path($folders) . $filename;
+        
 
         #check if path exists and overrite dir
         if(is_file($path) === TRUE && $overrite === FALSE) {

@@ -208,6 +208,22 @@ class Entity implements EntityInterface
    {
        return $this->platformOptions;
    }
+   
+   //------------------------------------------------------------------
     
+    protected $sSchemaFolder;
+    
+    public function setSchemaFolderName($sSchemaFolder)
+    {
+        $this->sSchemaFolder = $sSchemaFolder; 
+    }
+    
+    public function getSchemaFolderName()
+    {
+        return $this->sSchemaFolder;
+    }
+    
+    //------------------------------------------------------------------
+   
 }
 /* End of File */

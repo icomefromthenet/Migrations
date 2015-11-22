@@ -22,7 +22,8 @@ class OciTest extends AbstractProject
             'port'     => 3306,
             'socket'   => false,
             'database' => 'sakila',
-            'migration_table' => 'migrate'
+            'migration_table' => 'migrate',
+            'schemaFolder' => 'migration'
         );
         
         
@@ -38,6 +39,7 @@ class OciTest extends AbstractProject
         $entity->expects($this->once())->method('setMigrationTable')->with($this->equalTo('migrate'));
         $entity->expects($this->once())->method('setCharset')->with($this->equalTo(false));
         $entity->expects($this->once())->method('setConnectionName')->with($this->equalTo('default'));
+        $entity->expects($this->once())->method('setSchemaFolderName')->with($this->equalTo('migration'));
         
         $dsn = new Oci();
         $dsn->merge($entity,$parsed);
