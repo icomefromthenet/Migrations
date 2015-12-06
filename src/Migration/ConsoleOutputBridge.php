@@ -26,7 +26,7 @@ class ConsoleOutputBridge implements ConsoleOutputInterface
         return $this->interalConsole;
     }
     
-    public function setInternalConsole(ConsoleOutputInterface $output)
+    public function setInternalConsole(OutputInterface $output)
     {
         $this->interalConsole = $output;
     }
