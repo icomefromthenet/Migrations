@@ -50,6 +50,17 @@ class Autoload extends UniversalClassLoader
         return $this->migration_path;
     }
     
+    protected $migrationNamespace;
+    
+    public function setMigrationNamespace($sNameSpace)
+    {
+        $this->migrationNamespace = $sNameSpace;
+    }
+    
+    public function getMigrationNamespace()
+    {
+        return $this->migrationNamespace;
+    }
     
     //  -------------------------------------------------------------------------
     # Namespace Extension Filter 
@@ -89,7 +100,7 @@ class Autoload extends UniversalClassLoader
         $className = substr($class, $pos + 1);
         
         # make early use of include path
-        if ($namespace === 'Migration\Components\Migration\Entities') {
+        if ($namespace === $this->getMigrationNamespace()) {
             return rtrim($this->migration_path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $className .'.php';
         }
        

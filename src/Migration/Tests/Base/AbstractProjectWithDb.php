@@ -12,7 +12,7 @@ class AbstractProjectWithDb extends AbstractProject
         
         if($platform === 'mysql') {
             exec('/usr/bin/mysql -u '. DEMO_DATABASE_USER . ' -p'.DEMO_DATABASE_PASSWORD .' < '.__DIR__ .'/sakila-schema.sql');  
--           exec('/usr/bin/mysql -u '. DEMO_DATABASE_USER . ' -p'.DEMO_DATABASE_PASSWORD .' < '.__DIR__ .'/sakila-data.sql');      
+            exec('/usr/bin/mysql -u '. DEMO_DATABASE_USER . ' -p'.DEMO_DATABASE_PASSWORD .' < '.__DIR__ .'/sakila-data.sql');      
         } else if($platform === 'sqlite') {
             
             if(is_file('/var/tmp/example.sqlite')) {

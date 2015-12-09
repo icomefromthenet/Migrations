@@ -8,6 +8,7 @@ use Migration\Components\Migration\Driver\TableManagerFactory;
 use Migration\Components\Migration\Exception as MigrationException;
 use Migration\Components\ManagerInterface;
 use Migration\Io\IoInterface;
+use Migration\Autoload;
 use Migration\Components\Config\Entity as ConfigEntity;
 use Migration\Components\Migration\Event\Handler as MigrationHandler;
 use Migration\Components\Migration\Collection as MigrationCollection;
@@ -40,16 +41,22 @@ class Manager implements ManagerInterface
       *  @var Migration\Project 
       */
     protected $di;
+    
+    /**
+     * @var Migration\Autoload
+     */ 
+    protected $oAutoloader;
       
     /*
      * __construct()
      * @param $arg
      */
 
-    public function __construct(IoInterface $io, Project $di )
+    public function __construct(IoInterface $io, Project $di, Autoload $oAutoloader )
     {
         $this->io = $io;
         $this->di = $di;
+        $this->oAutoloader = $oAutoloader;
     }
 
     //  -------------------------------------------------------------------------
@@ -112,7 +119,7 @@ class Manager implements ManagerInterface
     public function getLoader()
     {
         if($this->loader === NULL) {
-            $this->loader = new Loader($this->io,$this->getFileNameParser());
+            $this->loader = new Loader($this->io,$this->oAutoloader);
             
         }
 

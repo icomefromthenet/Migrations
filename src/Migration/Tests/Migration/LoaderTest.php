@@ -1,13 +1,14 @@
 <?php
 namespace Migration\Tests\Migration;
 
-use Migration\Components\Migration\Io,
-    Migration\Components\Migration\Loader,
-    Migration\Components\Migration\Collection,
-    Migration\Components\Migration\MigrationFile,
-    Migration\Components\Migration\FileName,
-    Migration\Tests\Base\AbstractProject,
-    SplFileInfo;
+use Migration\Components\Migration\Io;
+use Migration\Components\Migration\Loader;
+use Migration\Components\Migration\Collection;
+use Migration\Components\Migration\MigrationFile;
+use Migration\Components\Migration\FileName;
+use Migration\Tests\Base\AbstractProject;
+use SplFileInfo;
+use Migration\Autoload;
 
 class LoaderTest extends AbstractProject
 {
@@ -17,8 +18,9 @@ class LoaderTest extends AbstractProject
         $io = $this->getMockBuilder('\Migration\Components\Migration\Io')
                    ->disableOriginalConstructor()
                    ->getMock();
+        $oAutoloader = new Autoload();
         
-        $loader = new Loader($io);
+        $loader = new Loader($io, $oAutoloader);
         $this->assertInstanceOf('\Migration\Components\Migration\Loader',$loader);
 
     }
@@ -29,8 +31,9 @@ class LoaderTest extends AbstractProject
         $io = $this->getMockBuilder('\Migration\Components\Migration\Io')
                    ->disableOriginalConstructor()
                    ->getMock();
+        $oAutoloader = new Autoload();
         
-        $loader = new Loader($io);
+        $loader = new Loader($io, $oAutoloader);
     
         $io->expects($this->once())
            ->method('schema')
@@ -45,12 +48,14 @@ class LoaderTest extends AbstractProject
         $io = $this->getMockBuilder('\Migration\Components\Migration\Io')
                    ->disableOriginalConstructor()
                    ->getMock();
+        
+        $oAutoloader = new Autoload();
      
         $io->expects($this->once())
            ->method('testData')
            ->will($this->returnValue(new \SplFileInfo(__FILE__)));
         
-        $loader = new Loader($io);
+        $loader = new Loader($io, $oAutoloader);
     
         $this->assertInstanceOf('\Migration\Components\Migration\MigrationFile',$loader->testData());
     }
@@ -78,6 +83,7 @@ class LoaderTest extends AbstractProject
            ->with($this->equalTo(__DIR__))
            ->will($this->returnValue($collection_data));
         
+        $oAutoloader = new Autoload();
     
         $collection = $this->getMockBuilder('\Migration\Components\Migration\CollectionInterface')->getMock();
        
@@ -96,7 +102,7 @@ class LoaderTest extends AbstractProject
                    ->will($this->returnValue(11111)); 
     
     
-        $loader = new Loader($io);
+        $loader = new Loader($io, $oAutoloader);
         $loader->load($collection,$file_name);
     }
     

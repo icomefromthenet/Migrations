@@ -35,13 +35,11 @@ class AbstractProject extends PHPUnit_Framework_TestCase
                    'Migration\\Components\\Extension' , $project->getPath()->get()
         );
         
-        $this->processIsolation = true;
-        $this->preserveGlobalState = false;
-        
         # remove migration project directory
         $path = '/var/tmp/' . $this->migration_dir;
         $this->removeProjectFolder($path);
        
+        parent::__construct();
     }
     
         

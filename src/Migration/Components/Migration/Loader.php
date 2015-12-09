@@ -1,13 +1,16 @@
 <?php
 namespace Migration\Components\Migration;
 
-use Symfony\Component\Console\Output as Output,
-    Migration\Components\Migration\FileName as Filename,
-    Migration\Components\Migration\MigrationFile,
-    Migration\Components\Migration\CollectionInterface;
+use Symfony\Component\Console\Output as Output;
+use Migration\Components\Migration\FileName as Filename;
+use Migration\Components\Migration\MigrationFile;
+use Migration\Components\Migration\CollectionInterface;
+use Migration\Autoload;
 
 class Loader
 {
+
+    protected $oAutoloader;
 
     /*
      * __construct()
@@ -16,9 +19,10 @@ class Loader
      * @return void
      * @access public
      */
-    public function __construct(Io $io)
+    public function __construct(Io $io, Autoload $oAutoloader)
     {
         $this->setIo($io);
+        $this->oAutoloader = $oAutoloader;
     }
 
 
@@ -37,7 +41,7 @@ class Loader
         # add the list to the migration collection (Temporal Collection)
         foreach($file_iterator as $file) {
           $stamp = $filename->parse($file->getRealPath()); 
-          $collection->insert(new MigrationFile($file,$stamp),$stamp);
+          $collection->insert(new MigrationFile($this->oAutoloader, $file, $stamp), $stamp);
         }
 
     }
@@ -56,7 +60,7 @@ class Loader
     {
         $now = new \DateTime();
         $splFileInfo = $this->io->schema();
-        return new MigrationFile($splFileInfo,$now->getTimestamp(),false);
+        return new MigrationFile($this->oAutoloader, $splFileInfo, $now->getTimestamp(), false);
     }
 
     /**
@@ -69,7 +73,7 @@ class Loader
     {
         $now = new \DateTime();
         $splFileInfo = $this->io->testData();
-        return new MigrationFile($splFileInfo,$now->getTimestamp(),false);
+        return new MigrationFile($this->oAutoloader, $splFileInfo, $now->getTimestamp(), false);
     }
 
     //  ------------------------------------------------------------------

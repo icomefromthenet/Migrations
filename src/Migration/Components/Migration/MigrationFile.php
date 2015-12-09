@@ -3,6 +3,7 @@ namespace Migration\Components\Migration;
 
 use \SplFileInfo;
 use Migration\Components\Migration\Exception\EntityNotExistException;
+use Migration\Autoload;
 
 class MigrationFile implements MigrationFileInterface
 {
@@ -11,6 +12,10 @@ class MigrationFile implements MigrationFileInterface
       */
     protected $file;
 
+    /**
+     * @var Migration\Autoload
+     */ 
+    protected $oAutoloader;
 
     /**
       *  __construct()
@@ -21,11 +26,12 @@ class MigrationFile implements MigrationFileInterface
       *  @param boolean $applied if the migration has been run against the db
       *  @return void
       */
-    public function __construct(\SplFileInfo $file,$stamp,$applied = false)
+    public function __construct(Autoload $oAutoloader ,\SplFileInfo $file,$stamp,$applied = false)
     {
-        $this->file = $file;
-        $this->stamp = (integer) $stamp;
-        $this->applied = (boolean) $applied;
+        $this->file         = $file;
+        $this->stamp        = (integer) $stamp;
+        $this->applied      = (boolean) $applied;
+        $this->oAutoloader   = $oAutoloader;
     }
 
     //  -------------------------------------------------------------------------
@@ -108,14 +114,22 @@ class MigrationFile implements MigrationFileInterface
     public function getEntity()
     {
         $basename = rtrim(basename($this->getFilename()),'.php');
-        $class = __NAMESPACE__.'\\Entities\\'.$basename;
         
-        if(class_exists($class) === false) {
-            throw new EntityNotExistException('Entity does not exist at '.$class);
+        $sClass  = $this->oAutoloader->getMigrationNamespace();
+        $sClass .= '\\'.$basename;
+        
+        if($this->oAutoloader->findFile($sClass) === null) {
+            throw new EntityNotExistException('Entity does not exist at '.$sClass);
         }
         
-        return new $class();
+        # check if class has been required aleady, this can happen if in shellmode or in unit tests
+        if(!class_exists($sClass)) {
+            $this->oAutoloader->loadClass($sClass);    
+        }
+        
+        return new $sClass();
     }
+    
 
     //  -------------------------------------------------------------------------
 }

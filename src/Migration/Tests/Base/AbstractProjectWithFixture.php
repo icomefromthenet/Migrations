@@ -30,12 +30,12 @@ class AbstractProjectWithFixture extends PHPUnit_Extensions_MultipleDatabase_Tes
 
     public function __construct()
     {
-        $this->processIsolation = false;
-        $this->preserveGlobalState = false;
         
         # remove migration project directory
         $path = self::MIG_TMP_PATH.$this->migration_dir;
         $this->removeProject($path);
+        
+        parent::__construct();
        
     }
     
@@ -44,30 +44,34 @@ class AbstractProjectWithFixture extends PHPUnit_Extensions_MultipleDatabase_Tes
 
     public function setUp()
     {
+       
+       
         # create new project object
         $boot = new Bootstrap();
         $project = $this->project = $boot->boot('1.0.0-dev',null);
       
-     
+    
       
         $project->setPath($this->getMockedPath());
         
         $project['loader']->setExtensionNamespace(
                    'Migration\\Components\\Extension' , $project->getPath()->get()
         );
+        
+        
       
        # create mock project folder
        $this->createProject($project,$this->getSkeltonIO());
-      
-       
+     
       
        #bootstrap the connections for the features to do db inserts
        $project->bootstrapNewConnections();
        $project->bootstrapNewSchemas();    
        
-        # set error level
-        error_reporting(E_ERROR);
-      
+       $this->project = $project;
+        
+    
+        
         parent::setUp();
     }
     
@@ -158,6 +162,10 @@ class AbstractProjectWithFixture extends PHPUnit_Extensions_MultipleDatabase_Tes
         $project_folder = new Io($project->getPath()->get());
         $project->build($project_folder,$skelton_folder,new NullOutput());
         $project->getPath()->loadExtensionBootstrap();
+        
+      
+      
+        
         # copy config
         $fs->copy(__DIR__ .'/Mock/Config/default.php',rtrim($project->getPath()->get(),'/') .'/config/default.php');
         
@@ -165,7 +173,17 @@ class AbstractProjectWithFixture extends PHPUnit_Extensions_MultipleDatabase_Tes
         $fs->copy(__DIR__ .'/Mock/Migrations/migration_2012_08_31_04_56_27.php',rtrim($project->getPath()->get(),'/') .'/migration/migration_2012_08_31_04_56_27.php');
         $fs->copy(__DIR__ .'/Mock/Migrations/migration_2012_08_31_04_56_58.php',rtrim($project->getPath()->get(),'/') .'/migration/migration_2012_08_31_04_56_58.php');
         $fs->copy(__DIR__ .'/Mock/Migrations/migration_2012_08_31_04_59_37.php',rtrim($project->getPath()->get(),'/') .'/migration/migration_2012_08_31_04_59_37.php');
+    
+        $fs->mkdir(rtrim($project->getPath()->get(),'/').'/common',0777);
+        
+        #copy migration files
+        $fs->copy(__DIR__ .'/Mock/Common/migration_2012_08_31_04_56_27.php',rtrim($project->getPath()->get(),'/') .'/common/migration_2012_08_31_04_56_27.php');
+        $fs->copy(__DIR__ .'/Mock/Common/migration_2012_08_31_04_56_58.php',rtrim($project->getPath()->get(),'/') .'/common/migration_2012_08_31_04_56_58.php');
+        $fs->copy(__DIR__ .'/Mock/Common/migration_2012_08_31_04_59_37.php',rtrim($project->getPath()->get(),'/') .'/common/migration_2012_08_31_04_59_37.php');
+        
+      
     }
+    
 
     
     

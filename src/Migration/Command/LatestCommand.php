@@ -37,7 +37,7 @@ class LatestCommand extends Command
             # fetch global event dispatcher and add listener
             $event = $project['event_dispatcher'];
             
-             $event->addListener('migration.up', function ( \Migration\Components\Migration\Event\DownEvent $event) use ($output) {
+             $event->addListener('migration.up', function ( \Migration\Components\Migration\Event\UpEvent $event) use ($output) {
                 $output->writeln("\t" . 'Applying Up on migration: <info>'.$event->getMigration()->getFilename(). '</info>');
             });
             

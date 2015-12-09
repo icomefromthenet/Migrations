@@ -15,6 +15,7 @@ class CommandBuildTest extends AbstractProjectWithFixture
     
     protected function getDatabaseConfigs() 
     {
+        
         $configs     = array();
         $fixturesDir = __DIR__ . DIRECTORY_SEPARATOR .'Fixtures' . DIRECTORY_SEPARATOR;
         $path        = $this->getMockedPath()->get(). DIRECTORY_SEPARATOR;
@@ -72,9 +73,13 @@ class CommandBuildTest extends AbstractProjectWithFixture
         $command = $application->find('build');
         $commandTester = new CommandTester($command);
         
+        
+        
         $commandTester->execute(
             array('command' => $command->getName(), 'conQuery' => 'demo.A')
         );
+        
+       
         
         $this->assertContains('Applying migration: migration_2012_08_31_04_56_27.php',$commandTester->getDisplay());
         $this->assertContains('Applying migration: migration_2012_08_31_04_56_58.php',$commandTester->getDisplay());
@@ -96,7 +101,7 @@ class CommandBuildTest extends AbstractProjectWithFixture
         $commandTester->execute(
             array('command' => $command->getName(), 'conQuery' => 'demo.A','--force'=>true)
         );
-        
+         
         $this->assertContains('Applying migration: migration_2012_08_31_04_56_27.php',$commandTester->getDisplay());
         $this->assertContains('Applying migration: migration_2012_08_31_04_56_58.php',$commandTester->getDisplay());
         $this->assertContains('Applying migration: migration_2012_08_31_04_59_37.php',$commandTester->getDisplay());

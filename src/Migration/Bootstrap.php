@@ -176,12 +176,26 @@ class Bootstrap
       //---------------------------------------------------------------
       
       $project['migration_manager'] = function($project,$sSchemaFolderName = null) {
-          $io = new \Migration\Components\Migration\Io($project->getPath()->get(),$sSchemaFolderName);
-           
-          $project['loader']->setMigrationPath($io->path(''));
-        
-          # instance the manager, no database needed here
-          return new \Migration\Components\Migration\Manager($io,$project);
+            $io = new \Migration\Components\Migration\Io($project->getPath()->get(),$sSchemaFolderName);
+            
+            $ext_loader = new  \Migration\Autoload();
+            $ext_loader->setExtensionNamespace('Migration\\Components\\Extension', $project->getPath()->get());
+            $ext_loader->setFilter(function($ns){
+               return  substr($ns,21); # remove 'Migrations/Components/' from namespace  
+            });
+            
+            $ext_loader->setMigrationPath($io->path(''));
+            
+            $sSchemaFolderName = strtolower($sSchemaFolderName);
+            
+            if($sSchemaFolderName === 'migration') {
+               $ext_loader->setMigrationNamespace("Migration\\Components\\Migration\\Entities");
+            } else {
+               $ext_loader->setMigrationNamespace('Migration\\Components\\Migration\\Entities\\'.ucfirst($sSchemaFolderName));
+            }
+            
+            # instance the manager, no database needed here
+            return new \Migration\Components\Migration\Manager($io,$project,$ext_loader);
       };
       
       

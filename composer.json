@@ -13,13 +13,14 @@
         }
     ],
     "config": {
-        "minimum-stability": "dev" 
+         
     },
     "require-dev": {
-       "phpunit/phpunit": ">=4.6",
+       "phpunit/phpunit": "~5.0",
         "phpunit/dbunit": ">=1.2",
         "psy/psysh" :"@stable",
-        "etsy/phpunit-extensions": "dev-master"
+        "etsy/phpunit-extensions": "0.7.0",
+        "sebastian/exporter": "~1.0"
         
     },
     "require": {
