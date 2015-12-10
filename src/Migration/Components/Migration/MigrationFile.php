@@ -118,6 +118,7 @@ class MigrationFile implements MigrationFileInterface
         $sClass  = rtrim($this->oAutoloader->getMigrationNamespace(),'\\');
         $sClass .= "\\".$basename;
         
+        
         if($this->oAutoloader->findFile($sClass) === null) {
             throw new EntityNotExistException('Entity does not exist at '.$sClass);
         }
