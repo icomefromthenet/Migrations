@@ -54,7 +54,7 @@ class Autoload extends UniversalClassLoader
     
     public function setMigrationNamespace($sNameSpace)
     {
-        $this->migrationNamespace = $sNameSpace;
+        $this->migrationNamespace = rtrim($sNameSpace,'\\');
     }
     
     public function getMigrationNamespace()
@@ -94,6 +94,7 @@ class Autoload extends UniversalClassLoader
              # Use normal loading
             return parent::findFile($class);
        }
+       
        
         $pos = strrpos($class, '\\');
         $namespace = substr($class, 0, $pos);
