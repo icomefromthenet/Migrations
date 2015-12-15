@@ -135,6 +135,7 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
 
     public function up($stamp = null ,$force = false)
     {
+      
       # check if stamp actually exists
       if($this->exists($stamp) === false) {
           throw new MigrationMissingException(sprintf('Migration with stamp %s can not be found',$stamp));
@@ -164,7 +165,7 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
       # run the selected migrations
       for($head_index; $head_index <= $stamp_index; $head_index++) {
          if($this->inner_queue[$map[$head_index]]->getApplied() === false || $force === true) {
-              $this->run($map[$head_index],'up'); 
+              $this->run($map[$head_index], 'up', $force); 
          }
       }
       
@@ -177,7 +178,7 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
 
     public function down($stamp = null,$force = false)
     {
-      
+       
         # check if stamp actually exists
         if($this->exists($stamp) === false && $stamp !== null) {
           throw new MigrationMissingException(sprintf('Migration with stamp %s can not be found',$stamp));
@@ -210,7 +211,7 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
         for($head_index; $head_index > $stamp_index; --$head_index) {
           # skip unapplied migrations unless force has been set true.
           if($this->inner_queue[$map[$head_index]]->getApplied() === true || $force === true) {
-              $this->run($map[$head_index],'down'); 
+              $this->run($map[$head_index], 'down', $force); 
           }
           
         }
@@ -222,7 +223,7 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
   
    //  -------------------------------------------------------------------------
 
-    public function run($stamp,$direction ='up')
+    public function run($stamp, $direction ='up', $bForce = false)
     {
         //check if migration exists
         if($this->exists($stamp) === false) {
@@ -237,6 +238,7 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
         }
 
         $event->setMigration($this->inner_queue[$stamp]);
+        $event->setForceMode($bForce);
         $this->dispatchEvent($event);
     
     }
@@ -267,7 +269,7 @@ class Collection implements \Countable, \IteratorAggregate, CollectionInterface
         for($head_index; $head_index <= $total_stamps; $head_index++) {
        
           if($this->inner_queue[$map[$head_index]]->getApplied() === false || $force === true) {
-            $this->run($map[$head_index],'up');
+            $this->run($map[$head_index], 'up', $force);
           }
         }
         

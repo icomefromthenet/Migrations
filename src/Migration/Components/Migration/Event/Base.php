@@ -14,6 +14,12 @@ class Base extends Event
     protected $migration;
 
     /**
+     * @var boolean if where using force mode want to apply migration even if its in the log already.
+     */
+    protected $bMode;
+    
+    
+    /**
       *  Fetch the migration
       *
       *  @return Migration\Components\Migration\MigrationFileInterface
@@ -36,7 +42,26 @@ class Base extends Event
     }
 
     //  -------------------------------------------------------------------------
-
+    
+    /** 
+     * Fetch is where using force mode
+     *
+     * @return 
+     */
+    public function getForceMode()
+    {
+        return $this->bMode;
+    }
+    
+    /**
+     * Set if where using force mode
+     *
+     * @return void
+     */
+    public function setForceMode($bMode)
+    {
+        $this->bMode = $bMode;
+    }
 
 }
 /* End of File */

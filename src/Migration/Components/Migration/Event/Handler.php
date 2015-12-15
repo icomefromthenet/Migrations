@@ -50,7 +50,14 @@ class Handler
             
             # Add to the state table
             $dte = DateTime::createFromFormat('U',$migration->getTimestamp());
-            $migrationMgr->push($dte);
+            
+            # still expect error if force mode if off and apply existing migration again
+            # no error if using force model and migration exists
+            if(false === $migrationMgr->exists($dte)) {
+                $migrationMgr->push($dte);
+            } elseif (false === $event->getForceMode()) {
+                $migrationMgr->push($dte);
+            }
             
             
             # Mark the migration as applied
@@ -86,8 +93,13 @@ class Handler
             $migration->getEntity()->down($this->conn,$schema);
             
             # remove from the state table
-            
-            $this->migration->popAt($migration->getTimestamp());
+            # still expect error if force mode if off and apply existing migration again
+            # no error if using force model and migration exists
+            if(true === $migrationMgr->exists($dte)) {
+                $this->migration->popAt($migration->getTimestamp());
+            } elseif (false === $event->getForceMode()) {
+               $this->migration->popAt($migration->getTimestamp());
+            }
             
             # mark the migration as not applied
             

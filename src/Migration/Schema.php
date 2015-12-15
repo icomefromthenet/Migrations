@@ -164,7 +164,7 @@ class Schema
                 }
                 
                 # will migrate up to the newest migration found.
-                $collection->run($stamp,$direction); 
+                $collection->run($stamp,$direction,$bForce); 
                 
                 $table->addRow(array($this->getConnectionName(),'Y',"Migration $direction $stamp"));
                 
