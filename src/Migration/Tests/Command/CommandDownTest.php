@@ -25,8 +25,8 @@ class CommandDownTest extends AbstractProjectWithFixture
         $pdoB = $project->getConnectionPool()->getExtraConnection('DEMO.B')->getWrappedConnection();
         
         # build schemas        
-        $pdoA->exec(file_get_contents($fixturesDir.'migration-table.sql'));
-        $pdoB->exec(file_get_contents($fixturesDir.'migration-table.sql'));
+        $bResult = $pdoA->exec(file_get_contents($fixturesDir.'migration-table.sql'));
+        $bResult = $pdoB->exec(file_get_contents($fixturesDir.'migration-table.sql'));
         
             
         # define configs
@@ -52,7 +52,18 @@ class CommandDownTest extends AbstractProjectWithFixture
             )
             ->dataSet(new \PHPUnit_Extensions_Database_DataSet_XmlDataSet($fixturesDir.'migration-table-fixture-down.xml'))
             ->build();
-
+            
+        $odateA =    new \DateTime(date(DATE_W3C,'1346381787'));
+        $odateB = \DateTime::createFromFormat('U','1346381787');
+        
+        
+        //$oStamp1 = \DateTime::createFromFormat('Y_m_d_H_i_s','2012_08_31_04_56_27')->getTimeStamp();
+        //$oStamp2 = \DateTime::createFromFormat('Y_m_d_H_i_s','2012_08_31_04_56_58')->getTimeStamp();
+        //$oStamp3 = \DateTime::createFromFormat('Y_m_d_H_i_s','2012_08_31_04_59_37')->getTimeStamp();
+            
+      
+        
+     
         return $configs;
     }
     
@@ -67,13 +78,14 @@ class CommandDownTest extends AbstractProjectWithFixture
         $command = $application->find('down');
         $commandTester = new CommandTester($command);
         
+        
         $commandTester->execute(
-            array('command' => $command->getName(), 'conQuery' => 'demo.A','index' => 1)
+            array('command' => $command->getName(), 'conQuery' => 'demo.A','index' => 2)
         );
         
          
         $this->assertContains('Applying Down on migration: migration_2012_08_31_04_59_37.php',$commandTester->getDisplay());
-        $this->assertContains('DEMO.A         | Y      | Migration down to 1346381787',$commandTester->getDisplay());
+        $this->assertContains('DEMO.A         | Y      | Migration down to 1346353018',$commandTester->getDisplay());
     }
     
     public function testMigrationFailsCalledDownToExistingHead()
@@ -122,7 +134,7 @@ class CommandDownTest extends AbstractProjectWithFixture
         
          
         $this->assertContains('Applying Down on migration: migration_2012_08_31_04_59_37.php',$commandTester->getDisplay());
-        $this->assertContains('DEMO.A         | Y      | Migration down to 1346381977',$commandTester->getDisplay());
+        $this->assertContains('DEMO.A         | Y      | Migration down to 1346353177',$commandTester->getDisplay());
         
     }
     
@@ -135,13 +147,13 @@ class CommandDownTest extends AbstractProjectWithFixture
         $commandTester = new CommandTester($command);
         
         $commandTester->execute(
-            array('command' => $command->getName(), 'conQuery' => 'demo','index' => 1)
+            array('command' => $command->getName(), 'conQuery' => 'demo','index' => 2)
         );
         
          
         $this->assertContains('Applying Down on migration: migration_2012_08_31_04_59_37.php',$commandTester->getDisplay());
-        $this->assertContains('DEMO.A         | Y      | Migration down to 1346381787',$commandTester->getDisplay());
-        $this->assertContains('DEMO.B         | Y      | Migration down to 1346381787',$commandTester->getDisplay());
+        $this->assertContains('DEMO.A         | Y      | Migration down to 1346353018',$commandTester->getDisplay());
+        $this->assertContains('DEMO.B         | Y      | Migration down to 1346353018',$commandTester->getDisplay());
         
     }
     

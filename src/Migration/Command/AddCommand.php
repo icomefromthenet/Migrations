@@ -3,6 +3,7 @@ namespace Migration\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Helper\DialogHelper;
 use Symfony\Component\Console\Output\OutputInterface;
 use Migration\Command\Base\Command;
@@ -20,7 +21,7 @@ class AddCommand extends Command
             $project->bootstrapNewSchemas();
            
            
-           $migration_manager = $project->getMigrationManager($input->getArgument('migration_folder'));
+           $migration_manager = $project->getMigrationManager($input->getOption('migration_folder'));
            $template_manager  = $project->getTemplatingManager();
            
            $migration_template = $template_manager->getLoader()->load('migration_template.twig',array());
@@ -59,25 +60,26 @@ You may pass in an optional <comment>Alpha Numeric prefix.</comment>
 
 <comment>Example (Custom prefix): </comment>
 
->> app:add migration 'added currency column to table x'
+>> app:add --mfolder=migration 'added currency column to table x'
 
 <error>Invalid Example (Must start with a-z|A-z):</error>
 
->> app:add migration '00988'
+>> app:add --mfolder=migration '00988'
 
 <error>Invalid Example (not alpha numeric):</error>
 
->> app:add migration suffix with = sign 
+>> app:add --mfolder=migration suffix with = sign 
 
 EOF
     );
 
           $this->setDefinition(array(
-            new InputArgument(
+            new InputOption(
                     'migration_folder',
-                    InputArgument::REQUIRED,
+                    'mf',
+                    InputOption::VALUE_REQUIRED,
                     'the migration folder to use',
-                    NULL
+                    'migration'
             ),
             new InputArgument(
                     'migration_prefix',

@@ -67,7 +67,7 @@ class CommandAddTest extends AbstractProjectWithFixture
         $commandTester = new CommandTester($command);
         
         $commandTester->execute(
-            array('command' => $command->getName(),'migration_folder' => 'migration')
+            array('command' => $command->getName(),'-mf' => 'migration')
         );
         
         $this->assertContains('Finished Writing new Migration:',$commandTester->getDisplay());
@@ -82,7 +82,7 @@ class CommandAddTest extends AbstractProjectWithFixture
         $commandTester = new CommandTester($command);
         
         $commandTester->execute(
-            array('command' => $command->getName(),'migration_folder' => 'migration','migration_prefix' => 'setup new db table')
+            array('command' => $command->getName(),'-mf' => 'migration','migration_prefix' => 'setup new db table')
             
             
         );
@@ -99,7 +99,7 @@ class CommandAddTest extends AbstractProjectWithFixture
         $commandTester = new CommandTester($command);
         
         $commandTester->execute(
-            array('command' => $command->getName(),'migration_folder' => 'migration','migration_prefix' => 'SETUP NEW DB TABLE')
+            array('command' => $command->getName(),'-mf' => 'migration','migration_prefix' => 'SETUP NEW DB TABLE')
             
             
         );
@@ -118,7 +118,7 @@ class CommandAddTest extends AbstractProjectWithFixture
         $commandTester = new CommandTester($command);
         
         $commandTester->execute(
-            array('command' => $command->getName(),'migration_folder' => 'migration','migration_prefix' => 'SETUP NEW DB TABLE 011')
+            array('command' => $command->getName(),'-mf' => 'migration','migration_prefix' => 'SETUP NEW DB TABLE 011')
             
             
         );
@@ -143,7 +143,7 @@ class CommandAddTest extends AbstractProjectWithFixture
         $commandTester = new CommandTester($command);
         
         $commandTester->execute(
-            array('command' => $command->getName(),'migration_folder' => 'migration','migration_prefix' => 09877)
+            array('command' => $command->getName(),'-mf' => 'migration','migration_prefix' => 09877)
             
             
         );

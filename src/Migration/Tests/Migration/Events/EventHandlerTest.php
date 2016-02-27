@@ -96,11 +96,17 @@ class EventHandlerTest extends AbstractProject
                   ->method('getMigration')
                   ->will($this->returnValue($mock_migration));
         
+        
         $connection->expects($this->once())
                    ->method('beginTransaction');
         
         $connection->expects($this->once())
                    ->method('commit'); 
+        
+        $table->expects($this->once())
+               ->method('exists')
+               ->with($this->equalTo($timestamp))
+               ->will($this->returnValue(false));
         
         $table->expects($this->once())
                ->method('push')
@@ -155,6 +161,12 @@ class EventHandlerTest extends AbstractProject
                    ->method('rollback'); 
         
         $table->expects($this->once())
+               ->method('exists')
+               ->with($this->equalTo($timestamp))
+               ->will($this->returnValue(false));
+        
+        
+        $table->expects($this->once())
                ->method('push')
                ->with($this->isInstanceOf('\DateTime'))
                ->will($this->throwException( new \Migration\Components\Migration\Exception('anexception'))); 
@@ -193,6 +205,11 @@ class EventHandlerTest extends AbstractProject
         $mock_migration->expects($this->once())
                        ->method('setApplied')
                        ->with($this->equalTo(false));
+                       
+        $mock_migration->expects($this->once())
+                       ->method('getTimestamp')
+                       ->will($this->returnValue($timestamp->format('U')));
+     
         
         $up_event = $this->getMockBuilder('\Migration\Components\Migration\Event\UpEvent')
                          ->getMock();
@@ -209,6 +226,12 @@ class EventHandlerTest extends AbstractProject
         
         $table->expects($this->once())
                ->method('popAt');
+               
+        $table->expects($this->once())
+               ->method('exists')
+               ->with($this->equalTo($timestamp))
+               ->will($this->returnValue(true));
+        
                
                
         $handler = new Handler($table,$connection);   
@@ -244,18 +267,31 @@ class EventHandlerTest extends AbstractProject
                        ->method('getEntity')
                        ->will($this->returnValue($mock_entity));
         
+        $mock_migration->expects($this->once())
+                       ->method('getTimestamp')
+                       ->will($this->returnValue($timestamp->format('U')));
+     
+        
+        
         $up_event = $this->getMockBuilder('\Migration\Components\Migration\Event\UpEvent')
                          ->getMock();
         
         $up_event->expects($this->once())
                   ->method('getMigration')
                   ->will($this->returnValue($mock_migration));
+                  
         
         $connection->expects($this->once())
                    ->method('beginTransaction');
         
         $connection->expects($this->once())
                    ->method('rollback'); 
+        
+        $table->expects($this->once())
+               ->method('exists')
+               ->with($this->equalTo($timestamp))
+               ->will($this->returnValue(true));
+      
         
         $table->expects($this->once())
                ->method('popAt')

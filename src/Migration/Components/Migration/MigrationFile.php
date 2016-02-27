@@ -124,7 +124,7 @@ class MigrationFile implements MigrationFileInterface
         }
         
         # check if class has been required aleady, this can happen if in shellmode or in unit tests
-        if(!class_exists($sClass)) {
+        if(!class_exists($sClass,true)) {
             $this->oAutoloader->loadClass($sClass);    
         }
         

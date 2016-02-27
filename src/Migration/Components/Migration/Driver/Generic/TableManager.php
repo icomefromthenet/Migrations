@@ -260,7 +260,7 @@ class TableManager implements TableInterface
             throw new Exception('Expected and integer timestamp');
         }
         
-        return new \DateTime(date(DATE_W3C,$unix));
+        return \DateTime::createFromFormat('U',$unix);
     }
     
     
