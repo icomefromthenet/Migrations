@@ -60,15 +60,15 @@ You may pass in an optional <comment>Alpha Numeric prefix.</comment>
 
 <comment>Example (Custom prefix): </comment>
 
->> app:add --mfolder=migration 'added currency column to table x'
+>> app:add -m migration 'added currency column to table x'
 
 <error>Invalid Example (Must start with a-z|A-z):</error>
 
->> app:add --mfolder=migration '00988'
+>> app:add -m migration '00988'
 
 <error>Invalid Example (not alpha numeric):</error>
 
->> app:add --mfolder=migration suffix with = sign 
+>> app:add -m migration suffix with = sign 
 
 EOF
     );
@@ -76,7 +76,7 @@ EOF
           $this->setDefinition(array(
             new InputOption(
                     'migration_folder',
-                    'mf',
+                    'm',
                     InputOption::VALUE_REQUIRED,
                     'the migration folder to use',
                     'migration'
