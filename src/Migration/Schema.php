@@ -342,9 +342,14 @@ class Schema
 
                 $collection          = $this->getMigrationCollection();
                 
-                # Fetch Test Data
-                $test_file          = $this->getMigrationFileLoader()->testData();
+                # Fetch Test Data if were looking for it
+                if($withTestsData) {
+                    $withTestsData  = $this->getMigrationFileLoader()->testData();
+                    
+                }
+                
                 $init_schema_file   = $this->getMigrationFileLoader()->schema();
+            
                 $this->getSchemaManager()->build($init_schema_file,$collection,$withTestsData); 
                 
                 $table->addRow(array($this->getConnectionName(),'<info>Y</info>','Finished building schema for connection'));

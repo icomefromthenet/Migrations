@@ -28,8 +28,8 @@ class BuildCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $project = $this->getApplication()->getProject();
-        
+        $project    = $this->getApplication()->getProject();
+        $test_file  = true;
         
         # fetch the con name query argument
         $name = $input->getArgument('conQuery');
