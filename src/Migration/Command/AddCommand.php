@@ -26,7 +26,7 @@ class AddCommand extends Command
            
            $migration_template = $template_manager->getLoader()->load('migration_template.twig',array());
            
-           $migration_file = $migration_manager->getWriter()->write($migration_template,$input->getArgument('migration_prefix'));
+           $migration_file = $migration_manager->getWriter()->write($migration_template,$input->getArgument('migration_suffix'));
          
             # flush all schema collections so next command will get this new migration
             foreach($project->getSchemaCollection() as $schema) {
@@ -49,16 +49,16 @@ the Up and Down methods.
 
 You may pass in an optional <comment>Alpha Numeric prefix.</comment>
 
-<comment>Example (Default prefix):</comment>
+<comment>Example (Default suffix):</comment>
 
 >> app:add migration
 
-<comment>Example (Different Schema Folder with default prefix):</comment>
+<comment>Example (Different Schema Folder with default suffix):</comment>
 
 >> app:add contract 
 
 
-<comment>Example (Custom prefix): </comment>
+<comment>Example (Custom suffix): </comment>
 
 >> app:add -m migration 'added currency column to table x'
 
@@ -82,7 +82,7 @@ EOF
                     'migration'
             ),
             new InputArgument(
-                    'migration_prefix',
+                    'migration_suffix',
                     InputArgument::OPTIONAL,
                     'suffix to attach to file',
                     NULL
