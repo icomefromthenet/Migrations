@@ -7,7 +7,7 @@ use DateTime,
 class FileName
 {
 
-    const SUFFIX = 'migration';
+    const PREFIX = 'migration';
 
     const FORMATT = 'Y_m_d_H_i_s';
     
@@ -40,7 +40,7 @@ class FileName
 
     //----------------------------------------------------------------
 
-    public function generate($suffix = null)
+    public function generate($prefix = null)
     {
         $dte = new DateTime();
 
@@ -54,25 +54,25 @@ class FileName
         );
         
         # none been provided use default
-        if($suffix === null ) {
-            $suffix = self::SUFFIX;
+        if($prefix === null ) {
+            $prefix = self::PREFIX;
         }
         
         # trim spaces from start and end of string
-        $suffix = strtolower(trim($suffix));
+        $prefix = strtolower(trim($prefix));
         
         #remove file extension not be included here
-        $suffix = rtrim($suffix,'.php');
+        $prefix = rtrim($prefix,'.php');
         
         # remove spaces for underscores
-        $suffix = str_replace(' ','_',$suffix);
+        $prefix = str_replace(' ','_',$prefix);
         
         # valid the suffix
-        if(preg_match('/^[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)*$/',$suffix) == 0) {
-            throw new MigrationException('Suffix must be a valid alphanumeric string and start with a character a-z|A-Z');
+        if(preg_match('/^[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)*$/',$prefix) == 0) {
+            throw new MigrationException('Prefix must be a valid alphanumeric string and start with a character a-z|A-Z');
         }
         
-        return implode('_',$stamp) .'_'. $suffix ; 
+        return $prefix .'_'. implode('_',$stamp); 
 
     }
 

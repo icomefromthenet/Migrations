@@ -143,9 +143,11 @@ class CommandAddTest extends AbstractProjectWithFixture
         $commandTester = new CommandTester($command);
         
         $commandTester->execute(
-            array('command' => $command->getName(),'-m' => 'migration','migration_prefix' => '09877')
-                        
+            array('command' => $command->getName(),'-m' => 'migration','migration_prefix' => 09877)
+            
+            
         );
+        
         
     }
     
