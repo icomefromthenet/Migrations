@@ -86,6 +86,9 @@ class Diff
         # check for (B-A) > 0 [relative complement B \ A]
         $diff = array_diff($this->database_list,$this->file_list);
         
+        //var_dump($this->database_list);
+        //var_dump($this->file_list);
+        
         if(count($diff) > 0) {
             # throw exception out of sync and can only rebuild.
             throw new RebuildRequiredException('There migrations recorded in the Database but the files are not found in the Project. Have you been deleting migration files? Run app:build to refresh.');

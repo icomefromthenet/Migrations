@@ -63,7 +63,7 @@ class CommandBuildTest extends AbstractProjectWithFixture
     public function testBuildSuccessWhenConfirmationAccepted()
     {
         // confirms build will clear existing data
-        $dialog = $this->getMock('Symfony\Component\Console\Helper\DialogHelper', array('askConfirmation'));
+        $dialog = $this->createMock('Symfony\Component\Console\Helper\DialogHelper', array('askConfirmation'));
         $dialog->expects($this->at(0))
             ->method('askConfirmation')
             ->will($this->returnValue(true)); 
@@ -79,7 +79,6 @@ class CommandBuildTest extends AbstractProjectWithFixture
             array('command' => $command->getName(), 'conQuery' => 'demo.A')
         );
         
-       
         
         $this->assertContains('Applying migration: migration_2012_08_31_04_56_27.php',$commandTester->getDisplay());
         $this->assertContains('Applying migration: migration_2012_08_31_04_56_58.php',$commandTester->getDisplay());
@@ -90,7 +89,7 @@ class CommandBuildTest extends AbstractProjectWithFixture
     public function testBuildSuccessWhenForceOptionUsed()
     {
         // confirms build will clear existing data
-        $dialog = $this->getMock('Symfony\Component\Console\Helper\DialogHelper', array('askConfirmation'));
+        $dialog = $this->createMock('Symfony\Component\Console\Helper\DialogHelper', array('askConfirmation'));
         
         
         $application = new Application($this->getProject());
@@ -111,7 +110,7 @@ class CommandBuildTest extends AbstractProjectWithFixture
     public function testBuildStopsWhenConfirmationRejected()
     {
         // confirms build will clear existing data
-        $dialog = $this->getMock('Symfony\Component\Console\Helper\DialogHelper', array('askConfirmation'));
+        $dialog = $this->createMock('Symfony\Component\Console\Helper\DialogHelper', array('askConfirmation'));
         $dialog->expects($this->at(0))
             ->method('askConfirmation')
             ->will($this->returnValue(false)); 

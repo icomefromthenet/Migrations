@@ -85,7 +85,7 @@ class CommandDownTest extends AbstractProjectWithFixture
         
          
         $this->assertContains('Applying Down on migration: migration_2012_08_31_04_59_37.php',$commandTester->getDisplay());
-        $this->assertContains('DEMO.A         | Y      | Migration down to 1346353018',$commandTester->getDisplay());
+        $this->assertContains('DEMO.A         | Y      | Migration down to 1346389018',$commandTester->getDisplay());
     }
     
     public function testMigrationFailsCalledDownToExistingHead()
@@ -134,7 +134,7 @@ class CommandDownTest extends AbstractProjectWithFixture
         
          
         $this->assertContains('Applying Down on migration: migration_2012_08_31_04_59_37.php',$commandTester->getDisplay());
-        $this->assertContains('DEMO.A         | Y      | Migration down to 1346353177',$commandTester->getDisplay());
+        $this->assertContains('DEMO.A         | Y      | Migration down to 1346389177',$commandTester->getDisplay());
         
     }
     
@@ -152,8 +152,8 @@ class CommandDownTest extends AbstractProjectWithFixture
         
          
         $this->assertContains('Applying Down on migration: migration_2012_08_31_04_59_37.php',$commandTester->getDisplay());
-        $this->assertContains('DEMO.A         | Y      | Migration down to 1346353018',$commandTester->getDisplay());
-        $this->assertContains('DEMO.B         | Y      | Migration down to 1346353018',$commandTester->getDisplay());
+        $this->assertContains('DEMO.A         | Y      | Migration down to 1346389018',$commandTester->getDisplay());
+        $this->assertContains('DEMO.B         | Y      | Migration down to 1346389018',$commandTester->getDisplay());
         
     }
     

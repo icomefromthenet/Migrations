@@ -8,6 +8,14 @@
 == PHP Version: 5.3.10-1ubuntu3.2
 == Platform: sqlite
 
+string(75) "1346389177  /var/tmp/myproject/migration/migration_2012_08_31_04_59_37.php
+"
+string(75) "1346389018  /var/tmp/myproject/migration/migration_2012_08_31_04_56_58.php
+"
+string(75) "1346388987  /var/tmp/myproject/migration/migration_2012_08_31_04_56_27.php
+
+
+
 ==
 -->
 <dataset>
@@ -17,15 +25,15 @@
         
         <row>
             <value>1</value>
-            <value>1346352987</value>
+            <value>1346388987</value>
         </row>
         <row>
             <value>2</value>
-            <value>1346353018</value>
+            <value>1346389018</value>
         </row>
         <row>
             <value>3</value>
-            <value>1346353177</value>
+            <value>1346389177</value>
         </row>
     </table>
 </dataset>

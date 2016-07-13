@@ -73,7 +73,7 @@ class CommandRunTest extends AbstractProjectWithFixture
         
          
         $this->assertContains('Applying Up migration: migration_2012_08_31_04_59_37.php',$commandTester->getDisplay());
-        $this->assertContains('DEMO.A         | Y      | Migration up 1346353177',$commandTester->getDisplay());
+        $this->assertContains('DEMO.A         | Y      | Migration up 1346389177',$commandTester->getDisplay());
     }
     
     
@@ -91,7 +91,7 @@ class CommandRunTest extends AbstractProjectWithFixture
         
          
         $this->assertContains('Applying Down migration: migration_2012_08_31_04_56_27.php',$commandTester->getDisplay());
-        $this->assertContains('DEMO.A         | Y      | Migration down 1346352987',$commandTester->getDisplay());
+        $this->assertContains('DEMO.A         | Y      | Migration down 1346388987',$commandTester->getDisplay());
     }
     
     

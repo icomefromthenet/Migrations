@@ -192,7 +192,7 @@ class TableManager implements TableInterface
         
             $table = $schema->createTable($table_name);
             $table->addColumn("timestamp", "integer", array("unsigned" => true));
-            $table->addColumn("id", "integer", array("unsigned" => true));
+            $table->addColumn("id", "integer", array("unsigned" => true, 'autoincrement' => true));
             $table->setPrimaryKey(array("id"));
             $sql = $schema->toSql($this->database->getDatabasePlatform());
                    

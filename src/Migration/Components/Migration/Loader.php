@@ -41,6 +41,7 @@ class Loader
         # add the list to the migration collection (Temporal Collection)
         foreach($file_iterator as $file) {
           $stamp = $filename->parse($file->getRealPath()); 
+          //var_dump($stamp .'  '. $file->getRealPath(). PHP_EOL);
           $collection->insert(new MigrationFile($this->oAutoloader, $file, $stamp), $stamp);
         }
 
