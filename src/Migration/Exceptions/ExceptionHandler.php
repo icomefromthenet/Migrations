@@ -26,7 +26,7 @@ class ExceptionHandler
      * @param Exception $exception the exception to render
      * @return string the error message
      */ 
-    protected function renderException(\Exception $exception)
+    protected function renderException($exception)
     {
         #Send the error to the log file
 
@@ -96,7 +96,7 @@ class ExceptionHandler
     # Global Exception Handler
 
 
-    public function exceptionHandler(\Exception $exception)
+    public function exceptionHandler($exception)
     {
         $msg = $this->renderException($exception);
         
